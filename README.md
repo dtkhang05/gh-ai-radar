@@ -138,3 +138,6 @@ python -m venv .venv
 .venv\Scripts\pip install -r requirements.txt
 ```
 Chạy script bằng `.venv\Scripts\python -X utf8 scripts\...` (`-X utf8` để in bảng không lỗi phông trên Windows).
+
+## Giấy phép
+Mã nguồn dùng giấy phép MIT (xem `LICENSE`). Dữ liệu gốc thuộc [GH Archive](https://www.gharchive.org/) và GitHub, không nằm trong kho này.
