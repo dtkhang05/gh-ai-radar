@@ -28,22 +28,22 @@
   }
   * { box-sizing: border-box; }
   body { margin: 0; background: var(--page); color: var(--ink); font: 16px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif; }
-  main { max-width: 1040px; margin: 0 auto; padding: 32px 16px 64px; }
+  main { max-width: 960px; margin: 0 auto; padding: 40px 16px 64px; }
   h1 { font-size: 28px; line-height: 1.2; margin: 0 0 8px; font-weight: 650; }
-  h2 { font-size: 20px; margin: 48px 0 6px; font-weight: 650; }
-  p { margin: 0 0 12px; }
-  .sub { color: var(--ink2); max-width: 70ch; }
+  h2 { font-size: 20px; line-height: 1.3; margin: 40px 0 8px; font-weight: 650; text-wrap: balance; }
+  p { margin: 0 0 12px; text-wrap: pretty; }
+  .sub { color: var(--ink2); max-width: 72ch; }
   .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin: 16px 0; }
   .card h3 { font-size: 16px; margin: 0 0 4px; font-weight: 650; }
-  .card .why { color: var(--ink2); font-size: 14px; margin: 0 0 12px; max-width: 75ch; }
-  .hero { display: flex; gap: 24px; align-items: baseline; flex-wrap: wrap; margin-top: 24px; }
+  .card .why { color: var(--ink2); font-size: 14px; margin: 0 0 14px; max-width: 72ch; }
+  .hero { display: grid; grid-template-columns: auto 1fr; gap: 8px 28px; align-items: center; margin: 28px 0 8px; }
   .hero .num { font-size: 72px; line-height: 1; font-weight: 700; color: var(--ink); }
-  .hero .txt { flex: 1 1 320px; color: var(--ink2); max-width: 62ch; }
-  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; margin: 20px 0; }
-  .tile { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; }
+  .hero .txt { color: var(--ink2); max-width: 60ch; text-wrap: pretty; }
+  .tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 20px 0 0; }
+  .tile { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; display: flex; flex-direction: column; gap: 2px; }
   .tile .label { font-size: 13px; color: var(--ink2); }
-  .tile .value { font-size: 28px; font-weight: 650; }
-  .tile .note { font-size: 12px; color: var(--ink2); }
+  .tile .value { font-size: 28px; line-height: 1.2; font-weight: 650; font-variant-numeric: tabular-nums; }
+  .tile .note { font-size: 12px; color: var(--ink2); margin-top: auto; }
   .legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13px; color: var(--ink2); margin: 0 0 6px; }
   .legend span { display: inline-flex; align-items: center; gap: 6px; }
   .key-line { width: 16px; height: 0; border-top: 2px solid; display: inline-block; }
@@ -70,18 +70,19 @@
   th, td { padding: 5px 10px; text-align: left; border-bottom: 1px solid var(--grid); white-space: nowrap; }
   td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
   th { position: sticky; top: 0; background: var(--surface); color: var(--ink); }
-  ul.limits { padding-left: 20px; color: var(--ink2); }
-  ul.limits li { margin: 6px 0; }
+  ul.limits { padding-left: 20px; margin: 0; color: var(--ink2); max-width: 72ch; }
+  ul.limits li { margin: 0 0 8px; text-wrap: pretty; }
   .twocol { display: grid; grid-template-columns: 1fr; gap: 16px; }
   footer { margin-top: 48px; color: var(--ink2); font-size: 13px; }
   a { color: var(--s1); }
-  @media (max-width: 560px) { .hero .num { font-size: 56px; } h1 { font-size: 24px; } .card { padding: 14px; } }
+  @media (max-width: 760px) { .tiles { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 560px) { .hero { grid-template-columns: 1fr; } .hero .num { font-size: 56px; } h1 { font-size: 24px; } .card { padding: 14px; } }
 </style>
 </head>
 <body>
 <main>
   <h1>Radar hệ sinh thái AI mã nguồn mở</h1>
-  <p class="sub">Dự án dữ liệu học tập trên <a href="https://www.gharchive.org/">GH Archive</a> (sự kiện công khai của GitHub, giờ UTC). Mọi con số dưới đây đến từ pipeline dbt của dự án; đây là <strong>kết quả khám phá</strong>, không phải kết luận chắc chắn. Giai đoạn phân tích: <span id="win"></span>.</p>
+  <p class="sub">Phân tích sự kiện công khai của GitHub từ <a href="https://www.gharchive.org/">GH Archive</a> (giờ UTC), giai đoạn <span id="win"></span>. Kết quả mang tính khám phá, chưa phải kết luận chắc chắn.</p>
 
   <div class="hero">
     <div class="num" id="hero-num"></div>
@@ -90,27 +91,27 @@
 
   <div class="tiles" id="tiles"></div>
 
-  <h2>1. Nguồn dữ liệu bị mất sự kiện, và hệ thống tự phát hiện được</h2>
+  <h2>1. Nguồn dữ liệu mất sự kiện, và hệ thống phát hiện được</h2>
   <div class="card">
     <h3>Số sự kiện GitHub mỗi giờ</h3>
-    <p class="why">Mỗi giờ so với trung vị của cùng thứ và giờ trong 4 tuần trước. Từ 23/05/2025 khoảng 17h UTC số sự kiện sụt đột ngột và không hồi lại, nên các phân tích còn lại dừng ở 22/05/2025.</p>
+    <p class="why">Mỗi giờ so với trung vị cùng thứ, cùng giờ của 4 tuần trước. Sau khi sụt, các phân tích dừng ở 22/05/2025.</p>
     <div class="legend" id="lg1"></div>
     <div class="chart" id="c1"></div>
     <details><summary>Xem bảng số liệu (theo ngày)</summary><div class="tablewrap" id="t1"></div></details>
   </div>
 
-  <h2>2. Star tăng đột biến có phải người dùng thật?</h2>
-  <p class="sub">Trong khoảng 8.000 repo có tên khớp từ khóa AI (chưa phải toàn bộ hệ sinh thái, xem phần giới hạn), <span id="n-spike"></span> ngày có số star tăng đột biến. Nhìn chung các đợt này đến từ người dùng thật (ra mắt, được chia sẻ rộng). Có đúng một repo bị gắn cờ ở cả 9 bộ ngưỡng thử.</p>
+  <h2>2. Star tăng đột biến có phải người thật?</h2>
+  <p class="sub">Trong khoảng 8.000 repo khớp từ khóa AI có <span id="n-spike"></span> ngày star tăng đột biến. Phần lớn đến từ người thật (ra mắt, được chia sẻ); chỉ một repo bị gắn cờ ở cả 9 bộ ngưỡng thử.</p>
   <div class="card">
     <h3>Các ngày star tăng đột biến</h3>
-    <p class="why">Mỗi chấm là một ngày của một repo: ≥50 star và ≥5 lần mức thường (trung vị 14 ngày trước). Trục dọc theo thang log. Chỉ những ngày có tỉ lệ tài khoản "mỏng" (≤3 sự kiện trong 12 tuần) tăng vọt so với ngày thường của chính repo đó mới được tô cam.</p>
+    <p class="why">Mỗi chấm là một ngày của một repo: ≥50 star và ≥5 lần mức thường (trung vị 14 ngày trước), thang log. Cam = tỉ lệ tài khoản "mỏng" (≤3 sự kiện trong 12 tuần) tăng vọt so với ngày thường của repo.</p>
     <div class="legend" id="lg2"></div>
     <div class="chart" id="c2"></div>
     <details><summary>Xem bảng số liệu (tất cả ngày đột biến)</summary><div class="tablewrap" id="t2"></div></details>
   </div>
   <div class="card">
     <h3>Tài khoản mới tạo trước khi star bao lâu?</h3>
-    <p class="why">Phần trăm người star có tài khoản tạo chưa đến 30 ngày trước lúc star, trên mẫu khoảng 25 người mỗi nhóm hỏi GitHub API. Đây là bằng chứng độc lập với số sự kiện.</p>
+    <p class="why">Tỉ lệ người star có tài khoản tạo chưa đến 30 ngày trước lúc star (mẫu ~25 người mỗi nhóm, hỏi GitHub API).</p>
     <div class="chart" id="c3"></div>
     <details><summary>Xem bảng số liệu</summary><div class="tablewrap" id="t3"></div></details>
   </div>
@@ -118,13 +119,13 @@
   <h2>3. Người đóng góp mới có ở lại không?</h2>
   <div class="card">
     <h3>Tỉ lệ người mới hoạt động lại sau N tuần</h3>
-    <p class="why">Người mới = lần đầu thấy từ tuần thứ 3 trở đi, chỉ tính push, PR, issue, bình luận và review trên các repo AI (không tính star, fork, bot). Mỗi đường là trung bình có trọng số theo kích thước cohort.</p>
+    <p class="why">Người mới = lần đầu xuất hiện từ tuần thứ 3. Chỉ tính push, PR, issue, bình luận, review; không tính star, fork, bot.</p>
     <div class="legend" id="lg4"></div>
     <div class="chart" id="c4"></div>
     <details><summary>Xem bảng số liệu</summary><div class="tablewrap" id="t4"></div></details>
   </div>
 
-  <h2>Giới hạn, nói thẳng</h2>
+  <h2>Giới hạn</h2>
   <ul class="limits" id="limits"></ul>
 
   <footer id="foot"></footer>

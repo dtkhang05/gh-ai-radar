@@ -73,25 +73,24 @@ n_people = q("select count(distinct actor) from fct_contributor_week")[0][0]
 fmt = lambda n: f"{n:,}".replace(",", ".")
 
 data = dict(
-    meta=dict(window_text="01/03 → 22/05/2025 (UTC) cho phân tích; dữ liệu chất lượng được kiểm đến 31/05/2025",
-              footer=f"Trang này được tạo bởi scripts/build_dashboard.py từ các bảng dbt (data/radar_dbt.duckdb) lúc {datetime.now():%d/%m/%Y %H:%M}. "
-                     "Mã nguồn, cách chạy và các giới hạn đầy đủ nằm trong README.md và PLAN.md của dự án. Dự án học tập, không liên quan GitHub Inc."),
+    meta=dict(window_text="01/03 → 22/05/2025 (UTC)",
+              footer=f"Tạo bởi scripts/build_dashboard.py từ các bảng dbt lúc {datetime.now():%d/%m/%Y %H:%M}. "
+                     "Mã nguồn, cách chạy và giới hạn đầy đủ nằm trong README.md và PLAN.md. Dự án học tập, không liên quan GitHub Inc."),
     hero=dict(drop_pct=drop_pct, text=(
-        f"Số sự kiện GitHub mỗi giờ giảm khoảng {drop_pct:.0f}% từ 23/05/2025 và không hồi lại (so trung bình mỗi giờ của 12–17/05 với 26–31/05, cùng các thứ trong tuần). "
-        "Nhiều khả năng là nguồn dữ liệu mất sự kiện chứ không phải người dùng bỏ đi, nhưng nguyên nhân chưa được xác nhận.")),
+        f"Số sự kiện GitHub mỗi giờ giảm khoảng {drop_pct:.0f}% từ 23/05/2025 và không hồi lại "
+        "(so 12–17/05 với 26–31/05, cùng các thứ trong tuần). Nhiều khả năng nguồn dữ liệu mất sự kiện; nguyên nhân chưa được xác nhận.")),
     tiles=[
-        dict(label="Giờ dữ liệu được kiểm tra", value=fmt(n_hours), note="01/03 → 31/05/2025, mỗi giờ một file"),
-        dict(label="Giờ bị gắn cờ \"low\"", value=fmt(n_low), note=f"{n_low_pre} giờ trước mốc sụt, còn lại sau 23/05"),
-        dict(label="Repo có tên khớp từ khóa AI", value=fmt(n_repos), note="≥10 star; chỉ phủ ~25% repo AI nổi tiếng (19/76 chọn tay)"),
-        dict(label="Người đóng góp (không phải bot)", value=fmt(n_people), note="push/PR/issue/bình luận/review, 11 tuần"),
+        dict(label="Giờ được kiểm tra", value=fmt(n_hours), note="01/03 → 31/05/2025"),
+        dict(label="Giờ bị gắn cờ low", value=fmt(n_low), note=f"{n_low_pre} trước mốc sụt, còn lại sau 23/05"),
+        dict(label="Repo khớp từ khóa AI", value=fmt(n_repos), note="≥10 star; độ phủ chỉ ~25% (19/76)"),
+        dict(label="Người đóng góp", value=fmt(n_people), note="không tính bot, 11 tuần"),
     ],
     limits=[
-        "Chỉ có 12 tuần dữ liệu đáng tin (01/03 → 22/05/2025). Dữ liệu từ 23/05/2025 bị loại, và 2023–2024 chưa được tải.",
-        "Tập repo \"AI\" chỉ là tập con theo từ khóa trong tên repo. Độ chính xác ~95% là trên mẫu 40 repo tôi xem bằng mắt (sai số lớn). Độ phủ đo được chỉ 25%: 19/76 repo AI nổi tiếng chọn tay; bộ lọc sót repo có từ khóa ở tên tổ chức (modelcontextprotocol/servers), tên ghép (vllm, comfyui) và thư viện không có từ khóa (pytorch, tensorflow). Mọi kết quả bên dưới chỉ đúng cho nhóm repo khớp từ khóa.",
-        "Star đột biến chỉ là tín hiệu nghi ngờ, không phải bằng chứng star mua. Phần kiểm tra tuổi tài khoản dùng mẫu khoảng 25 người mỗi nhóm trên 3 repo; nó cho thấy nhóm ở repo bị gắn cờ khác hẳn, nhưng không cho biết ai đứng sau.",
-        "Giữ chân người đóng góp: không có dữ liệu trước 01/03 nên các cohort đầu có thể bị thổi phồng (người cũ vắng 2 tuần bị tính là người mới). \"Còn hoạt động\" chỉ tính trong tập repo đã lọc. Chưa có mốc so sánh bên ngoài, nên chưa thể nói 17% sau 1 tuần là cao hay thấp.",
-        "Các ngưỡng (50 star/ngày, gấp 5 lần, ≤3 sự kiện, 0,70 cho cờ chất lượng) do tôi chọn; ngưỡng star được thử 9 bộ, các ngưỡng còn lại chưa thử độ nhạy.",
-        "Lớp kiểm tra chất lượng dùng đường cơ sở trượt 4 tuần, nên một đợt sụt kéo dài chỉ bị gắn cờ trong vài tuần đầu.",
+        "Chỉ có 12 tuần dữ liệu đáng tin (01/03 → 22/05/2025); 2023–2024 chưa được tải.",
+        "Tập repo \"AI\" chỉ là tập con theo từ khóa trong tên: độ chính xác ~95% (mẫu 40 repo xem bằng mắt), độ phủ 25% (19/76 repo nổi tiếng chọn tay). Mọi kết quả chỉ đúng cho nhóm này.",
+        "Star đột biến là tín hiệu nghi ngờ, không phải bằng chứng star mua. Mẫu tuổi tài khoản nhỏ (21–24 người mỗi nhóm, 3 repo) và không cho biết ai đứng sau.",
+        "Giữ chân: không có dữ liệu trước 01/03 nên các cohort đầu có thể cao hơn thực tế; chưa có mốc so sánh bên ngoài.",
+        "Các ngưỡng do tác giả chọn; chỉ ngưỡng star được thử độ nhạy (9 bộ). Đường cơ sở trượt 4 tuần chỉ gắn cờ một đợt sụt kéo dài trong vài tuần đầu.",
     ],
     hourly=hourly, hourly_cutoff=CUTOFF, xticks=XTICKS, daily=daily,
     spikes=dict(points=points, x0="2025-03-01", x1="2025-05-22", suspect_label=name_x,
