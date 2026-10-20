@@ -132,12 +132,43 @@ Chưa quyết. Các hướng còn lại: tải thêm dữ liệu 2023–2024 (m�
 | `data/` | Dữ liệu (không đưa lên git) |
 | `CLAUDE.md` | Hướng dẫn cho Claude khi làm dự án này |
 
-## Cài đặt
-```
-python -m venv .venv
-.venv\Scripts\pip install -r requirements.txt
-```
-Chạy script bằng `.venv\Scripts\python -X utf8 scripts\...` (`-X utf8` để in bảng không lỗi phông trên Windows).
+## Dựng lại kết quả từ đầu
+Đã chạy trên Windows 11, Python 3.13. Chạy script bằng `.venv\Scripts\python -X utf8 scripts\...` (`-X utf8` để in bảng không lỗi phông). Dữ liệu và kết quả trung gian nằm trong `data/` (không đưa lên git), nên phải dựng theo thứ tự sau:
+
+1. **Cài đặt.**
+   ```
+   python -m venv .venv
+   .venv\Scripts\pip install -r requirements.txt
+   ```
+2. **Tải dữ liệu** (chỉ giai đoạn đã kiểm tra là đáng tin). `2` là số luồng tải.
+   ```
+   .venv\Scripts\python -I -X utf8 scripts\ingest.py 2025-03-01 2025-05-31 2
+   ```
+   Cảnh báo chi phí: mỗi giờ là một file khoảng 100 MB nén, nên 2.208 giờ là **khoảng 230 GB phải tải qua mạng** (không lưu lại: mỗi file bị xóa sau khi lọc) và chỉ giữ khoảng 6 GB Parquet. Khi mạng ổn mất khoảng 2 giờ mỗi tháng; tôi từng gặp lúc mạng chậm hơn 10 lần. Chạy lại lệnh này sẽ bỏ qua các giờ đã xong.
+3. **Danh sách repo AI và star đột biến** (các script này tạo `data/derived/`, mà bước sau cần):
+   ```
+   .venv\Scripts\python -I -X utf8 scripts\ai_repos_probe.py
+   .venv\Scripts\python -I -X utf8 scripts\star_anomalies.py
+   ```
+4. **Kiểm tra tuổi tài khoản** (gọi API công khai của GitHub, giới hạn 60 lượt/giờ, cần khoảng 75 lượt nên có thể phải chờ giữa các lần chạy). Tên repo bị gắn cờ không ghi trong mã; lấy nó từ kết quả bước 3: `select distinct repo from 'data/derived/star_spikes.parquet' where n >= 100 and jump >= 0.30`.
+   ```
+   set RADAR_FLAGGED_REPO=owner/repo
+   .venv\Scripts\python -I -X utf8 scripts\check_account_age.py
+   .venv\Scripts\python -I -X utf8 scripts\check_account_age.py github/github-mcp-server 2025-04-07 2025-04-08
+   .venv\Scripts\python -I -X utf8 scripts\check_account_age.py x1xhlol/system-prompts-and-models-of-ai-tools 2025-04-19 2025-04-22
+   ```
+5. **Pipeline dbt (mô hình + test).**
+   ```
+   .venv\Scripts\python -X utf8 scripts\run_pipeline.py
+   ```
+   Pipeline dừng với mã thoát 1 nếu một test mức lỗi không đạt, ví dụ khi dữ liệu còn thiếu giờ (test `assert_no_missing_hours`). Đó là hành vi đúng, không phải lỗi cài đặt.
+6. **Dashboard.** Tạo `docs/index.html`; thêm `--show-names` để hiện tên repo bị gắn cờ (mặc định ẩn).
+   ```
+   .venv\Scripts\python -I -X utf8 scripts\build_dashboard.py
+   ```
+
+**Đã kiểm chứng:** tải kho từ GitHub về thư mục trống, cài môi trường, tải thật 2 giờ dữ liệu bằng `ingest.py`, rồi chạy `run_pipeline.py`: dbt dựng đủ 7 mô hình, 24 test đạt và pipeline dừng đúng ở test thiếu giờ (kết quả mong đợi với 2 giờ dữ liệu). Chạy kho trống dữ liệu cũng dừng ngay với thông báo rõ ràng.
+**Chưa kiểm chứng:** dựng lại toàn bộ con số từ đầu trên một máy khác (cần tải khoảng 230 GB), chạy trên Linux/macOS, và các bước 3, 4, 6 trong một bản clone sạch (chỉ chạy được trên máy của tác giả, nơi dữ liệu đã có).
 
 ## Giấy phép
 Mã nguồn dùng giấy phép MIT (xem `LICENSE`). Dữ liệu gốc thuộc [GH Archive](https://www.gharchive.org/) và GitHub, không nằm trong kho này.
