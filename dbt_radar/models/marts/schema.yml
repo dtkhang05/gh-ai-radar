@@ -2,7 +2,7 @@ version: 2
 
 models:
   - name: int_ai_repo_candidates
-    description: Repos whose name looks like AI and that got >= min_stars stars in the trusted window.
+    description: Repos classified as AI (name, GitHub topics or description) that got >= min_stars stars in the trusted window.
     columns:
       - name: repo
         data_tests: [not_null, unique]

@@ -14,7 +14,8 @@ vars:
   # Data after 2025-05-23 16:00 UTC loses ~35% of events and is excluded from analysis.
   window_start: "2025-03-01"
   window_end: "2025-05-23"   # exclusive
-  min_stars: 10              # a repo needs this many stars in the window to count as a candidate
+  min_stars: 100             # a repo needs this many stars in the window to count as a candidate (the metadata pool starts at ~98)
+  ai_universe_parquet: "../data/derived/ai_repo_universe.parquet"   # written by scripts/ai_repos_classify.py
   # star spike definition (see ../PLAN.md Phase 7): >= spike_min_stars/day AND >= spike_multiple x median of prior 14 days,
   # and the repo must have had stars on >= min_hist_days of those 14 days (otherwise a launch day looks like a spike)
   spike_min_stars: 50

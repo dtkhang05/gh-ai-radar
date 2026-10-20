@@ -22,7 +22,7 @@ con.execute(f"set temp_directory='{ROOT}/data/duck_tmp'")
 t = time.time()
 def lap(msg): print(f"[{time.time()-t:5.0f}s] {msg}", flush=True)
 
-con.execute(f"create table cand as select repo from read_parquet('{OUT}/ai_repo_candidates.parquet') where stars >= 10")
+con.execute(f"create table cand as select repo from read_parquet('{OUT}/ai_repo_universe.parquet')")
 con.execute(f"""create table stars as
   select repo, ts::date d, actor from read_parquet({files})
   where type = 'WatchEvent' and ts < '{END}' and actor is not null and repo in (select repo from cand)""")

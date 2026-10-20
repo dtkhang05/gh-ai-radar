@@ -61,6 +61,10 @@ def main():
         log("FAIL preflight: no Parquet files and --ingest not given"); return 1
     if free < MIN_FREE_GB:
         log(f"FAIL preflight: only {free:.1f} GB free (< {MIN_FREE_GB} GB)"); return 1
+    universe = DATA / "derived" / "ai_repo_universe.parquet"
+    if not universe.exists():
+        log("FAIL preflight: data/derived/ai_repo_universe.parquet missing; run top_repos_by_stars.py, "
+            "fetch_repo_metadata.py and ai_repos_classify.py first (README, step 3)"); return 1
 
     # 2) ingest (optional). ingest.py exits 0 even when single hours fail, so also check the manifest for new bad rows.
     if args.ingest:

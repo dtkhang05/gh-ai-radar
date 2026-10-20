@@ -34,9 +34,18 @@ sp = q("select repo, d, stars, baseline, x_baseline from fct_star_spike_days ord
 # (same rule as PLAN.md Phase 7). That share is not a dbt column, so it comes from star_anomalies.py's output for the main config.
 flagged = {(r[0], str(r[1])) for r in con.sql(
     f"select repo, d from read_parquet('{DERIVED.replace(chr(92), '/')}/star_spikes.parquet') where n >= 100 and jump >= 0.30").fetchall()}
-# Any repo with a flagged day is shown as "Repo X" unless --show-names: nothing in the code names a specific project.
+# Any repo with a flagged day is anonymized unless --show-names: nothing in the code names a specific project.
+# The repo whose accounts were sampled (env RADAR_FLAGGED_REPO) is "Repo X"; another flagged repo of the same owner is "Repo X2";
+# the rest are "Repo Y", "Repo Z", ... in order of flagged days.
 flagged_repos = {repo for repo, _ in flagged}
-def label(repo): return repo if (SHOW_NAMES or repo not in flagged_repos) else "Repo X"
+_main = os.environ.get("RADAR_FLAGGED_REPO", "")
+_by_days = sorted(flagged_repos, key=lambda r: (-sum(1 for x, _ in flagged if x == r), r))
+_anon, _extra = {}, iter(["Repo Y", "Repo Z", "Repo W", "Repo V"])
+for r in _by_days:
+    if r == _main: _anon[r] = "Repo X"
+    elif _main and r.split("/")[0] == _main.split("/")[0]: _anon[r] = "Repo X2"
+    else: _anon[r] = next(_extra, "Repo ?")
+def label(repo): return repo if (SHOW_NAMES or repo not in flagged_repos) else _anon[repo]
 points = [dict(label=label(r[0]), d=str(r[1]), stars=r[2], base=float(r[3]), x=float(r[4]), suspect=((r[0], str(r[1])) in flagged)) for r in sp]
 top = max(sp, key=lambda r: r[2])
 short = lambda s: s if len(s) <= 24 else s[:23] + "…"
@@ -82,19 +91,20 @@ data = dict(
     tiles=[
         dict(label="Giờ được kiểm tra", value=fmt(n_hours), note="01/03 → 31/05/2025"),
         dict(label="Giờ bị gắn cờ low", value=fmt(n_low), note=f"{n_low_pre} trước mốc sụt, còn lại sau 23/05"),
-        dict(label="Repo khớp từ khóa AI", value=fmt(n_repos), note="≥10 star; độ phủ chỉ ~25% (19/76)"),
+        dict(label="Repo AI", value=fmt(n_repos), note="≥100 star; độ phủ 82% và 89% trên 2 danh sách"),
         dict(label="Người đóng góp", value=fmt(n_people), note="không tính bot, 11 tuần"),
     ],
     limits=[
         "Chỉ có 12 tuần dữ liệu đáng tin (01/03 → 22/05/2025); 2023–2024 chưa được tải.",
-        "Tập repo \"AI\" chỉ là tập con theo từ khóa trong tên: độ chính xác ~95% (mẫu 40 repo xem bằng mắt), độ phủ 25% (19/76 repo nổi tiếng chọn tay). Mọi kết quả chỉ đúng cho nhóm này.",
-        "Star đột biến là tín hiệu nghi ngờ, không phải bằng chứng star mua. Mẫu tuổi tài khoản nhỏ (21–24 người mỗi nhóm, 3 repo) và không cho biết ai đứng sau.",
+        "Tập repo AI gồm repo khớp từ khóa trong tên, GitHub topic hoặc mô tả, chỉ xét repo ≥100 star trong 12 tuần. Topic và mô tả lấy từ GitHub năm 2026, không phải thời điểm 03–05/2025; ~12% repo không tra được (đổi tên, xóa) chỉ khớp được bằng tên.",
+        "Độ phủ 82% và 89% đo trên hai danh sách repo nổi tiếng tác giả chọn tay (danh sách thứ hai viết trước khi chạy bộ phân loại); repo ít người biết có thể thấp hơn. Độ chính xác ước tính 95% cho phần khớp tên và 76–86% cho phần thêm từ topic/mô tả (mẫu 40 và 50 repo xem bằng mắt).",
+        "Star đột biến là tín hiệu nghi ngờ, không phải bằng chứng star mua. Mẫu tuổi tài khoản nhỏ (21–24 người mỗi nhóm, chỉ 1 trong các repo bị gắn cờ) và không cho biết ai đứng sau.",
         "Giữ chân: không có dữ liệu trước 01/03 nên các cohort đầu có thể cao hơn thực tế; chưa có mốc so sánh bên ngoài.",
         "Các ngưỡng do tác giả chọn; chỉ ngưỡng star được thử độ nhạy (9 bộ). Đường cơ sở trượt 4 tuần chỉ gắn cờ một đợt sụt kéo dài trong vài tuần đầu.",
     ],
     hourly=hourly, hourly_cutoff=CUTOFF, xticks=XTICKS, daily=daily,
     spikes=dict(points=points, x0="2025-03-01", x1="2025-05-22", suspect_label=name_x,
-                top_label=f"{short(top[0].split('/')[1])} ({fmt(top[2])})"),
+                top_label=f"{short(top[0].split('/')[1])} ({fmt(top[2])})", n_flagged_repos=len(flagged_repos)),
     xticks2=XTICKS, accounts=accounts, retention=retention,
 )
 

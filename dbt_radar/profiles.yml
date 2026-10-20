@@ -9,4 +9,5 @@ radar:
       settings:
         memory_limit: 3GB
         max_temp_directory_size: 5GB
-        temp_directory: ../data/duck_tmp
+        # temp_directory is left at DuckDB's default (<db file>.tmp, inside data/): setting it per connection fails with
+        # "Cannot switch temporary directory after the current one has been used" when a thread opens a cursor after another one spilled.

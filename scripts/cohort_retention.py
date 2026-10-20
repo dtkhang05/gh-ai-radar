@@ -18,7 +18,7 @@ con.execute(f"set temp_directory='{ROOT}/data/duck_tmp'")
 t = time.time()
 def lap(msg): print(f"[{time.time()-t:4.0f}s] {msg}", flush=True)
 
-con.execute(f"create table cand as select repo from read_parquet('{OUT}/ai_repo_candidates.parquet') where stars >= 10")
+con.execute(f"create table cand as select repo from read_parquet('{OUT}/ai_repo_universe.parquet')")
 # one row per (actor, block): small table; 'code' = did any Push/PR that block
 con.execute(f"""create table ab as
   select actor, ((ts::date - date '2025-03-01') // 7)::int blk, bool_or(type in ('PushEvent','PullRequestEvent')) code

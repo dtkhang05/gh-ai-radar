@@ -1,14 +1,14 @@
-# Recall of the AI-repo name filter: of the hand-picked reference AI repos that were active in the window, how many does the
-# filter (dbt model int_ai_repo_candidates) actually contain? Reports misses so the keyword list can be judged honestly.
-# Window and star threshold come from dbt_radar/dbt_project.yml (same definition as the candidate model).
-# Usage: python -I -X utf8 scripts/ai_repos_recall.py
-import duckdb, os, re
+# End-to-end recall of the AI-repo universe: of the hand-picked reference AI repos that were active in the window with >= MIN_STARS
+# stars, how many are in the dbt model int_ai_repo_candidates? Reports misses so the definition can be judged honestly.
+# Window and star threshold match dbt_radar/dbt_project.yml. (ai_repos_classify.py reports the same recall per signal, before dbt.)
+# Usage: python -I -X utf8 scripts/ai_repos_recall.py [reference_list.txt]   (default: ai_reference_repos.txt; second list: ai_reference_repos_2.txt)
+import duckdb, os, re, sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__))).replace("\\", "/")
 PQ = f"{ROOT}/data/parquet"
 files = f"['{PQ}/2025-03-*.parquet', '{PQ}/2025-04-*.parquet', '{PQ}/2025-05-*.parquet']"
-START, END, MIN_STARS = "2025-03-01", "2025-05-23", 10
+START, END, MIN_STARS = "2025-03-01", "2025-05-23", 100
 
-refs = [l.strip() for l in open(f"{ROOT}/scripts/ai_reference_repos.txt", encoding="utf-8") if l.strip() and not l.startswith("#")]
+refs = [l.strip() for l in open(f"{ROOT}/scripts/" + (sys.argv[1] if len(sys.argv) > 1 else "ai_reference_repos.txt"), encoding="utf-8") if l.strip() and not l.startswith("#")]
 assert all(re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", r) for r in refs), "bad line in reference list"
 
 con = duckdb.connect()

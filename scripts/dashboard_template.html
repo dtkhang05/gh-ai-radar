@@ -101,7 +101,7 @@
   </div>
 
   <h2>2. Star tăng đột biến có phải người thật?</h2>
-  <p class="sub">Trong khoảng 8.000 repo khớp từ khóa AI có <span id="n-spike"></span> ngày star tăng đột biến. Phần lớn đến từ người thật (ra mắt, được chia sẻ); chỉ một repo bị gắn cờ ở cả 9 bộ ngưỡng thử.</p>
+  <p class="sub">Trong <span id="n-repos"></span> repo AI có <span id="n-spike"></span> ngày star tăng đột biến. Phần lớn đến từ người thật (ra mắt, được chia sẻ). Hai repo của cùng một tổ chức (Repo X, Repo X2) bị gắn cờ ở cả 9 bộ ngưỡng thử, trùng các ngày 11–15/04; một repo khác (Repo Y) bị gắn cờ ở 6/9 bộ.</p>
   <div class="card">
     <h3>Các ngày star tăng đột biến</h3>
     <p class="why">Mỗi chấm là một ngày của một repo: ≥50 star và ≥5 lần mức thường (trung vị 14 ngày trước), thang log. Cam = tỉ lệ tài khoản "mỏng" (≤3 sự kiện trong 12 tuần) tăng vọt so với ngày thường của repo.</p>
@@ -209,6 +209,7 @@ document.getElementById("win").textContent = D.meta.window_text;
 document.getElementById("hero-num").textContent = "−" + Math.round(D.hero.drop_pct) + "%";
 document.getElementById("hero-txt").textContent = D.hero.text;
 document.getElementById("n-spike").textContent = fmt.format(D.spikes.points.length);
+document.getElementById("n-repos").textContent = D.tiles[2].value;
 const tiles = document.getElementById("tiles");
 D.tiles.forEach(t => {
   const d = document.createElement("div"); d.className = "tile";
@@ -269,7 +270,7 @@ function chart2() {
   P.filter(o => !o.p.suspect).forEach(o => { const c = el("circle", { cx: o.x, cy: o.y, r: 4, "stroke-width": 2 }, svg); c.style.fill = "var(--neutral)"; c.style.fillOpacity = ".75"; c.style.stroke = "var(--surface)"; });
   const S = P.filter(o => o.p.suspect);
   S.forEach(o => { const c = el("circle", { cx: o.x, cy: o.y, r: 6, "stroke-width": 2 }, svg); c.style.fill = "var(--s2)"; c.style.stroke = "var(--surface)"; });
-  if (S.length) { const cx = S.reduce((a, o) => a + o.x, 0) / S.length, top = Math.min(...S.map(o => o.y)); txt(svg, Math.max(m.l + 90, Math.min(W - m.r - 90, cx)), top - 18, D.spikes.suspect_label + " · " + S.length + " ngày bị gắn cờ", "lbl-strong", "middle"); }
+  if (S.length) { const cx = S.reduce((a, o) => a + o.x, 0) / S.length, top = Math.min(...S.map(o => o.y)); txt(svg, Math.max(m.l + 90, Math.min(W - m.r - 90, cx)), top - 18, S.length + " ngày bị gắn cờ (" + D.spikes.n_flagged_repos + " repo)", "lbl-strong", "middle"); }
   const big = P.reduce((a, o) => o.p.stars > a.p.stars ? o : a, P[0]);
   if (big) txt(svg, Math.min(W - m.r - 4, big.x + 10), big.y + 4, D.spikes.top_label, "lbl", big.x + 10 > W - 190 ? "end" : "start");
   const ring = el("circle", { r: 9, fill: "none", "stroke-width": 2 }, svg); ring.style.display = "none"; ring.style.stroke = "var(--ink)";

@@ -7,9 +7,9 @@ Pipeline dữ liệu trên [GH Archive](https://www.gharchive.org/) (mọi sự 
 ## Kết quả chính
 
 - **Nguồn dữ liệu mất sự kiện, và lớp kiểm tra chất lượng tự phát hiện được.** Từ khoảng 17h UTC ngày 23/05/2025, số sự kiện mỗi giờ giảm khoảng 35% và không hồi lại. Phân tích vì vậy chỉ dùng dữ liệu đến 22/05/2025. Cùng lớp kiểm tra còn bắt được một file giờ tải về báo thành công nhưng chỉ chứa 12% số sự kiện thường lệ (08/05/2025 01:00 UTC).
-- **Star tăng đột biến: phần lớn là người dùng thật.** Trong khoảng 8.000 repo có tên khớp từ khóa AI có 444 ngày đột biến ở 153 repo, và nhìn chung các ngày đó không có nhiều tài khoản "mỏng" hơn ngày thường. Một repo nổi bật bất thường, được kiểm chứng thêm bằng tuổi tài khoản (xem bên dưới).
-- **Người đóng góp mới ít khi ở lại.** 16,9% còn hoạt động sau 1 tuần và 5,8% sau 8 tuần; người bắt đầu bằng code giữ lại tốt hơn nhiều so với người chỉ để lại issue hoặc bình luận.
-- **Giới hạn lớn nhất: tập repo "AI" chỉ là tập con theo tên repo, độ phủ khoảng 25%.** Các kết quả trên chỉ đúng cho nhóm repo đó. Xem phần [Giới hạn](#giới-hạn).
+- **Star tăng đột biến: phần lớn là người dùng thật.** Trong 4.033 repo AI có 1.513 ngày đột biến ở 526 repo, và nhìn chung các ngày đó không có nhiều tài khoản "mỏng" hơn ngày thường. Hai repo của cùng một tổ chức bị gắn cờ ở cả 9 bộ ngưỡng thử, trùng các ngày 11–15/04/2025; một trong hai được kiểm chứng thêm bằng tuổi tài khoản (xem bên dưới).
+- **Người đóng góp mới ít khi ở lại.** 16,7% còn hoạt động sau 1 tuần và 7,2% sau 8 tuần; người bắt đầu bằng code giữ lại tốt hơn nhiều so với người chỉ để lại issue hoặc bình luận.
+- **Tập repo AI được xác định bằng tên, topic và mô tả repo.** Độ phủ đo được là 82% và 89% trên hai danh sách repo nổi tiếng chọn tay (bộ lọc chỉ theo tên là 25% và 20%), và chỉ áp dụng cho repo có từ 100 star trong 12 tuần. Xem phần [Giới hạn](#giới-hạn).
 
 ## Cách hệ thống hoạt động
 
@@ -17,6 +17,7 @@ Pipeline dữ liệu trên [GH Archive](https://www.gharchive.org/) (mọi sự 
 |---|---|---|
 | Thu thập | `scripts/ingest.py` | Tải từng giờ, giữ 5 cột, ghi Parquet, **xóa file thô ngay** để không đầy ổ; ghi `data/manifest.jsonl`; chạy lại được (bỏ qua giờ đã xong) |
 | Lưu trữ | Parquet (zstd mức 9, id số nguyên, sắp theo repo) + DuckDB | Dữ liệu chỉ lưu một bản trong Parquet (khoảng 2,7 MB mỗi giờ); DuckDB đọc trực tiếp bằng view. Bản đầu sao chép vào bảng DuckDB nặng gấp 3,6 lần Parquet nên đã bỏ |
+| Xác định repo AI | `scripts/top_repos_by_stars.py`, `fetch_repo_metadata.py`, `ai_repos_classify.py` | Lấy 20.000 repo nhiều star nhất, tra topic và mô tả qua GitHub GraphQL API (100 repo mỗi lần gọi), rồi phân loại AI theo tên, topic hoặc mô tả |
 | Mô hình | `dbt_radar/` (dbt-core 1.12, dbt-duckdb 1.11) | staging (view) → intermediate → marts: `fct_star_daily`, `fct_star_spike_days`, `fct_contributor_week`, `fct_cohort_retention`, `fct_hourly_quality` |
 | Chất lượng | `fct_hourly_quality` + 25 test dbt | So số sự kiện từng giờ với trung vị của cùng thứ và giờ trong 4 tuần trước; test bắt giờ thiếu, giờ bất thường, id trùng, giá trị lạ |
 | Điều phối | `scripts/run_pipeline.py` | Một lệnh: kiểm tra trước → (tùy chọn) tải → `dbt build` → tóm tắt; dừng ngay khi lỗi (mã thoát khác 0) và ghi log có dấu thời gian |
@@ -56,10 +57,10 @@ Star giảm dần từ giữa 2025 và còn rất ít từ tháng 5/2026; từ t
 
 ### Ngày star tăng đột biến có phải người dùng thật không?
 
-Dữ liệu: 01/03 → 22/05/2025, khoảng 8.000 repo có tên khớp từ khóa AI (độ chính xác thô khoảng 95% trên mẫu 40 repo xem bằng mắt).
+Dữ liệu: 01/03 → 22/05/2025, 4.033 repo AI có từ 100 star trong cửa sổ (cách xác định và độ chính xác: xem [Giới hạn](#giới-hạn)).
 
-1. Một ngày được coi là đột biến khi có ít nhất 50 star và gấp 5 lần trung vị 14 ngày trước, và repo đã có star ở ít nhất 7 trong 14 ngày đó (nếu không, ngày ra mắt của repo mới bị tính nhầm). Kết quả: 444 ngày đột biến ở 153 repo (190–806 ngày tùy 9 bộ ngưỡng thử).
-2. **Dấu hiệu thứ nhất:** tỉ lệ người star có không quá 3 sự kiện trong 12 tuần ("tài khoản mỏng"). Nhìn chung ngày đột biến không mỏng hơn ngày thường (7–8,5% so với 8–11%), nên đa số đột biến đến từ ra mắt hoặc được chia sẻ rộng. Chỉ một repo, gọi là "Repo X", bị gắn cờ ở cả 9 bộ ngưỡng.
+1. Một ngày được coi là đột biến khi có ít nhất 50 star và gấp 5 lần trung vị 14 ngày trước, và repo đã có star ở ít nhất 7 trong 14 ngày đó (nếu không, ngày ra mắt của repo mới bị tính nhầm). Kết quả: 1.513 ngày đột biến ở 526 repo (626–2.772 ngày tùy 9 bộ ngưỡng thử).
+2. **Dấu hiệu thứ nhất:** tỉ lệ người star có không quá 3 sự kiện trong 12 tuần ("tài khoản mỏng"). Nhìn chung ngày đột biến không mỏng hơn ngày thường (6,3–7,6% so với 7,4–9,0% ở 9 bộ ngưỡng), nên đa số đột biến đến từ ra mắt hoặc được chia sẻ rộng. Hai repo của cùng một tổ chức ("Repo X" và "Repo X2") bị gắn cờ ở cả 9 bộ ngưỡng, cùng các ngày 11, 12, 14, 15/04/2025 (85–93% mỏng so với khoảng 30% ngày thường). Một repo khác ("Repo Y") bị gắn cờ ở 6/9 bộ ngưỡng, một ngày (25/04/2025: 95% mỏng so với 60% ngày thường, 124 star).
 3. **Dấu hiệu thứ hai, kiểm chứng độc lập bằng GitHub API** (mẫu 21–24 tài khoản mỗi nhóm):
 
 | Nhóm | Tuổi tài khoản lúc star (trung vị) | Tạo <30 ngày trước | Chưa có repo |
@@ -69,26 +70,29 @@ Dữ liệu: 01/03 → 22/05/2025, khoảng 8.000 repo có tên khớp từ khó
 | github-mcp-server, ra mắt 07–08/04 (đối chứng) | 3.820 ngày | 0/22 | 1/22 |
 | system-prompts…, 19–22/04 (đối chứng) | 2.050 ngày | 2/24 | 2/24 |
 
-Kết quả cho thấy các lượt star ngày 14–15/04/2025 của Repo X phần lớn đến từ tài khoản tạo ngay trong ngày và chưa có repo nào, khác hẳn hai đợt lan truyền thật. Nó **không** cho biết ai đứng sau (chủ repo, bên bán star hay người ngoài), nên dự án không gán lỗi cho ai. Vì bằng chứng chỉ là một mẫu nhỏ về một dự án thật, tên repo được ẩn thành "Repo X" trong tài liệu, mã và dashboard. Để chạy lại phép kiểm tra, đặt biến môi trường `RADAR_FLAGGED_REPO=owner/repo` (tên nằm trong `data/derived/star_spikes.parquet` sau khi chạy `scripts/star_anomalies.py`); để dashboard hiện tên thật, thêm `--show-names` khi chạy `scripts/build_dashboard.py`.
+Kết quả cho thấy các lượt star ngày 14–15/04/2025 của Repo X phần lớn đến từ tài khoản tạo ngay trong ngày và chưa có repo nào, khác hẳn hai đợt lan truyền thật. Nó **không** cho biết ai đứng sau (chủ repo, bên bán star hay người ngoài), nên dự án không gán lỗi cho ai. Phép kiểm tuổi tài khoản chỉ chạy trên Repo X; Repo X2 và Repo Y chưa kiểm. Vì bằng chứng chỉ là mẫu nhỏ về các dự án thật, tên repo được ẩn trong tài liệu, mã và dashboard. Để chạy lại phép kiểm tra, đặt biến môi trường `RADAR_FLAGGED_REPO=owner/repo` (tên nằm trong `data/derived/star_spikes.parquet` sau khi chạy `scripts/star_anomalies.py`); để dashboard hiện tên thật, thêm `--show-names` khi chạy `scripts/build_dashboard.py`.
 
 ### Người đóng góp mới có ở lại không?
 
-52.417 người đóng góp (push, PR, issue, bình luận, review; loại bot) trên cùng tập repo, 11 khối 7 ngày từ 01/03/2025. "Người mới" là người lần đầu xuất hiện từ khối thứ 3 trở đi; hai khối đầu chỉ dùng để nhận ra người cũ.
+143.991 người đóng góp (push, PR, issue, bình luận, review; loại bot) trên cùng tập repo, 11 khối 7 ngày từ 01/03/2025. "Người mới" là người lần đầu xuất hiện từ khối thứ 3 trở đi; hai khối đầu chỉ dùng để nhận ra người cũ.
 
 | Sau | Còn hoạt động | Nếu lần đầu là code (push/PR) | Nếu lần đầu chỉ là issue/bình luận/review |
 |---|---|---|---|
-| 1 tuần | 16,9% | 29,8% | 12,5% |
-| 2 tuần | 10,4% | 21,0% | 6,7% |
-| 4 tuần | 7,6% | 15,6% | 4,6% |
-| 8 tuần | 5,8% | 12,9% | 3,3% |
+| 1 tuần | 16,7% | 29,0% | 14,3% |
+| 2 tuần | 10,2% | 20,0% | 8,3% |
+| 4 tuần | 7,9% | 16,5% | 6,2% |
+| 8 tuần | 7,2% | 14,9% | 5,6% |
 
 Hai điều cần nhớ: dữ liệu bắt đầu từ 01/03 nên người cũ vắng mặt hai tuần đầu bị tính là người mới, làm các cohort sớm cao ảo (xu hướng giảm giữa các cohort không có nghĩa hệ sinh thái yếu đi); và "còn hoạt động" chỉ tính trong tập repo đã lọc, nên người chuyển sang repo khác bị tính là rời đi. Chưa có mốc so sánh bên ngoài để nói 17% là cao hay thấp.
 
 ## Giới hạn
 
-- **Độ phủ của tập repo AI chỉ khoảng 25%.** Bộ lọc dựa vào từ khóa trong tên repo; trên 76 repo AI nổi tiếng chọn tay (`scripts/ai_reference_repos.txt`), nó chỉ chứa 19 (đo bằng `scripts/ai_repos_recall.py`). Nó sót repo có từ khóa ở tên tổ chức (`modelcontextprotocol/servers`, `openai/codex`), tên ghép (`vllm`, `comfyui`, `autogpt`) và thư viện nổi tiếng không có từ khóa (`pytorch`, `tensorflow`). Danh sách tham chiếu do tác giả chọn từ trí nhớ và thiên về repo nổi tiếng, nên con số này có thể vẫn tốt hơn thực tế với repo ít người biết. Tập repo cũng chỉ gồm repo có ít nhất 10 star trong chính cửa sổ phân tích.
+- **Cách xác định repo AI còn thô.** Một repo được coi là AI nếu tên khớp từ khóa, hoặc có GitHub topic AI (ví dụ `llm`, `machine-learning`, `mcp`), hoặc mô tả chứa từ khóa AI. Chỉ xét 19.704 repo có từ 100 star trong 12 tuần (top 20.000 theo star), trong đó 4.033 được xếp là AI; repo ít star hơn không được xét.
+  - **Độ phủ:** 82% (62/76) trên danh sách 1 và 89% (63/71) trên danh sách 2; bộ lọc chỉ theo tên đạt 25% và 20%. Cả hai danh sách do tác giả chọn từ trí nhớ nên thiên về repo nổi tiếng; danh sách 2 (`scripts/ai_reference_repos_2.txt`) được viết trước khi chạy bộ phân loại nên là phép thử độc lập hơn. Repo ít người biết có thể có độ phủ thấp hơn. Các repo còn sót có `jax`, `triton`, `mlx`, `tinygrad`, `segment-anything`, `faiss`.
+  - **Độ chính xác (ước tính):** phần khớp theo tên khoảng 95% (38/40 repo xem bằng mắt); phần thêm từ topic/mô tả 76–86% (mẫu 50 repo, tác giả xem tên và mô tả: 38 đúng, 7 ranh giới, 5 sai, ví dụ repo chỉ có "AI" trong mô tả hoặc topic chỉ trí tuệ nhân tạo trong trò chơi). Hai mẫu nhỏ, do một người đánh giá, nên sai số khoảng ±10 điểm %.
+  - **Thời điểm:** topic và mô tả lấy từ GitHub năm 2026, không phải lúc 03–05/2025. 2.350 repo (12%) không tra được (đổi tên, xóa, chuyển sang riêng tư) nên chỉ khớp được theo tên.
 - **Chỉ 12 tuần dữ liệu đáng tin** (01/03 → 22/05/2025); chưa có dữ liệu 2023–2024 nên chưa nói được gì về xu hướng nhiều năm.
-- **Star đột biến chỉ là tín hiệu nghi ngờ.** Mẫu kiểm tra tuổi tài khoản nhỏ (21–24 tài khoản mỗi nhóm, 3 repo) và hai repo đối chứng do tác giả chọn vì tin là lan truyền thật.
+- **Star đột biến chỉ là tín hiệu nghi ngờ.** Mẫu kiểm tra tuổi tài khoản nhỏ (21–24 tài khoản mỗi nhóm, chỉ một trong các repo bị gắn cờ) và hai repo đối chứng do tác giả chọn vì tin là lan truyền thật.
 - **Các ngưỡng do tác giả chọn** (50 star mỗi ngày, gấp 5 lần, ≤3 sự kiện, 0,70 cho cờ chất lượng). Ngưỡng star được thử 9 bộ; các ngưỡng còn lại chưa thử độ nhạy.
 - **Lớp kiểm tra chất lượng dùng đường cơ sở trượt**, nên một đợt sụt kéo dài chỉ bị gắn cờ trong vài tuần đầu. Ba tuần đầu của mỗi chuỗi dữ liệu chưa có đường cơ sở nên chưa được kiểm tra.
 - **Kiểm tra id trùng** chỉ chạy trên một tuần mẫu vì kiểm toàn bộ cần băm hơn 300 triệu id (tuần mẫu có 24 id trùng; một phép đo trước đó trên tháng 05/2025 ghi 55 id trùng trong 150 triệu dòng).
@@ -107,12 +111,14 @@ Hai điều cần nhớ: dữ liệu bắt đầu từ 01/03 nên người cũ v
    .venv\Scripts\python -I -X utf8 scripts\ingest.py 2025-03-01 2025-05-31 2
    ```
    Chi phí: khoảng 230 GB phải tải qua mạng, chỉ giữ khoảng 6 GB Parquet. Khi mạng ổn mất khoảng 2 giờ mỗi tháng; có lúc mạng chậm hơn 10 lần. Chạy lại lệnh sẽ bỏ qua các giờ đã xong.
-3. **Danh sách repo AI và star đột biến** (các script này tạo `data/derived/`, mà bước sau cần):
+3. **Danh sách repo AI và star đột biến** (các script này tạo `data/derived/`, mà bước sau cần). Bước `fetch_repo_metadata.py` gọi GitHub GraphQL API bằng đăng nhập `gh` (`gh auth login`): khoảng 200 lượt gọi, mất khoảng một giờ, và tự tiếp tục nếu bị ngắt.
    ```
-   .venv\Scripts\python -I -X utf8 scripts\ai_repos_probe.py
+   .venv\Scripts\python -I -X utf8 scripts\top_repos_by_stars.py
+   .venv\Scripts\python -I -X utf8 scripts\fetch_repo_metadata.py
+   .venv\Scripts\python -I -X utf8 scripts\ai_repos_classify.py
    .venv\Scripts\python -I -X utf8 scripts\star_anomalies.py
    ```
-4. **Kiểm tra tuổi tài khoản** (gọi API công khai của GitHub, giới hạn 60 lượt/giờ, cần khoảng 75 lượt nên có thể phải chờ giữa các lần chạy). Lấy tên repo bị gắn cờ từ kết quả bước 3: `select distinct repo from 'data/derived/star_spikes.parquet' where n >= 100 and jump >= 0.30`.
+4. **Kiểm tra tuổi tài khoản** (gọi API công khai của GitHub, giới hạn 60 lượt/giờ, cần khoảng 75 lượt nên có thể phải chờ giữa các lần chạy). Lấy tên repo bị gắn cờ từ kết quả bước 3: `select repo, count(*) from 'data/derived/star_spikes.parquet' where n >= 100 and jump >= 0.30 group by 1` (mẫu trong dự án lấy từ repo có 4 ngày bị gắn cờ, 14–15/04).
    ```
    set RADAR_FLAGGED_REPO=owner/repo
    .venv\Scripts\python -I -X utf8 scripts\check_account_age.py
@@ -129,7 +135,7 @@ Hai điều cần nhớ: dữ liệu bắt đầu từ 01/03 nên người cũ v
    .venv\Scripts\python -I -X utf8 scripts\build_dashboard.py
    ```
 
-**Đã kiểm chứng:** tải kho từ GitHub về thư mục trống, cài môi trường, tải thật 2 giờ dữ liệu bằng `ingest.py`, rồi chạy `run_pipeline.py`: dbt dựng đủ 7 mô hình, 24 test đạt và pipeline dừng đúng ở test thiếu giờ (kết quả mong đợi với 2 giờ dữ liệu). Chạy trên kho trống dữ liệu cũng dừng ngay với thông báo rõ ràng. Kết quả dbt khớp từng con số với các phân tích bằng script viết trước đó.
+**Đã kiểm chứng:** tải kho từ GitHub về thư mục trống, cài môi trường, tải thật 2 giờ dữ liệu bằng `ingest.py`, rồi chạy `run_pipeline.py`: dbt dựng đủ 7 mô hình, 24 test đạt và pipeline dừng đúng ở test thiếu giờ (kết quả mong đợi với 2 giờ dữ liệu). Chạy trên kho trống dữ liệu cũng dừng ngay với thông báo rõ ràng. Sau khi đổi cách xác định repo AI, các bảng dbt khớp với script phân tích ở các chỉ số đã so (số ngày đột biến và số repo, giữ chân người đóng góp, độ phủ).
 **Chưa kiểm chứng:** dựng lại toàn bộ con số từ đầu trên một máy khác (cần tải khoảng 230 GB), chạy trên Linux hoặc macOS, và các bước 3, 4, 6 trong một bản clone sạch (hiện chỉ chạy được trên máy của tác giả, nơi dữ liệu đã có).
 
 ## Cấu trúc thư mục
@@ -139,8 +145,9 @@ Hai điều cần nhớ: dữ liệu bắt đầu từ 01/03 nên người cũ v
 | `scripts/ingest.py` | Thu thập dữ liệu theo giờ |
 | `scripts/run_pipeline.py` | Điều phối cả chuỗi (kiểm tra trước → tải → dbt → tóm tắt) |
 | `dbt_radar/` | Dự án dbt: staging → intermediate → marts và 25 test. Chạy từ trong thư mục này: `..\.venv\Scripts\dbt.exe build --profiles-dir .` |
-| `scripts/ai_repos_probe.py` | Lọc repo AI theo từ khóa nguyên từ trong tên repo |
-| `scripts/ai_repos_recall.py`, `scripts/ai_reference_repos.txt` | Đo độ phủ của bộ lọc trên danh sách repo AI nổi tiếng chọn tay |
+| `scripts/top_repos_by_stars.py`, `scripts/fetch_repo_metadata.py`, `scripts/ai_repos_classify.py` | Chọn 20.000 repo nhiều star, tra topic và mô tả qua GitHub API, phân loại AI và đo độ phủ từng tín hiệu |
+| `scripts/ai_repos_recall.py`, `scripts/ai_reference_repos.txt`, `scripts/ai_reference_repos_2.txt` | Đo độ phủ end-to-end của bảng dbt trên hai danh sách repo AI nổi tiếng chọn tay |
+| `scripts/ai_repos_probe.py` | Bản đầu: lọc repo AI chỉ theo tên repo (không còn dùng trong pipeline) |
 | `scripts/star_anomalies.py` | Tìm ngày star đột biến và tỉ lệ tài khoản mỏng, thử 9 bộ ngưỡng |
 | `scripts/check_account_age.py` | Kiểm chứng tuổi tài khoản bằng GitHub API công khai |
 | `scripts/cohort_retention.py` | Giữ chân người đóng góp theo cohort (bản script; bản dbt là `fct_cohort_retention`) |
@@ -154,7 +161,7 @@ Hai điều cần nhớ: dữ liệu bắt đầu từ 01/03 nên người cũ v
 
 ## Hướng phát triển
 
-Chưa làm: tải dữ liệu 2023–2024 (có thể lấy mẫu một vài ngày mỗi tháng thay vì tải đủ, để vẫn thấy xu hướng nhiều năm); mở rộng cách xác định repo AI để không chỉ dựa vào tên repo (ví dụ dùng chủ đề và mô tả repo qua GitHub API) rồi đo lại độ phủ; đường cơ sở cố định cho lớp kiểm tra chất lượng; chạy kiểm thử trên CI; các câu hỏi chưa trả lời (dự án nào đang chết dần, làn sóng nối tiếp nhau như thế nào). Nguồn dữ liệu thay thế như OpenDigger (một kho tương thích GH Archive, [gharchive issue #323](https://github.com/igrigorik/gharchive.org/issues/323)) chưa được thử.
+Chưa làm: tải dữ liệu 2023–2024 (có thể lấy mẫu một vài ngày mỗi tháng thay vì tải đủ, để vẫn thấy xu hướng nhiều năm); nâng độ chính xác và độ phủ của phân loại repo AI (hiện 76–86% và 82–89%; ví dụ thêm repo dưới 100 star, hoặc gán nhãn bằng mô hình ngôn ngữ), với mẫu kiểm tay lớn hơn; đường cơ sở cố định cho lớp kiểm tra chất lượng; chạy kiểm thử trên CI; các câu hỏi chưa trả lời (dự án nào đang chết dần, làn sóng nối tiếp nhau như thế nào). Nguồn dữ liệu thay thế như OpenDigger (một kho tương thích GH Archive, [gharchive issue #323](https://github.com/igrigorik/gharchive.org/issues/323)) chưa được thử.
 
 ## Giấy phép
 
