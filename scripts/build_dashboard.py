@@ -82,12 +82,12 @@ data = dict(
     tiles=[
         dict(label="Giờ dữ liệu được kiểm tra", value=fmt(n_hours), note="01/03 → 31/05/2025, mỗi giờ một file"),
         dict(label="Giờ bị gắn cờ \"low\"", value=fmt(n_low), note=f"{n_low_pre} giờ trước mốc sụt, còn lại sau 23/05"),
-        dict(label="Repo AI được theo dõi", value=fmt(n_repos), note="tên khớp từ khóa, ≥10 star; chính xác ~95% trên mẫu 40 repo"),
+        dict(label="Repo có tên khớp từ khóa AI", value=fmt(n_repos), note="≥10 star; chỉ phủ ~25% repo AI nổi tiếng (19/76 chọn tay)"),
         dict(label="Người đóng góp (không phải bot)", value=fmt(n_people), note="push/PR/issue/bình luận/review, 11 tuần"),
     ],
     limits=[
         "Chỉ có 12 tuần dữ liệu đáng tin (01/03 → 22/05/2025). Dữ liệu từ 23/05/2025 bị loại, và 2023–2024 chưa được tải.",
-        "Danh sách repo AI được lọc theo từ khóa trong tên repo: độ chính xác ~95% là trên một mẫu 40 repo tôi xem bằng mắt (sai số lớn), độ phủ chưa đo. Chỉ gồm repo có ≥10 star trong cửa sổ nên thiên về repo nổi.",
+        "Tập repo \"AI\" chỉ là tập con theo từ khóa trong tên repo. Độ chính xác ~95% là trên mẫu 40 repo tôi xem bằng mắt (sai số lớn). Độ phủ đo được chỉ 25%: 19/76 repo AI nổi tiếng chọn tay; bộ lọc sót repo có từ khóa ở tên tổ chức (modelcontextprotocol/servers), tên ghép (vllm, comfyui) và thư viện không có từ khóa (pytorch, tensorflow). Mọi kết quả bên dưới chỉ đúng cho nhóm repo khớp từ khóa.",
         "Star đột biến chỉ là tín hiệu nghi ngờ, không phải bằng chứng star mua. Phần kiểm tra tuổi tài khoản dùng mẫu khoảng 25 người mỗi nhóm trên 3 repo; nó cho thấy nhóm ở repo bị gắn cờ khác hẳn, nhưng không cho biết ai đứng sau.",
         "Giữ chân người đóng góp: không có dữ liệu trước 01/03 nên các cohort đầu có thể bị thổi phồng (người cũ vắng 2 tuần bị tính là người mới). \"Còn hoạt động\" chỉ tính trong tập repo đã lọc. Chưa có mốc so sánh bên ngoài, nên chưa thể nói 17% sau 1 tuần là cao hay thấp.",
         "Các ngưỡng (50 star/ngày, gấp 5 lần, ≤3 sự kiện, 0,70 cho cờ chất lượng) do tôi chọn; ngưỡng star được thử 9 bộ, các ngưỡng còn lại chưa thử độ nhạy.",

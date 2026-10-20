@@ -56,7 +56,7 @@ Mỗi con số trên chỉ là **một giờ mẫu** mỗi tháng, chưa phải 
 - Chưa xem dữ liệu trước 03/2025 bằng lớp kiểm tra (3 tuần đầu của mỗi chuỗi chưa có baseline).
 
 ## Kết quả đầu tiên: ngày star tăng đột biến có phải người dùng thật không?
-Dữ liệu: 01/03 → 22/05/2025, khoảng 8.000 repo AI (lọc theo từ khóa trong tên, độ chính xác thô ~95% trên mẫu 40 repo mình xem bằng mắt, chưa đo độ phủ).
+Dữ liệu: 01/03 → 22/05/2025, khoảng 8.000 repo có tên khớp từ khóa AI (độ chính xác thô ~95% trên mẫu 40 repo xem bằng mắt). **Độ phủ chỉ ~25%**: trên 76 repo AI nổi tiếng chọn tay (`scripts/ai_reference_repos.txt`), bộ lọc bắt được 19 (đo bằng `scripts/ai_repos_recall.py`). Nó sót repo có từ khóa ở tên tổ chức (`modelcontextprotocol/servers`, `openai/codex`), tên ghép (`vllm`, `comfyui`, `autogpt`) và thư viện nổi tiếng không có từ khóa (`pytorch`, `tensorflow`). Vì vậy các kết quả dưới đây chỉ đúng cho nhóm repo có tên khớp từ khóa, không phải toàn bộ hệ sinh thái AI.
 1. Một ngày được coi là đột biến khi có ≥50 star và ≥5 lần trung vị 14 ngày trước, và repo đã có ≥7 ngày có star trước đó (nếu không, ngày ra mắt bị tính nhầm). Có 444 ngày đột biến ở 153 repo (190–806 ngày tùy 9 bộ ngưỡng thử).
 2. Dấu hiệu 1: tỉ lệ người star có ≤3 sự kiện trong 12 tuần ("tài khoản mỏng"). Nhìn chung ngày đột biến **không** mỏng hơn ngày thường (7–8,5% vs 8–11%): đa số đột biến là lan truyền thật. Chỉ `Repo X` bị cờ ở cả 9 bộ ngưỡng.
 3. Dấu hiệu 2, kiểm chứng độc lập bằng GitHub API (mẫu 21–24 tài khoản mỗi nhóm):

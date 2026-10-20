@@ -10,7 +10,7 @@ Cùng bộ kiểm tra còn bắt được một giờ mà tôi đã bỏ sót l�
 
 ## Star tăng đột biến: đa số là người thật, trừ một repo
 
-Trong khoảng 8.000 repo có tên khớp từ khóa AI (độ chính xác khoảng 95% trên mẫu 40 repo tôi xem bằng mắt, độ phủ chưa đo), tôi tìm các ngày có ít nhất 50 star và gấp 5 lần trung vị 14 ngày trước. Có 444 ngày như vậy ở 153 repo. Với mỗi ngày, tôi xem người star có "mỏng" không, tức có không quá 3 sự kiện nào trong 12 tuần. Trung bình, ngày đột biến có 7,6% tài khoản mỏng, thấp hơn ngày thường (9,2%): phần lớn đột biến đến từ ra mắt hoặc được chia sẻ rộng.
+Trong khoảng 8.000 repo có tên khớp từ khóa AI, tôi tìm các ngày có ít nhất 50 star và gấp 5 lần trung vị 14 ngày trước. Có 444 ngày như vậy ở 153 repo. Với mỗi ngày, tôi xem người star có "mỏng" không, tức có không quá 3 sự kiện nào trong 12 tuần. Trung bình, ngày đột biến có 7,6% tài khoản mỏng, thấp hơn ngày thường (9,2%): phần lớn đột biến đến từ ra mắt hoặc được chia sẻ rộng.
 
 Một repo lệch hẳn. Tôi gọi nó là Repo X. Ở 4 ngày (11, 12, 14 và 15/04/2025), 85–93% người star là tài khoản mỏng, trong khi ngày thường của chính repo này là 30%. Repo X bị gắn cờ ở cả 9 bộ ngưỡng tôi thử. Để không dừng ở một chỉ số, tôi lấy mẫu người star và hỏi API công khai của GitHub về ngày tạo tài khoản. Nhóm ngày đột biến có tuổi tài khoản trung vị 0 ngày: 20/21 tài khoản đọc được mới tạo chưa đến 30 ngày và 19/21 chưa có repo nào. Hai đợt lan truyền thật làm đối chứng cho kết quả khác hẳn: tuổi trung vị 3.820 ngày (github-mcp-server) và 2.050 ngày (một repo tập hợp system prompt).
 
@@ -34,6 +34,8 @@ Một vài lỗi tôi đã gặp và sửa:
 - Ở dashboard, tôi từng tô cam toàn bộ ngày đột biến của Repo X, kể cả một ngày không có gì bất thường. Tôi chỉ phát hiện khi mở ảnh chụp màn hình ra xem.
 
 ## Giới hạn chung
+
+Tập repo "AI" ở trên chỉ là tập con theo tên repo, không phải toàn bộ hệ sinh thái. Trên mẫu 40 repo tôi xem bằng mắt, khoảng 95% repo khớp từ khóa thật sự là AI (độ chính xác); nhưng khi tôi đo ngược lại bằng 76 repo AI nổi tiếng chọn tay (độ phủ), bộ lọc chỉ bắt được 19, tức 25%. Nó bỏ sót những repo mà từ khóa nằm ở tên tổ chức (`modelcontextprotocol/servers`, `openai/codex`), tên ghép (`vllm`, `comfyui`, `autogpt`) hoặc thư viện nổi tiếng không có từ khóa nào (`pytorch`, `tensorflow`). Các kết luận về star và giữ chân người đóng góp vì vậy chỉ đúng cho nhóm repo có tên khớp từ khóa, và tôi chưa biết chúng lệch bao nhiêu so với phần còn lại. Danh sách 76 repo do tôi chọn tay từ trí nhớ và thiên về repo nổi tiếng, nên con số 25% có thể vẫn là mức tốt hơn thực tế cho các repo ít người biết.
 
 Toàn bộ kết quả dựa trên 12 tuần dữ liệu (01/03 – 22/05/2025); dữ liệu 2023–2024 tôi chưa tải vì mạng chậm. Các ngưỡng (50 star, gấp 5 lần, 3 sự kiện, 0,70) do tôi chọn và chỉ ngưỡng của star được thử nhiều bộ. Lớp kiểm tra chất lượng dùng đường cơ sở trượt, nên một đợt sụt kéo dài chỉ bị gắn cờ trong vài tuần đầu. Đây là dự án học tập, các kết quả mang tính khám phá.
 
