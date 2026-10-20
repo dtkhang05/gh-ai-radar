@@ -1,0 +1,13 @@
+.venv/
+data/
+*.parquet
+*.json.gz
+__pycache__/
+logs/
+dbt_radar/target/
+dbt_radar/logs/
+dbt_radar/dbt_packages/
+*.duckdb
+*.duckdb.tmp/
+# Instructions for the AI assistant working in this folder (personal notes); not part of the project itself
+CLAUDE.md

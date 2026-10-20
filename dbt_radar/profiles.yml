@@ -1,0 +1,12 @@
+radar:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: ../data/radar_dbt.duckdb
+      threads: 2
+      # shared machine (another project runs Docker): cap resources so one model cannot exhaust RAM or disk
+      settings:
+        memory_limit: 3GB
+        max_temp_directory_size: 5GB
+        temp_directory: ../data/duck_tmp

@@ -1,0 +1,66 @@
+version: 2
+
+models:
+  - name: int_ai_repo_candidates
+    description: Repos whose name looks like AI and that got >= min_stars stars in the trusted window.
+    columns:
+      - name: repo
+        data_tests: [not_null, unique]
+
+  - name: fct_star_daily
+    description: Dense stars per candidate repo per day inside the trusted window.
+    data_tests:
+      - unique_combination:
+          arguments:
+            cols: [repo, d]
+    columns:
+      - name: repo
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('int_ai_repo_candidates')
+                field: repo
+      - name: d
+        data_tests: [not_null]
+      - name: stars
+        data_tests: [not_null]
+
+  - name: fct_star_spike_days
+    description: Days with abnormally many stars (suspicion signal, not proof of fake stars).
+    columns:
+      - name: repo
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('int_ai_repo_candidates')
+                field: repo
+      - name: x_baseline
+        data_tests:
+          - not_null
+
+  - name: fct_contributor_week
+    description: One row per (non-bot contributor, 7-day block).
+    columns:
+      - name: actor
+        data_tests: [not_null]
+      - name: blk
+        data_tests: [not_null]
+
+  - name: fct_cohort_retention
+    description: Weekly cohort retention of new contributors (see model header for the left-censoring caveat).
+    columns:
+      - name: cohort_size
+        data_tests: [not_null]
+
+  - name: fct_hourly_quality
+    description: One row per expected hour with a flag when event counts drop or spike versus the same weekday+hour of the previous 4 weeks.
+    columns:
+      - name: hr
+        data_tests: [not_null, unique]
+      - name: flag
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [ok, low, high, missing, no_baseline]

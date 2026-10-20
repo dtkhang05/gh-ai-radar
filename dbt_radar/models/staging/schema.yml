@@ -1,0 +1,31 @@
+version: 2
+
+models:
+  - name: stg_events
+    description: Cleaned GH Archive events (view over Parquet). Rows without id or timestamp are dropped.
+    columns:
+      - name: id
+        description: GitHub event id.
+        data_tests:
+          - not_null
+          # Full-table uniqueness needs a hash over 300M+ ids; checked on one week only. Known: ~55 duplicate ids per 150M rows.
+          - unique:
+              config:
+                where: "ts >= '2025-05-01' and ts < '2025-05-08'"
+                severity: warn
+      - name: ts
+        data_tests:
+          - not_null
+      - name: type
+        description: Event type.
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [PushEvent, CreateEvent, PullRequestEvent, IssueCommentEvent, WatchEvent, DeleteEvent,
+                         PullRequestReviewEvent, IssuesEvent, PullRequestReviewCommentEvent, ForkEvent, ReleaseEvent,
+                         PublicEvent, MemberEvent, GollumEvent, CommitCommentEvent]
+      - name: actor
+        description: Login of the user who triggered the event.
+      - name: repo
+        description: Repository as owner/name.

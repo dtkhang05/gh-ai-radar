@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Radar hệ sinh thái AI mã nguồn mở</title>
+<meta name="description" content="Dự án dữ liệu học tập trên GH Archive: nguồn dữ liệu mất sự kiện, star bất thường và giữ chân người đóng góp.">
+<style>
+  :root {
+    color-scheme: light;
+    --page: #f9f9f7; --surface: #fcfcfb; --ink: #0b0b0b; --ink2: #52514e; --muted: #898781;
+    --grid: #e1e0d9; --axis: #c3c2b7; --border: rgba(11,11,11,.10); --wash: rgba(137,135,129,.14);
+    --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --neutral: #898781;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme="light"])) {
+      color-scheme: dark;
+      --page: #0d0d0d; --surface: #1a1a19; --ink: #f0efec; --ink2: #c3c2b7; --muted: #898781;
+      --grid: #2c2c2a; --axis: #383835; --border: rgba(255,255,255,.10); --wash: rgba(137,135,129,.18);
+      --s1: #3987e5; --s2: #d95926; --s3: #199e70; --neutral: #898781;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --page: #0d0d0d; --surface: #1a1a19; --ink: #f0efec; --ink2: #c3c2b7; --muted: #898781;
+    --grid: #2c2c2a; --axis: #383835; --border: rgba(255,255,255,.10); --wash: rgba(137,135,129,.18);
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --neutral: #898781;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--page); color: var(--ink); font: 16px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width: 1040px; margin: 0 auto; padding: 32px 16px 64px; }
+  h1 { font-size: 28px; line-height: 1.2; margin: 0 0 8px; font-weight: 650; }
+  h2 { font-size: 20px; margin: 48px 0 6px; font-weight: 650; }
+  p { margin: 0 0 12px; }
+  .sub { color: var(--ink2); max-width: 70ch; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin: 16px 0; }
+  .card h3 { font-size: 16px; margin: 0 0 4px; font-weight: 650; }
+  .card .why { color: var(--ink2); font-size: 14px; margin: 0 0 12px; max-width: 75ch; }
+  .hero { display: flex; gap: 24px; align-items: baseline; flex-wrap: wrap; margin-top: 24px; }
+  .hero .num { font-size: 72px; line-height: 1; font-weight: 700; color: var(--ink); }
+  .hero .txt { flex: 1 1 320px; color: var(--ink2); max-width: 62ch; }
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; margin: 20px 0; }
+  .tile { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; }
+  .tile .label { font-size: 13px; color: var(--ink2); }
+  .tile .value { font-size: 28px; font-weight: 650; }
+  .tile .note { font-size: 12px; color: var(--ink2); }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13px; color: var(--ink2); margin: 0 0 6px; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .key-line { width: 16px; height: 0; border-top: 2px solid; display: inline-block; }
+  .key-dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+  .key-wash { width: 14px; height: 10px; background: var(--wash); display: inline-block; border-radius: 2px; }
+  .chart { position: relative; width: 100%; }
+  .chart svg { display: block; width: 100%; height: auto; overflow: visible; touch-action: pan-y; }
+  .chart svg:focus-visible { outline: 2px solid var(--s1); outline-offset: 4px; border-radius: 4px; }
+  .tick { fill: var(--ink2); font-size: 12px; }
+  .lbl { fill: var(--ink2); font-size: 12px; }
+  .lbl-strong { fill: var(--ink); font-size: 12px; font-weight: 600; }
+  .grid { stroke: var(--grid); stroke-width: 1; }
+  .axis { stroke: var(--axis); stroke-width: 1; }
+  .tip { position: absolute; pointer-events: none; background: var(--surface); border: 1px solid var(--axis); border-radius: 8px;
+         padding: 8px 10px; font-size: 12.5px; line-height: 1.45; box-shadow: 0 4px 16px rgba(0,0,0,.12); z-index: 5; display: none; max-width: 280px; }
+  .tip .v { font-weight: 650; color: var(--ink); font-size: 14px; }
+  .tip .k { color: var(--ink2); }
+  .tip .row { display: flex; align-items: center; gap: 6px; }
+  .tip .tkey { width: 12px; border-top: 2px solid; display: inline-block; }
+  details { margin-top: 10px; font-size: 13px; color: var(--ink2); }
+  details summary { cursor: pointer; }
+  .tablewrap { max-height: 320px; overflow: auto; margin-top: 8px; border: 1px solid var(--border); border-radius: 8px; }
+  table { border-collapse: collapse; width: 100%; font-size: 12.5px; }
+  th, td { padding: 5px 10px; text-align: left; border-bottom: 1px solid var(--grid); white-space: nowrap; }
+  td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+  th { position: sticky; top: 0; background: var(--surface); color: var(--ink); }
+  ul.limits { padding-left: 20px; color: var(--ink2); }
+  ul.limits li { margin: 6px 0; }
+  .twocol { display: grid; grid-template-columns: 1fr; gap: 16px; }
+  footer { margin-top: 48px; color: var(--ink2); font-size: 13px; }
+  a { color: var(--s1); }
+  @media (max-width: 560px) { .hero .num { font-size: 56px; } h1 { font-size: 24px; } .card { padding: 14px; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>Radar hệ sinh thái AI mã nguồn mở</h1>
+  <p class="sub">Dự án dữ liệu học tập trên <a href="https://www.gharchive.org/">GH Archive</a> (sự kiện công khai của GitHub, giờ UTC). Mọi con số dưới đây đến từ pipeline dbt của dự án; đây là <strong>kết quả khám phá</strong>, không phải kết luận chắc chắn. Giai đoạn phân tích: <span id="win"></span>.</p>
+
+  <div class="hero">
+    <div class="num" id="hero-num"></div>
+    <div class="txt" id="hero-txt"></div>
+  </div>
+
+  <div class="tiles" id="tiles"></div>
+
+  <h2>1. Nguồn dữ liệu bị mất sự kiện, và hệ thống tự phát hiện được</h2>
+  <div class="card">
+    <h3>Số sự kiện GitHub mỗi giờ</h3>
+    <p class="why">Mỗi giờ so với trung vị của cùng thứ và giờ trong 4 tuần trước. Từ 23/05/2025 khoảng 17h UTC số sự kiện sụt đột ngột và không hồi lại, nên các phân tích còn lại dừng ở 22/05/2025.</p>
+    <div class="legend" id="lg1"></div>
+    <div class="chart" id="c1"></div>
+    <details><summary>Xem bảng số liệu (theo ngày)</summary><div class="tablewrap" id="t1"></div></details>
+  </div>
+
+  <h2>2. Star tăng đột biến có phải người dùng thật?</h2>
+  <p class="sub">Trong khoảng 8.000 repo AI, <span id="n-spike"></span> ngày có số star tăng đột biến. Nhìn chung các đợt này đến từ người dùng thật (ra mắt, được chia sẻ rộng). Có đúng một repo bị gắn cờ ở cả 9 bộ ngưỡng thử.</p>
+  <div class="card">
+    <h3>Các ngày star tăng đột biến</h3>
+    <p class="why">Mỗi chấm là một ngày của một repo: ≥50 star và ≥5 lần mức thường (trung vị 14 ngày trước). Trục dọc theo thang log. Chỉ những ngày có tỉ lệ tài khoản "mỏng" (≤3 sự kiện trong 12 tuần) tăng vọt so với ngày thường của chính repo đó mới được tô cam.</p>
+    <div class="legend" id="lg2"></div>
+    <div class="chart" id="c2"></div>
+    <details><summary>Xem bảng số liệu (tất cả ngày đột biến)</summary><div class="tablewrap" id="t2"></div></details>
+  </div>
+  <div class="card">
+    <h3>Tài khoản mới tạo trước khi star bao lâu?</h3>
+    <p class="why">Phần trăm người star có tài khoản tạo chưa đến 30 ngày trước lúc star, trên mẫu khoảng 25 người mỗi nhóm hỏi GitHub API. Đây là bằng chứng độc lập với số sự kiện.</p>
+    <div class="chart" id="c3"></div>
+    <details><summary>Xem bảng số liệu</summary><div class="tablewrap" id="t3"></div></details>
+  </div>
+
+  <h2>3. Người đóng góp mới có ở lại không?</h2>
+  <div class="card">
+    <h3>Tỉ lệ người mới hoạt động lại sau N tuần</h3>
+    <p class="why">Người mới = lần đầu thấy từ tuần thứ 3 trở đi, chỉ tính push, PR, issue, bình luận và review trên các repo AI (không tính star, fork, bot). Mỗi đường là trung bình có trọng số theo kích thước cohort.</p>
+    <div class="legend" id="lg4"></div>
+    <div class="chart" id="c4"></div>
+    <details><summary>Xem bảng số liệu</summary><div class="tablewrap" id="t4"></div></details>
+  </div>
+
+  <h2>Giới hạn, nói thẳng</h2>
+  <ul class="limits" id="limits"></ul>
+
+  <footer id="foot"></footer>
+</main>
+
+<script id="data" type="application/json">/*DATA*/</script>
+<script>
+"use strict";
+const D = JSON.parse(document.getElementById("data").textContent);
+const NS = "http://www.w3.org/2000/svg";
+const fmt = new Intl.NumberFormat("vi-VN");
+const fmt1 = new Intl.NumberFormat("vi-VN", { maximumFractionDigits: 1, minimumFractionDigits: 1 });
+const K = (n) => n >= 1e6 ? (n / 1e6).toLocaleString("vi-VN", { maximumFractionDigits: 1 }) + "M" : n >= 1e3 ? (n / 1e3).toLocaleString("vi-VN", { maximumFractionDigits: 1 }) + "K" : String(n);
+// "2025-03-01" or "2025-03-01 17:00" -> epoch ms, always UTC
+const utc = (s) => Date.parse(s.length <= 10 ? s + "T00:00:00Z" : s.replace(" ", "T") + ":00Z");
+const dmy = (ms) => { const d = new Date(ms); return String(d.getUTCDate()).padStart(2, "0") + "/" + String(d.getUTCMonth() + 1).padStart(2, "0"); };
+const dmyh = (ms) => dmy(ms) + " " + String(new Date(ms).getUTCHours()).padStart(2, "0") + "h UTC";
+
+function el(tag, attrs, parent) {
+  const e = document.createElementNS(NS, tag);
+  for (const k in (attrs || {})) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+function txt(parent, x, y, s, cls, anchor) {
+  const t = el("text", { x, y, class: cls }, parent);
+  if (anchor) t.setAttribute("text-anchor", anchor);
+  t.textContent = s;
+  return t;
+}
+function mkSvg(box, W, H, label) {
+  box.textContent = "";
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, width: W, height: H, role: "img", "aria-label": label, tabindex: 0 });
+  box.appendChild(svg);
+  return svg;
+}
+function tooltip(box) {
+  let t = box.querySelector(".tip");
+  if (!t) { t = document.createElement("div"); t.className = "tip"; box.appendChild(t); }
+  return {
+    show(x, y, rows) {
+      t.textContent = "";
+      for (const r of rows) {
+        const row = document.createElement("div"); row.className = "row";
+        if (r.key) { const k = document.createElement("span"); k.className = "tkey"; k.style.borderColor = r.key; row.appendChild(k); }
+        if (r.value != null) { const v = document.createElement("span"); v.className = "v"; v.textContent = r.value; row.appendChild(v); }
+        if (r.label != null) { const l = document.createElement("span"); l.className = "k"; l.textContent = r.label; row.appendChild(l); }
+        t.appendChild(row);
+      }
+      t.style.display = "block";
+      const bw = box.clientWidth, tw = t.offsetWidth;
+      t.style.left = Math.max(0, Math.min(bw - tw, x + 14)) + "px";
+      t.style.top = Math.max(0, y - t.offsetHeight - 10) + "px";
+    },
+    hide() { t.style.display = "none"; }
+  };
+}
+function legend(id, items) {
+  const box = document.getElementById(id); box.textContent = "";
+  for (const it of items) {
+    const s = document.createElement("span");
+    const k = document.createElement("i");
+    k.className = it.kind === "line" ? "key-line" : it.kind === "wash" ? "key-wash" : "key-dot";
+    if (it.kind === "line") k.style.borderColor = it.color; else if (it.kind !== "wash") k.style.background = it.color;
+    s.appendChild(k); s.appendChild(document.createTextNode(it.text)); box.appendChild(s);
+  }
+}
+function table(id, cols, rows) {
+  const box = document.getElementById(id); box.textContent = "";
+  const t = document.createElement("table"), thead = document.createElement("thead"), tr = document.createElement("tr");
+  cols.forEach(c => { const th = document.createElement("th"); th.textContent = c.h; if (c.n) th.className = "n"; tr.appendChild(th); });
+  thead.appendChild(tr); t.appendChild(thead);
+  const tb = document.createElement("tbody");
+  rows.forEach(r => { const tr2 = document.createElement("tr"); cols.forEach((c, i) => { const td = document.createElement("td"); td.textContent = r[i]; if (c.n) td.className = "n"; tr2.appendChild(td); }); tb.appendChild(tr2); });
+  t.appendChild(tb); box.appendChild(t);
+}
+function yTicks(max, step) { const a = []; for (let v = 0; v <= max + 1e-9; v += step) a.push(v); return a; }
+
+/* ---------- header: hero, tiles, text ---------- */
+document.getElementById("win").textContent = D.meta.window_text;
+document.getElementById("hero-num").textContent = "−" + Math.round(D.hero.drop_pct) + "%";
+document.getElementById("hero-txt").textContent = D.hero.text;
+document.getElementById("n-spike").textContent = fmt.format(D.spikes.points.length);
+const tiles = document.getElementById("tiles");
+D.tiles.forEach(t => {
+  const d = document.createElement("div"); d.className = "tile";
+  ["label", "value", "note"].forEach(k => { const x = document.createElement("div"); x.className = k; x.textContent = t[k]; d.appendChild(x); });
+  tiles.appendChild(d);
+});
+D.limits.forEach(s => { const li = document.createElement("li"); li.textContent = s; document.getElementById("limits").appendChild(li); });
+document.getElementById("foot").textContent = D.meta.footer;
+
+/* ---------- chart 1: events per hour ---------- */
+function chart1() {
+  const box = document.getElementById("c1"), W = Math.max(320, box.clientWidth), H = 300;
+  const m = { l: 52, r: 14, t: 28, b: 30 }, pts = D.hourly;
+  const t0 = utc(pts[0].hr), t1 = utc(pts[pts.length - 1].hr), cut = utc(D.hourly_cutoff);
+  const ymax = Math.ceil(Math.max(...pts.map(p => p.events)) / 50000) * 50000;
+  const X = (t) => m.l + (t - t0) / (t1 - t0) * (W - m.l - m.r), Y = (v) => H - m.b - v / ymax * (H - m.t - m.b);
+  const svg = mkSvg(box, W, H, "Số sự kiện GitHub mỗi giờ từ 01/03 đến 31/05/2025, sụt khoảng 35% từ 23/05.");
+  yTicks(ymax, 100000).forEach(v => { el("line", { x1: m.l, x2: W - m.r, y1: Y(v), y2: Y(v), class: "grid" }, svg); txt(svg, m.l - 8, Y(v) + 4, K(v), "tick", "end"); });
+  el("line", { x1: m.l, x2: W - m.r, y1: H - m.b, y2: H - m.b, class: "axis" }, svg);
+  D.xticks.forEach(s => { const x = X(utc(s)); el("line", { x1: x, x2: x, y1: H - m.b, y2: H - m.b + 4, class: "axis" }, svg); txt(svg, x, H - m.b + 18, dmy(utc(s)), "tick", "middle"); });
+  const wash = el("rect", { x: X(cut), y: m.t, width: X(t1) - X(cut), height: H - m.t - m.b }, svg); wash.style.fill = "var(--wash)";
+  txt(svg, W - m.r, m.t - 10, "Sau 23/05 16h UTC: không đáng tin", "lbl-strong", "end");  // above the plot: nothing else lives there
+  const path = el("path", { d: pts.map((p, i) => (i ? "L" : "M") + X(utc(p.hr)).toFixed(1) + " " + Y(p.events).toFixed(1)).join("") , fill: "none", "stroke-width": 2, "stroke-linejoin": "round", "stroke-linecap": "round" }, svg);
+  path.style.stroke = "var(--s1)";
+  pts.filter(p => p.pre_cut_flag).forEach(p => {
+    const x = X(utc(p.hr)), y = Y(p.events);
+    const c = el("circle", { cx: x, cy: y, r: 5, "stroke-width": 2 }, svg); c.style.fill = "var(--s2)"; c.style.stroke = "var(--surface)";
+    const left = x > W - 210;  // not enough room to the right: put the label on the left of the dot
+    txt(svg, left ? x - 9 : x + 9, y + (p.events < 60000 ? -2 : 4), dmyh(utc(p.hr)).replace(" UTC", "") + (p.events < 60000 ? ": chỉ " + Math.round(p.events / p.base * 100) + "% mức thường" : ""), "lbl", left ? "end" : "start");
+  });
+  const cross = el("line", { y1: m.t, y2: H - m.b, class: "axis" }, svg); cross.style.display = "none";
+  const dot = el("circle", { r: 4.5, "stroke-width": 2 }, svg); dot.style.display = "none"; dot.style.fill = "var(--s1)"; dot.style.stroke = "var(--surface)";
+  const tip = tooltip(box); let idx = 0;
+  const go = (i, py) => {
+    idx = Math.max(0, Math.min(pts.length - 1, i)); const p = pts[idx], x = X(utc(p.hr)), y = Y(p.events);
+    cross.setAttribute("x1", x); cross.setAttribute("x2", x); cross.style.display = ""; dot.setAttribute("cx", x); dot.setAttribute("cy", y); dot.style.display = "";
+    tip.show(x, py == null ? y : py, [{ label: dmyh(utc(p.hr)) }, { key: "var(--s1)", value: fmt.format(p.events), label: "sự kiện" },
+      { label: "mức thường: " + (p.base ? fmt.format(Math.round(p.base)) : "chưa có") + (p.ratio != null ? " (" + fmt1.format(p.ratio * 100) + "%)" : "") }, { label: "cờ: " + p.flag }]);
+  };
+  svg.addEventListener("pointermove", e => { const r = svg.getBoundingClientRect(), x = (e.clientX - r.left) / r.width * W; go(Math.round((x - m.l) / (W - m.l - m.r) * (pts.length - 1)), (e.clientY - r.top) / r.height * H); });
+  svg.addEventListener("pointerleave", () => { cross.style.display = "none"; dot.style.display = "none"; tip.hide(); });
+  svg.addEventListener("keydown", e => { if (e.key === "ArrowRight") go(idx + (e.shiftKey ? 24 : 1)); else if (e.key === "ArrowLeft") go(idx - (e.shiftKey ? 24 : 1)); else return; e.preventDefault(); });
+  svg.addEventListener("blur", () => { cross.style.display = "none"; dot.style.display = "none"; tip.hide(); });
+}
+legend("lg1", [{ kind: "line", color: "var(--s1)", text: "Sự kiện mỗi giờ" }, { kind: "dot", color: "var(--s2)", text: "Giờ bất thường trước 23/05" }, { kind: "wash", text: "Vùng dữ liệu không đáng tin" }]);
+table("t1", [{ h: "Ngày" }, { h: "Sự kiện", n: 1 }, { h: "Giờ bị gắn cờ low", n: 1 }], D.daily.map(r => [r.d, fmt.format(r.events), r.low_hours]));
+
+/* ---------- chart 2: star spike scatter (log y) ---------- */
+function chart2() {
+  const box = document.getElementById("c2"), W = Math.max(320, box.clientWidth), H = 320, m = { l: 52, r: 14, t: 14, b: 30 };
+  const pts = D.spikes.points, t0 = utc(D.spikes.x0), t1 = utc(D.spikes.x1), ymin = 40, ymax = 5000;
+  const X = (t) => m.l + (t - t0) / (t1 - t0) * (W - m.l - m.r), Y = (v) => H - m.b - (Math.log(v) - Math.log(ymin)) / (Math.log(ymax) - Math.log(ymin)) * (H - m.t - m.b);
+  const svg = mkSvg(box, W, H, "Các ngày star tăng đột biến của repo AI, thang log. Một repo bị gắn cờ được tô màu cam.");
+  [50, 100, 200, 500, 1000, 2000, 5000].forEach(v => { el("line", { x1: m.l, x2: W - m.r, y1: Y(v), y2: Y(v), class: "grid" }, svg); txt(svg, m.l - 8, Y(v) + 4, K(v), "tick", "end"); });
+  el("line", { x1: m.l, x2: W - m.r, y1: H - m.b, y2: H - m.b, class: "axis" }, svg);
+  D.xticks2.forEach(s => { const x = X(utc(s)); el("line", { x1: x, x2: x, y1: H - m.b, y2: H - m.b + 4, class: "axis" }, svg); txt(svg, x, H - m.b + 18, dmy(utc(s)), "tick", "middle"); });
+  const P = pts.map(p => ({ p, x: X(utc(p.d)), y: Y(p.stars) }));
+  P.filter(o => !o.p.suspect).forEach(o => { const c = el("circle", { cx: o.x, cy: o.y, r: 4, "stroke-width": 2 }, svg); c.style.fill = "var(--neutral)"; c.style.fillOpacity = ".75"; c.style.stroke = "var(--surface)"; });
+  const S = P.filter(o => o.p.suspect);
+  S.forEach(o => { const c = el("circle", { cx: o.x, cy: o.y, r: 6, "stroke-width": 2 }, svg); c.style.fill = "var(--s2)"; c.style.stroke = "var(--surface)"; });
+  if (S.length) { const cx = S.reduce((a, o) => a + o.x, 0) / S.length, top = Math.min(...S.map(o => o.y)); txt(svg, Math.max(m.l + 90, Math.min(W - m.r - 90, cx)), top - 18, D.spikes.suspect_label + " · " + S.length + " ngày bị gắn cờ", "lbl-strong", "middle"); }
+  const big = P.reduce((a, o) => o.p.stars > a.p.stars ? o : a, P[0]);
+  if (big) txt(svg, Math.min(W - m.r - 4, big.x + 10), big.y + 4, D.spikes.top_label, "lbl", big.x + 10 > W - 190 ? "end" : "start");
+  const ring = el("circle", { r: 9, fill: "none", "stroke-width": 2 }, svg); ring.style.display = "none"; ring.style.stroke = "var(--ink)";
+  const tip = tooltip(box);
+  const near = (e) => {
+    const r = svg.getBoundingClientRect(), x = (e.clientX - r.left) / r.width * W, y = (e.clientY - r.top) / r.height * H;
+    let best = null, bd = 1e9; for (const o of P) { const d = Math.hypot(o.x - x, o.y - y); if (d < bd) { bd = d; best = o; } }
+    if (best && bd < 40) { ring.setAttribute("cx", best.x); ring.setAttribute("cy", best.y); ring.style.display = ""; const p = best.p;
+      tip.show(best.x, best.y, [{ value: p.label, label: "" }, { label: dmy(utc(p.d)) + "/2025" }, { value: fmt.format(p.stars), label: "star trong ngày" }, { label: "mức thường " + fmt1.format(p.base) + " (gấp " + fmt1.format(p.x) + " lần)" }]); }
+    else { ring.style.display = "none"; tip.hide(); }
+  };
+  svg.addEventListener("pointermove", near);
+  svg.addEventListener("pointerleave", () => { ring.style.display = "none"; tip.hide(); });
+}
+legend("lg2", [{ kind: "dot", color: "var(--neutral)", text: "Ngày đột biến thông thường" }, { kind: "dot", color: "var(--s2)", text: "Ngày bị gắn cờ: tỉ lệ tài khoản mỏng cao hơn ngày thường ≥30 điểm %" }]);
+table("t2", [{ h: "Repo" }, { h: "Ngày" }, { h: "Star", n: 1 }, { h: "Mức thường", n: 1 }, { h: "Gấp (lần)", n: 1 }, { h: "Gắn cờ" }], D.spikes.points.slice().sort((a, b) => a.d < b.d ? -1 : 1).map(p => [p.label, p.d, fmt.format(p.stars), fmt1.format(p.base), fmt1.format(p.x), p.suspect ? "có" : ""]));
+
+/* ---------- chart 3: horizontal bars, % accounts < 30 days old ---------- */
+function chart3() {
+  const box = document.getElementById("c3"), W = Math.max(320, box.clientWidth), narrow = W < 560;
+  const rows = D.accounts, rowH = narrow ? 64 : 44, H = rows.length * rowH + 28, lw = narrow ? 0 : Math.min(300, W * 0.38), m = { l: lw + 8, r: 150, t: 4 };
+  const svg = mkSvg(box, W, H, "Tỉ lệ người star có tài khoản tạo chưa đến 30 ngày, theo nhóm. Nhóm đột biến của repo bị gắn cờ cao nhất.");
+  const X = (v) => m.l + v / 100 * (W - m.l - m.r), tip = tooltip(box);
+  [0, 25, 50, 75, 100].forEach(v => { el("line", { x1: X(v), x2: X(v), y1: m.t, y2: H - 22, class: "grid" }, svg); txt(svg, X(v), H - 6, v + "%", "tick", "middle"); });
+  rows.forEach((r, i) => {
+    const y = m.t + i * rowH + (narrow ? 22 : 8), bh = 22, w = Math.max(0, X(r.pct_new) - X(0));
+    txt(svg, narrow ? 0 : 0, narrow ? y - 8 : y + 15, r.label, "lbl", "start");
+    const g = el("g", {}, svg);
+    if (w > 0) { const rect = el("path", { d: `M${X(0)} ${y} H${X(0) + Math.max(0, w - 4)} a4 4 0 0 1 4 4 V${y + bh - 4} a4 4 0 0 1 -4 4 H${X(0)} Z` }, g); rect.style.fill = r.accent ? "var(--s2)" : "var(--neutral)"; }
+    else { const z = el("line", { x1: X(0), x2: X(0), y1: y, y2: y + bh, "stroke-width": 2 }, g); z.style.stroke = "var(--neutral)"; }
+    txt(svg, X(r.pct_new) + 8, y + 16, fmt1.format(r.pct_new) + "% (" + r.new_n + "/" + r.ok_n + ")", "lbl-strong", "start");
+    const hit = el("rect", { x: 0, y: y - 8, width: W, height: rowH - 4, fill: "transparent" }, g);
+    const show = () => tip.show(X(r.pct_new), y, [{ value: fmt1.format(r.pct_new) + "%", label: "tạo <30 ngày trước khi star" }, { label: r.new_n + "/" + r.ok_n + " tài khoản đọc được" }, { label: "tuổi trung vị: " + fmt.format(r.median_age) + " ngày" }, { label: "chưa có repo nào: " + fmt1.format(r.pct_zero_repos) + "%" }]);
+    hit.addEventListener("pointermove", show); hit.addEventListener("pointerleave", () => tip.hide());
+  });
+}
+table("t3", [{ h: "Nhóm" }, { h: "Đọc được", n: 1 }, { h: "<30 ngày", n: 1 }, { h: "Tuổi trung vị (ngày)", n: 1 }, { h: "Chưa có repo", n: 1 }], D.accounts.map(r => [r.label, r.ok_n, fmt1.format(r.pct_new) + "%", fmt.format(r.median_age), fmt1.format(r.pct_zero_repos) + "%"]));
+
+/* ---------- chart 4: retention curves ---------- */
+function chart4() {
+  const box = document.getElementById("c4"), W = Math.max(320, box.clientWidth), H = 300, m = { l: 48, r: 64, t: 14, b: 34 };
+  const R = D.retention, ymax = 35, X = (k) => m.l + (k - 1) / 7 * (W - m.l - m.r), Y = (v) => H - m.b - v / ymax * (H - m.t - m.b);
+  const svg = mkSvg(box, W, H, "Tỉ lệ người đóng góp mới còn hoạt động sau 1 đến 8 tuần: khoảng 17% sau 1 tuần, 6% sau 8 tuần.");
+  yTicks(ymax, 5).forEach(v => { el("line", { x1: m.l, x2: W - m.r, y1: Y(v), y2: Y(v), class: "grid" }, svg); txt(svg, m.l - 8, Y(v) + 4, v + "%", "tick", "end"); });
+  el("line", { x1: m.l, x2: W - m.r, y1: H - m.b, y2: H - m.b, class: "axis" }, svg);
+  for (let k = 1; k <= 8; k++) txt(svg, X(k), H - m.b + 18, k + (k === 1 ? " tuần" : ""), "tick", "middle");
+  const series = [{ k: "code", name: "Bắt đầu bằng code", c: "var(--s1)" }, { k: "all", name: "Tất cả", c: "var(--neutral)" }, { k: "issue", name: "Chỉ issue/bình luận", c: "var(--s3)" }];
+  series.forEach(s => {
+    const p = el("path", { d: R.map((r, i) => (i ? "L" : "M") + X(r.k).toFixed(1) + " " + Y(r[s.k]).toFixed(1)).join(""), fill: "none", "stroke-width": 2, "stroke-linejoin": "round", "stroke-linecap": "round" }, svg); p.style.stroke = s.c;
+    const last = R[R.length - 1], d = el("circle", { cx: X(last.k), cy: Y(last[s.k]), r: 4.5, "stroke-width": 2 }, svg); d.style.fill = s.c; d.style.stroke = "var(--surface)";
+    txt(svg, X(last.k) + 10, Y(last[s.k]) + 4, fmt1.format(last[s.k]) + "%", "lbl-strong", "start");
+  });
+  const cross = el("line", { y1: m.t, y2: H - m.b, class: "axis" }, svg); cross.style.display = "none"; const tip = tooltip(box); let idx = 0;
+  const go = (i, py) => { idx = Math.max(0, Math.min(R.length - 1, i)); const r = R[idx], x = X(r.k); cross.setAttribute("x1", x); cross.setAttribute("x2", x); cross.style.display = "";
+    tip.show(x, py == null ? m.t + 40 : py, [{ label: "Sau " + r.k + " tuần (" + fmt.format(r.people) + " người theo dõi được)" }].concat(series.map(s => ({ key: s.c, value: fmt1.format(r[s.k]) + "%", label: s.name })))); };
+  svg.addEventListener("pointermove", e => { const rc = svg.getBoundingClientRect(), x = (e.clientX - rc.left) / rc.width * W; go(Math.round((x - m.l) / (W - m.l - m.r) * 7), (e.clientY - rc.top) / rc.height * H); });
+  svg.addEventListener("pointerleave", () => { cross.style.display = "none"; tip.hide(); });
+  svg.addEventListener("keydown", e => { if (e.key === "ArrowRight") go(idx + 1); else if (e.key === "ArrowLeft") go(idx - 1); else return; e.preventDefault(); });
+  svg.addEventListener("blur", () => { cross.style.display = "none"; tip.hide(); });
+}
+legend("lg4", [{ kind: "line", color: "var(--s1)", text: "Bắt đầu bằng code (push/PR)" }, { kind: "line", color: "var(--neutral)", text: "Tất cả" }, { kind: "line", color: "var(--s3)", text: "Chỉ issue/bình luận/review" }]);
+table("t4", [{ h: "Sau (tuần)", n: 1 }, { h: "Người theo dõi", n: 1 }, { h: "Tất cả", n: 1 }, { h: "Bắt đầu bằng code", n: 1 }, { h: "Chỉ issue/bình luận", n: 1 }], D.retention.map(r => [r.k, fmt.format(r.people), fmt1.format(r.all) + "%", fmt1.format(r.code) + "%", fmt1.format(r.issue) + "%"]));
+
+function draw() { chart1(); chart2(); chart3(); chart4(); }
+draw();
+let rt; new ResizeObserver(() => { clearTimeout(rt); rt = setTimeout(draw, 120); }).observe(document.querySelector("main"));
+</script>
+</body>
+</html>

@@ -1,0 +1,38 @@
+name: radar
+version: "0.1.0"
+config-version: 2
+profile: radar
+
+model-paths: ["models"]
+test-paths: ["tests"]
+macro-paths: ["macros"]
+
+# Run dbt from this folder: paths below are relative to it.
+vars:
+  parquet_glob: "../data/parquet/*.parquet"
+  # Window verified as complete by the data-quality layer (see ../PLAN.md, Phase 2-3).
+  # Data after 2025-05-23 16:00 UTC loses ~35% of events and is excluded from analysis.
+  window_start: "2025-03-01"
+  window_end: "2025-05-23"   # exclusive
+  min_stars: 10              # a repo needs this many stars in the window to count as a candidate
+  # star spike definition (see ../PLAN.md Phase 7): >= spike_min_stars/day AND >= spike_multiple x median of prior 14 days,
+  # and the repo must have had stars on >= min_hist_days of those 14 days (otherwise a launch day looks like a spike)
+  spike_min_stars: 50
+  spike_multiple: 5
+  min_hist_days: 7
+  # contributor retention: 7-day blocks from window_start; first `burn_in_blocks` blocks only identify EXISTING contributors
+  # (no data before window_start), so "new" means first seen after burn-in.
+  retention_blocks: 11
+  burn_in_blocks: 2
+  # data-quality range: continuous hours that we expect to exist (Jan-Feb 2025 download is partial, so excluded)
+  dq_start: "2025-03-01"
+  dq_end: "2025-06-01"       # exclusive
+
+models:
+  radar:
+    staging:
+      +materialized: view      # Parquet is the single stored copy; never duplicate 300M+ rows
+    intermediate:
+      +materialized: table
+    marts:
+      +materialized: table

@@ -1,0 +1,12 @@
+version: 2
+
+sources:
+  - name: gharchive
+    description: >
+      GH Archive hourly files, slimmed to 5 columns by scripts/ingest.py and stored as one Parquet file per hour.
+      Parquet is the only stored copy; dbt reads it in place.
+    meta:
+      external_location: "{{ var('parquet_glob') }}"
+    tables:
+      - name: events
+        description: One row per public GitHub event (star, fork, push, PR, issue...), UTC.
