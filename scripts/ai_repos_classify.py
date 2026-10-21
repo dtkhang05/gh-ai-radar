@@ -14,16 +14,10 @@ D = f"{ROOT}/data/derived"
 LOW = os.environ.get("RADAR_INCLUDE_LOW") == "1"
 MIN_STARS = 30 if LOW else 100
 SUFFIX = "_low" if LOW else ""
-NAME_TOKENS = "llm|llms|gpt|agent|agents|rag|diffusion|transformers|embedding|embeddings|mcp|genai|chatbot|copilot|ai|ml"
-NAME_SUBSTR = "langchain|llamaindex|ollama|llama|openai|chatgpt|anthropic|claude|huggingface|stable-diffusion|deepseek|langgraph|autogen|crewai"
-NAME_RE = re.compile(rf"(^|[^a-z0-9])({NAME_TOKENS})([^a-z0-9]|$)|({NAME_SUBSTR})")
-TOPICS = set("""ai artificial-intelligence machine-learning deep-learning llm llms large-language-models generative-ai genai gpt chatgpt
-openai anthropic claude gemini deepseek llama ollama langchain rag retrieval-augmented-generation mcp mcp-server mcp-servers
-model-context-protocol pytorch tensorflow keras transformers huggingface diffusion stable-diffusion nlp natural-language-processing
-computer-vision neural-network neural-networks reinforcement-learning text-to-image speech-recognition text-to-speech vector-database
-embeddings prompt-engineering ai-agents ai-agent llm-agents agentic agentic-ai copilot""".split())
-DESC_RE = re.compile(r"\b(llms?|gpt|chatgpt|openai|ai|artificial intelligence|machine learning|deep learning|neural networks?|language models?|"
-                     r"ai agents?|retrieval[- ]augmented|model context protocol|mcp servers?|diffusion models?|generative ai)\b", re.I)
+import importlib.util
+_spec = importlib.util.spec_from_file_location("ai_rules", os.path.join(os.path.dirname(os.path.abspath(__file__)), "ai_rules.py"))  # -I drops the script dir from sys.path
+_rules = importlib.util.module_from_spec(_spec); _spec.loader.exec_module(_rules)
+NAME_RE, TOPICS, DESC_RE = _rules.NAME_RE, _rules.TOPICS, _rules.DESC_RE
 
 meta = {}
 for l in open(f"{D}/repo_metadata.jsonl", encoding="utf-8"):
