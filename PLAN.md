@@ -76,24 +76,40 @@ Khớp từ khóa nguyên từ trong tên repo (`llm`, `gpt`, `agent`, `mcp`, ..
 **Giới hạn:** hai danh sách do tác giả chọn từ trí nhớ nên thiên về repo nổi tiếng; chỉ xét repo ≥100 star (repo ít star hơn bị bỏ); topic và mô tả là của năm 2026, không phải 03–05/2025; 12% repo không tra được chỉ khớp được theo tên; mẫu độ chính xác nhỏ, một người đánh giá; chưa thử ngưỡng nào khác cho danh sách topic và mẫu mô tả.
 
 ## 6. dbt và kiểm thử
-**Cấu trúc** (`dbt_radar/`, dbt-core 1.12.6, dbt-duckdb 1.11.0, DuckDB 1.5.6): `stg_events` (view trên Parquet) → `int_ai_repo_candidates` → `fct_star_daily`, `fct_star_spike_days`, `fct_contributor_week`, `fct_cohort_retention`, và `fct_hourly_quality`. Ngưỡng và cửa sổ thời gian là biến trong `dbt_project.yml`.
 
-- **Build:** 7 mô hình, 25 test: 23 đạt, 2 cảnh báo có chủ đích, 0 lỗi, ~70 giây (lần đầu, với tập repo theo tên: ~166 giây; bản hiện tại nhanh hơn vì ghép với danh sách repo trước khi gom nhóm).
-  - Cảnh báo 1: 24 id trùng trong tuần mẫu 01–07/05/2025 (chỉ kiểm 1 tuần vì kiểm toàn bộ cần băm hơn 300 triệu id).
-  - Cảnh báo 2: 2 giờ bất thường trong cửa sổ tin cậy (13/04 01:00, tỉ lệ 0,606; 08/05 01:00, tỉ lệ 0,121).
-- **Đối chiếu với các script Python:** khớp ở mọi chỉ số đã so. Với tập repo theo tên (vòng 1): 8.068 repo, 444 ngày đột biến ở 153 repo, 91.655 dòng người-tuần, cờ chất lượng 1.588/116/504. Với tập repo AI mới (vòng 2, 4.033 repo): 1.513 ngày đột biến ở 526 repo và bảng giữ chân người đóng góp (16,7% / 10,2% / 7,9% / 7,2%) giống `star_anomalies.py` và `cohort_retention.py`; chưa so lại số dòng người-tuần.
-- **Điều phối một lệnh** (`scripts/run_pipeline.py`): kiểm tra file Parquet và ≥20 GB ổ trống → tùy chọn tải (`--ingest <từ> <đến>`, rồi kiểm manifest xem có giờ lỗi) → `dbt build` → tóm tắt. Dừng ngay khi lỗi, ghi log có dấu thời gian vào `logs/pipeline.log`.
-- **Lỗi đã gặp khi đổi sang tập repo mới:** (1) đặt `temp_directory` trong `profiles.yml` gây lỗi "Cannot switch temporary directory after the current one has been used" khi một luồng mở kết nối sau khi luồng khác đã dùng đĩa tạm; đã bỏ cài đặt này, dùng thư mục mặc định cạnh file DuckDB; (2) lần đầu mô hình `int_ai_repo_candidates` gom nhóm mọi repo rồi mới ghép với danh sách AI nên tràn giới hạn file tạm 5 GB; đã ghép trước khi gom nhóm.
-- **Đã thử:** chạy từ đầu sau khi xóa kho và `target/` (mã thoát 0); đường lỗi khi ngày không hợp lệ (dừng, mã thoát 1, dbt không chạy); cài đặt và chạy trên bản clone sạch.
-- **Chưa thử:** đường lỗi khi một test dbt ở mức error; dựng lại toàn bộ từ đầu trên máy khác; Linux/macOS.
-- **Kiểm thử tự động (CI)** (`ci/make_synthetic.py`, `ci/check_scenarios.py`, `.github/workflows/ci.yml`): sinh 49 ngày dữ liệu tổng hợp (~370 nghìn dòng, mỗi giờ ~400 sự kiện, 40 repo AI và một repo "viral") rồi chạy chính dự án dbt (đường dẫn dữ liệu và cửa sổ thời gian truyền bằng `--vars`, kho DuckDB tạm qua biến môi trường `RADAR_DB`). Ba kịch bản:
-  - **sạch:** `dbt build` thành công, 25 test đạt, không cờ giả (504 giờ `no_baseline`, 672 giờ `ok`), không ngày đột biến, bảng giữ chân có người quay lại.
-  - **có lỗi cài sẵn:** một giờ không có sự kiện, một giờ chỉ còn 12%, đợt sụt 35% từ 15/04 16:00, 400 tài khoản star một lần trong một ngày. Kiểm tra: `assert_no_missing_hours` thất bại, test giờ bất thường cảnh báo, giờ thiếu được gắn `missing`, giờ 12% gắn `low`, cả 80 giờ sụt đều `low`, không giờ nào bị gắn cờ ngoài các giờ cài sẵn, ngày đột biến duy nhất là ngày cài sẵn, các mô hình khác vẫn dựng được.
-  - **loại sự kiện lạ:** `accepted_values` thất bại và các mô hình phía sau bị bỏ qua.
-  - **Đã kiểm chứng:** chạy cục bộ ~21 giây, đạt cả 3 kịch bản; thử đổi ngưỡng cờ `low` từ 0,70 xuống 0,50 thì kiểm tra "đợt sụt 35% đều `low`" báo đỏ (nên kiểm tra không rỗng). Lượt chạy đầu trên GitHub Actions (Ubuntu, Python 3.13, 21/10/2026) đạt cả 18 kiểm tra, kết quả giống cục bộ.
-  - **Giới hạn:** dữ liệu tổng hợp đơn giản (nhiễu ±3%, không có chu kỳ dài hơn tuần), nên chứng minh test bắt được lỗi cài sẵn, không chứng minh bắt được mọi lỗi thật. Chưa có kịch bản cho id trùng và đợt sụt kéo dài hơn 3 tuần (điểm yếu đã biết của đường cơ sở trượt).
-- **Tài liệu dbt:** `scripts/build_dbt_docs.py` chạy `dbt docs generate --static` rồi chép ra `docs/dbt/index.html` (một file 2,5 MB, không cần máy chủ, đăng cùng GitHub Pages). Mô tả cho các mô hình và cột của lớp marts nằm trong `models/marts/schema.yml`. Đã mở bằng Edge và thấy trang mô hình `fct_hourly_quality` hiển thị đúng; chưa xem trên trang công khai và chưa mô tả cột của `stg_events` ngoài `id`, `type`, `actor`, `repo`.
-- **Còn thiếu:** chưa có sơ đồ phụ thuộc chụp lại trong README.
+### Mô hình và kết quả build
+- `dbt_radar/` (dbt-core 1.12.6, dbt-duckdb 1.11.0, DuckDB 1.5.6). Luồng: `stg_events` (view trên Parquet) → `int_ai_repo_candidates` → `fct_star_daily`, `fct_star_spike_days`, `fct_contributor_week`, `fct_cohort_retention`, `fct_hourly_quality`. Ngưỡng và cửa sổ là biến trong `dbt_project.yml`.
+- Build: 7 mô hình, 25 test: 23 đạt, 2 cảnh báo có chủ đích, 0 lỗi, ~70 giây (lúc đầu ~166 giây; nhanh hơn vì ghép danh sách repo trước khi gom nhóm).
+- Cảnh báo 1: 24 id trùng trong tuần mẫu 01–07/05/2025 (chỉ kiểm 1 tuần vì kiểm toàn bộ cần băm >300 triệu id).
+- Cảnh báo 2: 2 giờ bất thường trong cửa sổ tin cậy (13/04 01:00 tỉ lệ 0,606; 08/05 01:00 tỉ lệ 0,121).
+- Khớp script Python ở mọi chỉ số đã so:
+  - Vòng 1 (tập theo tên): 8.068 repo; 444 ngày đột biến ở 153 repo; 91.655 dòng người-tuần; cờ chất lượng 1.588 / 116 / 504.
+  - Vòng 2 (4.033 repo AI): 1.513 ngày đột biến ở 526 repo; giữ chân 16,7% / 10,2% / 7,9% / 7,2%. Chưa so lại số dòng người-tuần.
+
+### Điều phối, lỗi đã gặp, đã thử
+- `scripts/run_pipeline.py`: kiểm tra (có Parquet, ≥20 GB trống) → tải tùy chọn (`--ingest <từ> <đến>`, kiểm manifest có giờ lỗi) → `dbt build` → tóm tắt. Dừng ngay khi lỗi, log có dấu thời gian ở `logs/pipeline.log`.
+- Lỗi khi đổi sang tập repo mới:
+  - `temp_directory` trong `profiles.yml` gây "Cannot switch temporary directory…" khi một luồng mở kết nối sau khi luồng khác đã dùng đĩa tạm. Sửa: bỏ cài đặt.
+  - `int_ai_repo_candidates` gom nhóm mọi repo rồi mới ghép nên tràn file tạm 5 GB. Sửa: ghép trước khi gom nhóm.
+- Đã thử: chạy từ đầu sau khi xóa kho và `target/` (mã thoát 0); ngày không hợp lệ ở bước tải (dừng, mã thoát 1); clone sạch.
+- Chưa thử: test dbt mức error trên dữ liệu thật; máy khác; Linux/macOS cho pipeline thật.
+
+### Kiểm thử tự động (CI)
+- Tệp: `ci/make_synthetic.py`, `ci/check_scenarios.py`, `.github/workflows/ci.yml`. Sinh 49 ngày dữ liệu tổng hợp (~370 nghìn dòng, 40 repo AI và một repo "viral"), chạy chính dự án dbt (`--vars` cho đường dẫn và cửa sổ, `RADAR_DB` cho kho tạm).
+
+| Kịch bản | Lỗi cài sẵn | Kiểm tra |
+|---|---|---|
+| Sạch | Không | Build thành công, 25 test đạt; không cờ giả (504 `no_baseline`, 672 `ok`); không ngày đột biến; giữ chân có người quay lại |
+| Lỗi cài sẵn | Một giờ trống; một giờ còn 12%; sụt 35% từ 15/04 16:00; 400 tài khoản star một lần trong một ngày | `assert_no_missing_hours` thất bại; test giờ bất thường cảnh báo; giờ trống `missing`, giờ 12% `low`, cả 80 giờ sụt `low`; không cờ nào ngoài giờ cài sẵn; ngày đột biến duy nhất là ngày cài sẵn; mô hình khác vẫn dựng được |
+| Loại sự kiện lạ | Một sự kiện có type lạ | `accepted_values` thất bại; mô hình phía sau bị bỏ qua |
+
+- Đã kiểm chứng: cục bộ ~21 giây, đạt cả 3 kịch bản; đổi ngưỡng `low` từ 0,70 xuống 0,50 thì kiểm tra đợt sụt báo đỏ (kiểm tra không rỗng); GitHub Actions (Ubuntu, Python 3.13, 21/10/2026) đạt cả 18 kiểm tra.
+- Giới hạn: dữ liệu tổng hợp đơn giản (nhiễu ±3%, không chu kỳ dài hơn tuần), nên chứng minh bắt được lỗi cài sẵn, không phải mọi lỗi thật. Chưa có kịch bản cho id trùng và đợt sụt kéo dài >3 tuần.
+
+### Tài liệu dbt
+- `scripts/build_dbt_docs.py` chạy `dbt docs generate --static` rồi chép ra `docs/dbt/index.html` (một file 2,5 MB, đăng cùng GitHub Pages). Mô tả mô hình và cột marts nằm trong `models/marts/schema.yml`.
+- Đã kiểm tra: mở bằng Edge thấy trang `fct_hourly_quality` đúng; trang công khai trả về 200.
+- Chưa làm: mở trang công khai bằng trình duyệt; mô tả cột `stg_events` ngoài `id`, `type`, `actor`, `repo`; sơ đồ phụ thuộc trong README.
 
 ## 7. Phân tích
 Phạm vi: 01/03 → 22/05/2025, 4.033 repo AI có từ 100 star (xem giai đoạn 5, vòng 2). Các số dưới đây là kết quả trên tập này; kết quả vòng 1 (tập theo tên, 8.068 repo ≥10 star) được ghi ở cuối mục để so sánh.
