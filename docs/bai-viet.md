@@ -87,6 +87,7 @@ Dự án học dữ liệu bắt đầu ngày 20/10/2026: dựng pipeline trên 
 - Sót repo có từ khóa ở tên tổ chức (`modelcontextprotocol/servers`), tên ghép (`vllm`, `comfyui`) và thư viện không có từ khóa (`pytorch`).
 - Bản hiện tại thêm topic và mô tả repo (GitHub API, 20.000 repo nhiều star nhất): độ phủ **82%** trên danh sách cũ, **89%** trên danh sách thứ hai (71 repo, viết trước khi chạy bộ phân loại; bộ lọc theo tên chỉ đạt 20% ở đó).
 - Độ chính xác giảm: phần thêm từ topic/mô tả đúng khoảng 76–86% (mẫu 50 repo tôi xem bằng mắt), so với ~95% của bộ lọc theo tên.
+- Nhóm chỉ khớp qua mô tả (676 repo) kém hơn: mẫu 50 repo cho 35 đúng, 9 ranh giới, 6 sai (mẫu quản trị, sách Rust, bot tiền mã hóa...). Mẫu nhỏ, một người chấm.
 - Topic và mô tả là của năm 2026, không phải 03–05/2025. 12% repo không tra được (đổi tên, xóa) nên chỉ khớp theo tên.
 - Chỉ xét repo có từ 100 star. Hai danh sách kiểm tra do tôi chọn từ trí nhớ, thiên về repo nổi tiếng; repo ít người biết có thể có độ phủ thấp hơn.
 
