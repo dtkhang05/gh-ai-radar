@@ -67,3 +67,21 @@ print("fading after dropping possible renames: late < 50% of peak:",
       con.sql("select count(*) from fade_ren where possible_rename = 0 and late < 0.5 * peak").fetchone()[0],
       "| < 20%:", con.sql("select count(*) from fade_ren where possible_rename = 0 and late < 0.2 * peak").fetchone()[0],
       "| of", con.sql("select count(*) from fade_ren where possible_rename = 0").fetchone()[0])
+
+# Sensitivity: repeat the quarterly share and the fading count without the repos matched ONLY by description (676 repos, ~70% correct in a
+# hand-checked sample of 50, see PLAN.md), i.e. keep repos matched by name or topic.
+con.execute(f"""create view core as select repo from read_parquet('{UNIVERSE}') where is_ai and (by_name or by_topic)""")
+print("\nsensitivity: quarterly stars/day of the AI set (all humans-only stars in the sample = denominator)")
+print("   quarter, all, full set, core (name/topic), core share of all % , full share %")
+for r in con.sql("""select dd.q, round(sum(s.stars) / count(distinct s.d)) a,
+                           round(sum(s.stars) filter (where s.repo in (select repo from u)) / count(distinct s.d)) f,
+                           round(sum(s.stars) filter (where s.repo in (select repo from core)) / count(distinct s.d)) c,
+                           round(100.0 * sum(s.stars) filter (where s.repo in (select repo from core)) / sum(s.stars), 2) cp,
+                           round(100.0 * sum(s.stars) filter (where s.repo in (select repo from u)) / sum(s.stars), 2) fp
+                    from s join days dd using (d) group by 1 order by 1""").fetchall():
+    print("  ", r)
+con.execute("""create table fade_core as
+  select * from fade where repo in (select repo from core)""")
+print("fading, core only: repos", con.sql("select count(*) from fade_core").fetchone()[0],
+      "| late < 50% of peak:", con.sql("select count(*) from fade_core where late < 0.5 * peak").fetchone()[0],
+      "| late < 20% of peak:", con.sql("select count(*) from fade_core where late < 0.2 * peak").fetchone()[0])

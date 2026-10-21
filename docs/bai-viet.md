@@ -63,6 +63,7 @@ Dự án học dữ liệu bắt đầu ngày 20/10/2026: dựng pipeline trên 
 - Trong 132 repo có đỉnh ≥50 star/ngày mẫu ở 2023, 89% còn dưới nửa đỉnh sau một năm rưỡi.
 - Kiểm tay 52 repo đứng đầu các quý: 46 đúng, 4 ranh giới, 2 sai (thư viện giao diện, công cụ vẽ sơ đồ); hai repo sai chiếm ≤1,5% star của tập. Mẫu thiên về repo nổi tiếng nên không đủ để nói về độ chính xác chung.
 - Kiểm tra tài khoản mỏng (≤3 sự kiện trong cả mẫu): 15,3% người star của tập AI; không repo nào trong top 8 mỗi quý có ≥60% tài khoản mỏng, nên không thấy dấu hiệu kiểu Repo X. Phép đo yếu hơn bản 2025 (mẫu chỉ ~10% số ngày), nên "không thấy" chưa phải "không có".
+- Bỏ nhóm kém chính xác nhất (chỉ khớp qua mô tả): phần star thuộc repo AI thấp hơn khoảng 0,8–1,5 điểm phần trăm (quý cuối 2024: 7,7% thay vì 9,2%) nhưng xu hướng tăng giữ nguyên; tỉ lệ repo giảm dần là 86% thay vì 89%. Nên đọc các số này như khoảng, không phải một số chính xác.
 - Thiên lệch: tập repo xác định từ dữ liệu 2025–2026 nên repo chết trước 2025 không có mặt; con số trên không phải tỉ lệ repo AI chết. Repo đổi tên bị tách lịch sử (chưa xử lý được hết).
 
 ## Pipeline và những chỗ tôi làm sai
