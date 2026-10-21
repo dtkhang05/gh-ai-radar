@@ -7,12 +7,12 @@ Tài liệu này ghi từng giai đoạn của dự án: làm gì, đo được 
 | 1 | Tải dữ liệu thử 1 tháng | Xong |
 | 2 | Kho DuckDB và kiểm tra mốc dữ liệu | Xong |
 | 3 | Lớp kiểm tra chất lượng dữ liệu | Xong bản đầu |
-| 4 | Tải thêm dữ liệu lịch sử | Tạm dừng |
-| 5 | Xác định repo AI | Xong (độ phủ 82–89%, độ chính xác ước tính 76–95%) |
+| 4 | Tải thêm dữ liệu lịch sử | Một phần (01–02/2025 tạm dừng; mẫu 2023–2024 đã tải) |
+| 5 | Xác định repo AI | Xong (độ phủ 82–89%, độ chính xác ước tính 70–95% tùy nhóm; vòng 3 thử xuống 30 star) |
 | 6 | dbt và kiểm thử | Xong |
-| 7 | Phân tích | Xong 2 câu hỏi |
+| 7 | Phân tích | Xong 2 câu hỏi (2025) + bản đầu cho mẫu 2023–2024 |
 | 8 | Dashboard, bài viết, đăng GitHub | Xong |
-| 9 | Mở rộng | Chưa làm |
+| 9 | Mở rộng | Một phần (mẫu 2023–2024, vòng 3); phần còn lại là hướng phát triển |
 
 ## 1. Tải dữ liệu thử
 **Mục tiêu:** có pipeline tải → lọc → Parquet → xóa file thô, và đo thời gian, dung lượng thật.
