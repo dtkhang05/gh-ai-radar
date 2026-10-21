@@ -55,6 +55,14 @@ Dự án học dữ liệu bắt đầu ngày 20/10/2026: dựng pipeline trên 
 - "Còn hoạt động" chỉ tính trong tập repo đã lọc; người chuyển sang repo khác bị tính là rời đi.
 - Chưa có mốc so sánh bên ngoài để nói 17% là cao hay thấp.
 
+## Thử nhìn lại 2023–2024 (bản đầu)
+
+- Dữ liệu: 72 ngày thứ Tư (3 ngày mỗi tháng), 341,8 triệu sự kiện. Kiểm tra chất lượng thấy một giờ lỗi ở nguồn (14/08/2024 chỉ có 489 sự kiện) và một đợt bot (12/04/2023), không thấy đợt sụt kéo dài kiểu 05/2025.
+- Phần star thuộc repo AI tăng từ 3,6–5,2% (01–03/2023) lên 5,8–7,6% (04–12/2023) và 6,7–9,9% trong 2024. Tổng star mọi repo gần như phẳng.
+- Top repo mỗi quý đổi theo từng làn sóng: prompt/ChatGPT (đầu 2023), agent tự chạy (giữa 2023), chạy mô hình cục bộ và RAG (2024).
+- Trong 132 repo có đỉnh ≥50 star/ngày mẫu ở 2023, 89% còn dưới nửa đỉnh sau một năm rưỡi.
+- Thiên lệch: tập repo xác định từ dữ liệu 2025–2026 nên repo chết trước 2025 không có mặt; con số trên không phải tỉ lệ repo AI chết. Repo đổi tên bị tách lịch sử (chưa xử lý được hết).
+
 ## Pipeline và những chỗ tôi làm sai
 
 **Pipeline**
@@ -81,7 +89,7 @@ Dự án học dữ liệu bắt đầu ngày 20/10/2026: dựng pipeline trên 
 - Chỉ xét repo có từ 100 star. Hai danh sách kiểm tra do tôi chọn từ trí nhớ, thiên về repo nổi tiếng; repo ít người biết có thể có độ phủ thấp hơn.
 
 **Chung**
-- Chỉ 12 tuần dữ liệu (01/03 – 22/05/2025); 2023–2024 chưa tải vì mạng chậm.
+- Phân tích chính chỉ dùng 12 tuần dữ liệu (01/03 – 22/05/2025). Mẫu 2023–2024 (72 ngày thứ Tư) chỉ có bản phân tích đầu, tập repo AI thiên lệch người sống sót (xem mục trên).
 - Các ngưỡng (50 star, gấp 5 lần, 3 sự kiện, 0,70) do tôi chọn; chỉ ngưỡng star được thử nhiều bộ.
 - Đường cơ sở trượt chỉ gắn cờ đợt sụt kéo dài trong vài tuần đầu, nên tôi thêm đường cố định (4 tuần đầu). Dữ liệu thật chỉ có 8 ngày sau điểm sụt, nên khác biệt này mới kiểm chứng bằng dữ liệu tổng hợp; đường cố định cũng không phân biệt được lỗi với thay đổi mức thật.
 - Đây là dự án học tập, kết quả mang tính khám phá.

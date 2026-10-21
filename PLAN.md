@@ -45,7 +45,22 @@ Tài liệu này ghi từng giai đoạn của dự án: làm gì, đo được 
 
 ## 4. Tải thêm dữ liệu lịch sử
 - Hiện có đủ 03, 04, 05/2025. Tháng 01–02/2025 tải dở (960/1.416 giờ, đến 09/02/2025), tạm dừng vì mạng chậm (~2 phút/giờ).
-- Chạy lại `ingest.py 2025-01-01 2025-02-28 2` sẽ tiếp tục từ chỗ dừng. Dữ liệu 2023–2024 chưa tải.
+- Chạy lại `ingest.py 2025-01-01 2025-02-28 2` sẽ tiếp tục từ chỗ dừng. 
+- **Mẫu 2023–2024** (`scripts/ingest_sample.py` → `data/parquet_sample/`, tách khỏi `data/parquet/` nên pipeline 2025 không đọc nhầm): thứ Tư tuần 2, 3, 4 của mỗi tháng từ 01/2023 đến 12/2024 = 72 ngày, 1.728 giờ, 341.798.089 sự kiện, 4,0 GB Parquet. Tải mất 10.968 giây (~3 tiếng, ~6,3 giây/giờ; mạng lúc này nhanh hơn lúc tải 01–02/2025). Cố định thứ Tư để thay đổi giữa các tháng không lẫn hiệu ứng cuối tuần.
+- **Kiểm tra chất lượng mẫu** (`scripts/dq_sample.py`): so mỗi giờ với trung vị cùng giờ của 6 ngày mẫu gần nhất (3 trước, 3 sau), cùng ngưỡng 0,70/1,50. Kết quả: 1.717 giờ ok, 8 low, 3 high; đủ 24 file mỗi ngày.
+  - **Lỗi của nguồn:** 14/08/2024 23:00 UTC chỉ có 489 sự kiện (0,3%), file 170.922 byte so với ~75 MB. Đã tải lại thẳng từ máy chủ: cùng kích thước, nên lỗi nằm ở GH Archive, không phải do mạng của tôi.
+  - **Hoạt động thật của bot:** 12/04/2023 02–04h UTC cao 1,54–1,65 lần; riêng `dependabot[bot]` tạo 110.425 sự kiện trong giờ 03h (~50%). Không phải lỗi dữ liệu nhưng làm lệch số đếm; phân tích sau này nên loại bot.
+  - **Chưa rõ nguyên nhân:** 13/03/2024 00h (0,67), 11/09/2024 14h (0,59); 25/12/2024 (Giáng sinh) có 6 giờ 0,66–0,69 và cả ngày chỉ bằng 0,70 trung vị quý. Giả thuyết ngày lễ chưa kiểm tra.
+  - **Không thấy** đợt sụt kéo dài kiểu 23/05/2025 trong mẫu (ngày thấp nhất ngoài Giáng sinh bằng 0,90 trung vị quý).
+  - **Mức nền:** trung vị theo ngày ~4,0–4,4 triệu sự kiện (2023) lên ~5,0–5,5 triệu (2024), so với ~5,4–5,9 triệu (03–05/2025). Chưa biết đó là tăng trưởng thật hay thay đổi cách thu thập của GH Archive.
+  - **Giới hạn:** chỉ 3 ngày/tháng và đường cơ sở nhìn cả trước lẫn sau nên không bắt được một đợt sụt dài quá ~3 tháng; chưa tạo cột chất lượng này trong dbt.
+- **Phân tích mẫu 2023–2024** (`scripts/sample_waves.py`, đếm `WatchEvent` của người, loại `[bot]`, trên 4.033 repo AI):
+  - **Phần star thuộc repo AI** (trên tổng star mọi repo, theo tháng mẫu): 3,6–5,2% (01–03/2023) → 5,8–7,6% (04–12/2023) → 6,7–9,9% (2024); tháng cuối 12/2024 là 9,9%. Tổng star mọi repo gần như phẳng (~190–240 nghìn/ngày mẫu), trừ 03/2023 (~405 nghìn, chưa xem nguyên nhân).
+  - **Làn sóng:** top repo mỗi quý đổi theo từng đợt: Q1/2023 prompt/ChatGPT (`awesome-chatgpt-prompts`), Q2/2023 agent tự chạy (`gpt-engineer` 803 sao/ngày mẫu, `AgentGPT`), Q3/2023 `MetaGPT`, `llama2.c`, Q4/2023 `lobe-chat`, `gpt-pilot`, 2024 chạy cục bộ và RAG/công cụ (`ollama`, `dify`, `open-webui`, `markitdown`, `LightRAG`). Chỉ là mô tả top 5, chưa có phép đo "làn sóng" nào chặt hơn.
+  - **Dự án giảm dần:** 132 repo có đỉnh quý 2023 ≥50 star/ngày mẫu; 117 (89%) còn dưới 50% đỉnh ở 2024-Q3/Q4, 81 (61%) còn dưới 20%. Loại 1 repo nghi đổi tên: 116/131 và 81/131.
+  - **Thiên lệch người sống sót:** tập repo xác định từ star 2025 và metadata 2026, nên repo đã chết trước 2025 không có mặt. Tỉ lệ giảm dần ở trên vì vậy là **giới hạn dưới** của số repo mất sức hút, nhưng cũng không thể dùng để nói "bao nhiêu % repo AI chết".
+  - **Đổi tên:** sự kiện mang tên repo lúc đó, tập repo dùng tên 2025. `gpt-engineer` chuyển sang tổ chức khác (~24 star/ngày mẫu ở 2024 dưới tên mới, 0 dưới tên cũ); bộ dò đổi tên thô (cùng tên repo, khác chủ, ≥20% đỉnh) chỉ bắt được 1/132, nên không loại trừ được các ca đổi tên khác.
+  - **Chưa kiểm tra:** độ chính xác bộ phân loại AI cho 2023–2024 (topic/mô tả là 2026, mẫu kiểm tay chỉ cho 2025); mẫu 3 ngày/tháng nên một đợt lan truyền ngắn có thể rơi ngoài mẫu; star đột biến do tài khoản giả không được lọc (đã thấy ở 2025).
 - Ước tính (chưa đo): ~51 GB Parquet cho 29 tháng.
 
 ## 5. Xác định repo AI
@@ -185,6 +200,6 @@ Phạm vi: 01/03 → 22/05/2025, 4.033 repo AI có từ 100 star (giai đoạn 5
 ## 9. Hướng mở rộng
 Theo thứ tự nên làm:
 
-1. **Dữ liệu nhiều năm:** lấy mẫu vài ngày mỗi tháng từ 2023 để xem các làn sóng và dự án chết dần, vì tải đủ 29 tháng quá chậm với mạng hiện tại.
+1. **Làm sâu phân tích mẫu 2023–2024** (đã có bản đầu, xem mục 4): kiểm tra bộ phân loại AI cho 2023–2024, lọc star do tài khoản giả, thử gán lại tên repo bị đổi, đo "làn sóng" bằng cách chặt hơn danh sách top 5.
 2. **Kiểm tra thêm tập repo AI:** mẫu kiểm tay độ chính xác lớn hơn; thử thêm repo dưới 100 star (cần tra thêm ~500 lượt GraphQL cho ngưỡng 30 star).
 3. **Chạy định kỳ hằng ngày** và nguồn dữ liệu bổ sung (chưa thử).

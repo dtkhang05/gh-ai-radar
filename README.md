@@ -50,7 +50,7 @@ Pipeline dữ liệu trên [GH Archive](https://www.gharchive.org/) (mọi sự 
 
 - Star giảm dần từ giữa 2025 và còn rất ít từ 05/2026; từ 08/2026 tổng sự kiện cũng thất thường (ví dụ `anthropics/claude-code` chỉ 8 star cả ngày 19/10/2026).
 - Cộng đồng đã báo lỗi ([gharchive #320](https://github.com/igrigorik/gharchive.org/issues/320), [discussion #178788](https://github.com/orgs/community/discussions/178788)); chưa có xác nhận chính thức, và chưa kiểm tra điểm sụt 23/05/2025 có cùng nguyên nhân không.
-- **Đã tải:** 03, 04, 05/2025 đủ giờ (744 + 720 + 744 file, không lỗi) và 960/1.416 giờ của 01–02/2025 (dừng vì mạng chậm). Phân tích dùng 01/03 → 22/05/2025 (12 tuần). Chưa tải 2023–2024.
+- **Đã tải:** 03, 04, 05/2025 đủ giờ (744 + 720 + 744 file, không lỗi) và 960/1.416 giờ của 01–02/2025 (dừng vì mạng chậm). Phân tích dùng 01/03 → 22/05/2025 (12 tuần). Thêm mẫu 2023–2024: 72 ngày thứ Tư (3 ngày mỗi tháng), 1.728 giờ, 4,0 GB, đã kiểm tra chất lượng (1 giờ nguồn lỗi: 14/08/2024 23:00 chỉ có 489 sự kiện), chưa phân tích.
 - **Chi phí:** ~100 MB nén mỗi giờ → 2.208 giờ là ~230 GB tải qua mạng (không lưu) và ~6 GB Parquet giữ lại. Ngoại suy 29 tháng: ~57 GB Parquet, **chưa đo**.
 
 ## Kết quả chi tiết
@@ -107,7 +107,7 @@ Dữ liệu: 01/03 → 22/05/2025, 4.033 repo AI ≥100 star.
   - Còn sót: `jax`, `triton`, `mlx`, `tinygrad`, `segment-anything`, `faiss`.
   - **Độ chính xác (ước tính):** ~95% phần khớp tên (38/40 repo xem bằng mắt); 76–86% phần thêm từ topic/mô tả (mẫu 50: 38 đúng, 7 ranh giới, 5 sai). Hai mẫu nhỏ, một người đánh giá, sai số ~±10 điểm %.
   - **Thời điểm:** topic và mô tả lấy năm 2026, không phải 03–05/2025; 2.350 repo (12%) không tra được nên chỉ khớp theo tên.
-- **Chỉ 12 tuần dữ liệu đáng tin;** chưa có 2023–2024 nên chưa nói được xu hướng nhiều năm.
+- **Phân tích chính dùng 12 tuần dữ liệu đáng tin;** mẫu 2023–2024 chỉ có bản phân tích đầu (3 ngày/tháng, tập repo AI xác định từ dữ liệu 2025–2026 nên thiên lệch người sống sót, repo đổi tên bị tách lịch sử).
 - **Star đột biến chỉ là tín hiệu nghi ngờ.** Mẫu tuổi tài khoản nhỏ (21–25 người mỗi nhóm); hai repo đối chứng do tác giả chọn vì tin là lan truyền thật.
 - **Ngưỡng do tác giả chọn** (50 star, ×5, ≤3 sự kiện, 0,70). Ngưỡng star thử 9 bộ; các ngưỡng khác chưa thử độ nhạy.
 - **Đường cơ sở:** đường trượt chỉ gắn cờ đợt sụt kéo dài vài tuần đầu; đường cố định (4 tuần đầu) gắn cờ suốt nhưng không phân biệt lỗi với thay đổi mức dài hạn thật. Dữ liệu thật chỉ có 8 ngày sau điểm sụt nên sự khác biệt này mới chứng minh bằng dữ liệu tổng hợp.
@@ -175,6 +175,7 @@ Dữ liệu: 01/03 → 22/05/2025, 4.033 repo AI ≥100 star.
 | `scripts/ai_repos_recall.py`, `ai_reference_repos.txt`, `ai_reference_repos_2.txt` | Đo độ phủ end-to-end trên hai danh sách chọn tay |
 | `scripts/star_anomalies.py` | Ngày star đột biến và tỉ lệ tài khoản mỏng, 9 bộ ngưỡng |
 | `scripts/check_account_age.py` | Kiểm tuổi tài khoản bằng GitHub API công khai |
+| `scripts/ingest_sample.py`, `dq_sample.py`, `sample_waves.py` | Mẫu 2023–2024: tải, kiểm tra chất lượng, star theo quý của repo AI |
 | `scripts/cohort_retention.py` | Giữ chân theo cohort (bản script; bản dbt: `fct_cohort_retention`) |
 | `scripts/build_dashboard.py`, `dashboard_template.html` | Tạo `docs/index.html` |
 | `scripts/build_dbt_docs.py` | Tạo `docs/dbt/index.html` (cần chạy `run_pipeline.py` trước) |
@@ -186,7 +187,7 @@ Dữ liệu: 01/03 → 22/05/2025, 4.033 repo AI ≥100 star.
 
 ## Hướng phát triển
 
-- Dữ liệu 2023–2024: lấy mẫu vài ngày mỗi tháng thay vì tải đủ, để vẫn thấy xu hướng nhiều năm.
+- Làm sâu phân tích mẫu 2023–2024: bộ phân loại AI cho 2023–2024, lọc star giả, xử lý đổi tên repo.
 - Phân loại repo AI: nâng độ chính xác (76–86%) và độ phủ (82–89%): thêm repo dưới 100 star, gán nhãn bằng mô hình ngôn ngữ, mẫu kiểm tay lớn hơn.
 - Câu hỏi chưa trả lời: dự án nào đang chết dần; các làn sóng nối tiếp nhau thế nào.
 - Nguồn thay thế như OpenDigger (tương thích GH Archive, [gharchive #323](https://github.com/igrigorik/gharchive.org/issues/323)) chưa thử.

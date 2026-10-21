@@ -6,8 +6,9 @@ from datetime import datetime, timedelta
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RAW = os.path.join(ROOT, "data", "raw")
-PQ = os.path.join(ROOT, "data", "parquet")
-MANIFEST = os.path.join(ROOT, "data", "manifest.jsonl")
+# The multi-year sample (scripts/ingest_sample.py) writes to its own folder so the 2025 pipeline glob never sees it.
+PQ = os.environ.get("RADAR_PQ_DIR", os.path.join(ROOT, "data", "parquet"))
+MANIFEST = os.environ.get("RADAR_MANIFEST", os.path.join(ROOT, "data", "manifest.jsonl"))
 os.makedirs(RAW, exist_ok=True)
 os.makedirs(PQ, exist_ok=True)
 
