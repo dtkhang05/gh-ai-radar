@@ -5,7 +5,18 @@ models:
     description: Repos classified as AI (name, GitHub topics or description) that got >= min_stars stars in the trusted window.
     columns:
       - name: repo
+        description: Repository as owner/name.
         data_tests: [not_null, unique]
+      - name: events
+        description: All events the repo got in the window.
+      - name: stars
+        description: WatchEvents (stars) in the window; at least min_stars.
+      - name: by_name
+        description: True if the repo name matches an AI keyword.
+      - name: by_topic
+        description: True if one of the repo's GitHub topics is an AI topic (metadata fetched in 2026).
+      - name: by_desc
+        description: True if the repo description matches an AI keyword (metadata fetched in 2026).
 
   - name: fct_star_daily
     description: Dense stars per candidate repo per day inside the trusted window.
@@ -22,8 +33,10 @@ models:
                 to: ref('int_ai_repo_candidates')
                 field: repo
       - name: d
+        description: UTC day.
         data_tests: [not_null]
       - name: stars
+        description: Distinct star events that day (0 when none).
         data_tests: [not_null]
 
   - name: fct_star_spike_days
@@ -35,7 +48,14 @@ models:
               arguments:
                 to: ref('int_ai_repo_candidates')
                 field: repo
+      - name: d
+        description: UTC day of the spike.
+      - name: stars
+        description: Stars that day.
+      - name: baseline
+        description: Median daily stars of the prior 14 days.
       - name: x_baseline
+        description: stars / max(baseline, 1).
         data_tests:
           - not_null
 
@@ -43,22 +63,43 @@ models:
     description: One row per (non-bot contributor, 7-day block).
     columns:
       - name: actor
+        description: Login of a non-bot contributor.
         data_tests: [not_null]
       - name: blk
+        description: 7-day block index counted from window_start (0 = first block).
         data_tests: [not_null]
+      - name: did_code
+        description: True if the person pushed or opened/updated a PR in that block.
 
   - name: fct_cohort_retention
     description: Weekly cohort retention of new contributors (see model header for the left-censoring caveat).
     columns:
+      - name: cohort_blk
+        description: Block in which the cohort was first seen.
+      - name: weeks_later
+        description: How many blocks after the first one the activity is measured (1..8).
+      - name: first_is_code
+        description: True if the first activity was push/PR, false if only issue/comment/review.
       - name: cohort_size
+        description: People in the cohort.
         data_tests: [not_null]
+      - name: still_active
+        description: Cohort members active again weeks_later blocks later in any AI-universe repo.
 
   - name: fct_hourly_quality
     description: One row per expected hour with a flag when event counts drop or spike versus the same weekday+hour of the previous 4 weeks.
     columns:
       - name: hr
+        description: Hour (UTC) in [dq_start, dq_end).
         data_tests: [not_null, unique]
+      - name: events
+        description: Events in the hour (0 if no file or no events).
+      - name: base_events
+        description: Median of the same weekday and hour over the previous 4 weeks.
+      - name: events_ratio
+        description: events / base_events.
       - name: flag
+        description: ok; low (< 0.70 of baseline); high (> 1.50); missing (0 events); no_baseline (fewer than 3 prior values).
         data_tests:
           - not_null
           - accepted_values:

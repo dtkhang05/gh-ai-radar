@@ -2,7 +2,7 @@
 
 Pipeline dữ liệu trên [GH Archive](https://www.gharchive.org/) (mọi sự kiện công khai của GitHub, mỗi giờ một file): thu thập, kiểm tra chất lượng, mô hình hóa bằng dbt và DuckDB, rồi phân tích hệ sinh thái AI mã nguồn mở. Đây là một dự án học tập. Kết quả mang tính khám phá, và các giới hạn được nêu rõ ở từng phần.
 
-**Xem kết quả:** [dashboard](https://dtkhang05.github.io/gh-ai-radar/) · [bài viết](docs/bai-viet.md) · nhật ký kế hoạch và số đo từng bước: [PLAN.md](PLAN.md)
+**Xem kết quả:** [dashboard](https://dtkhang05.github.io/gh-ai-radar/) · [tài liệu dbt](https://dtkhang05.github.io/gh-ai-radar/dbt/) (mô hình, cột, test, sơ đồ phụ thuộc) · [bài viết](docs/bai-viet.md) · nhật ký kế hoạch và số đo từng bước: [PLAN.md](PLAN.md)
 
 ## Kết quả chính
 
@@ -163,7 +163,8 @@ Hai điều cần nhớ: dữ liệu bắt đầu từ 01/03 nên người cũ v
 | `scripts/compare_hours.py`, `scripts/probe_day.py` | Đo thử ban đầu: so số sự kiện các giờ mẫu; đo thử một ngày |
 | `scripts/recompress.py` | Dùng một lần: chuyển Parquet cũ sang định dạng gọn hơn |
 | `scripts/build_dashboard.py`, `scripts/dashboard_template.html` | Tạo `docs/index.html` từ các bảng dbt và các file mẫu tài khoản |
-| `docs/` | Dashboard (`index.html`, phục vụ qua GitHub Pages) và bài viết (`bai-viet.md`) |
+| `scripts/build_dbt_docs.py` | Tạo `docs/dbt/index.html` (tài liệu dbt một file, cần chạy `run_pipeline.py` trước) |
+| `docs/` | Dashboard (`index.html`), tài liệu dbt (`dbt/index.html`), phục vụ qua GitHub Pages; và bài viết (`bai-viet.md`) |
 | `PLAN.md` | Nhật ký theo từng bước: kế hoạch, số đo, kết quả, lỗi đã gặp |
 | `data/` | Dữ liệu (không đưa lên git) |
 

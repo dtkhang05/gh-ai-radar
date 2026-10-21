@@ -92,7 +92,8 @@ Khớp từ khóa nguyên từ trong tên repo (`llm`, `gpt`, `agent`, `mcp`, ..
   - **loại sự kiện lạ:** `accepted_values` thất bại và các mô hình phía sau bị bỏ qua.
   - **Đã kiểm chứng:** chạy cục bộ ~21 giây, đạt cả 3 kịch bản; thử đổi ngưỡng cờ `low` từ 0,70 xuống 0,50 thì kiểm tra "đợt sụt 35% đều `low`" báo đỏ (nên kiểm tra không rỗng). Lượt chạy đầu trên GitHub Actions (Ubuntu, Python 3.13, 21/10/2026) đạt cả 18 kiểm tra, kết quả giống cục bộ.
   - **Giới hạn:** dữ liệu tổng hợp đơn giản (nhiễu ±3%, không có chu kỳ dài hơn tuần), nên chứng minh test bắt được lỗi cài sẵn, không chứng minh bắt được mọi lỗi thật. Chưa có kịch bản cho id trùng và đợt sụt kéo dài hơn 3 tuần (điểm yếu đã biết của đường cơ sở trượt).
-- **Còn thiếu:** tài liệu `dbt docs`.
+- **Tài liệu dbt:** `scripts/build_dbt_docs.py` chạy `dbt docs generate --static` rồi chép ra `docs/dbt/index.html` (một file 2,5 MB, không cần máy chủ, đăng cùng GitHub Pages). Mô tả cho các mô hình và cột của lớp marts nằm trong `models/marts/schema.yml`. Đã mở bằng Edge và thấy trang mô hình `fct_hourly_quality` hiển thị đúng; chưa xem trên trang công khai và chưa mô tả cột của `stg_events` ngoài `id`, `type`, `actor`, `repo`.
+- **Còn thiếu:** chưa có sơ đồ phụ thuộc chụp lại trong README.
 
 ## 7. Phân tích
 Phạm vi: 01/03 → 22/05/2025, 4.033 repo AI có từ 100 star (xem giai đoạn 5, vòng 2). Các số dưới đây là kết quả trên tập này; kết quả vòng 1 (tập theo tên, 8.068 repo ≥10 star) được ghi ở cuối mục để so sánh.
@@ -140,7 +141,7 @@ Dự án chết dần; làn sóng LangChain → agent → MCP (cần dữ liệu
 ## 9. Hướng mở rộng
 Theo thứ tự nên làm:
 
-1. **Đường cơ sở cố định** cho lớp chất lượng (giai đoạn 3) và `dbt docs` đăng cùng Pages.
+1. **Đường cơ sở cố định** cho lớp chất lượng (giai đoạn 3).
 2. **Dữ liệu nhiều năm:** lấy mẫu vài ngày mỗi tháng từ 2023 để xem các làn sóng và dự án chết dần, vì tải đủ 29 tháng quá chậm với mạng hiện tại.
 3. **Kiểm tra thêm tập repo AI:** mẫu kiểm tay độ chính xác lớn hơn; thử thêm repo dưới 100 star (cần tra thêm ~500 lượt GraphQL cho ngưỡng 30 star).
 4. **Chạy định kỳ hằng ngày** và nguồn dữ liệu bổ sung (chưa thử).

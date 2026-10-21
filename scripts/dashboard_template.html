@@ -217,7 +217,8 @@ D.tiles.forEach(t => {
   tiles.appendChild(d);
 });
 D.limits.forEach(s => { const li = document.createElement("li"); li.textContent = s; document.getElementById("limits").appendChild(li); });
-document.getElementById("foot").textContent = D.meta.footer;
+document.getElementById("foot").textContent = D.meta.footer + " ";
+const dl = document.createElement("a"); dl.href = "dbt/"; dl.textContent = "Tài liệu dbt (mô hình, cột, test, sơ đồ)"; document.getElementById("foot").appendChild(dl);
 
 /* ---------- chart 1: events per hour ---------- */
 function chart1() {
