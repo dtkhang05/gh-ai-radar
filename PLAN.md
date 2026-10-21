@@ -90,7 +90,7 @@ Khớp từ khóa nguyên từ trong tên repo (`llm`, `gpt`, `agent`, `mcp`, ..
   - **sạch:** `dbt build` thành công, 25 test đạt, không cờ giả (504 giờ `no_baseline`, 672 giờ `ok`), không ngày đột biến, bảng giữ chân có người quay lại.
   - **có lỗi cài sẵn:** một giờ không có sự kiện, một giờ chỉ còn 12%, đợt sụt 35% từ 15/04 16:00, 400 tài khoản star một lần trong một ngày. Kiểm tra: `assert_no_missing_hours` thất bại, test giờ bất thường cảnh báo, giờ thiếu được gắn `missing`, giờ 12% gắn `low`, cả 80 giờ sụt đều `low`, không giờ nào bị gắn cờ ngoài các giờ cài sẵn, ngày đột biến duy nhất là ngày cài sẵn, các mô hình khác vẫn dựng được.
   - **loại sự kiện lạ:** `accepted_values` thất bại và các mô hình phía sau bị bỏ qua.
-  - **Đã kiểm chứng:** chạy cục bộ ~21 giây, đạt cả 3 kịch bản; thử đổi ngưỡng cờ `low` từ 0,70 xuống 0,50 thì kiểm tra "đợt sụt 35% đều `low`" báo đỏ (nên kiểm tra không rỗng). **Chưa kiểm chứng:** chạy trên GitHub Actions (Ubuntu, Python 3.13); chỉ biết file workflow hợp lệ về cú pháp YAML.
+  - **Đã kiểm chứng:** chạy cục bộ ~21 giây, đạt cả 3 kịch bản; thử đổi ngưỡng cờ `low` từ 0,70 xuống 0,50 thì kiểm tra "đợt sụt 35% đều `low`" báo đỏ (nên kiểm tra không rỗng). Lượt chạy đầu trên GitHub Actions (Ubuntu, Python 3.13, 21/10/2026) đạt cả 18 kiểm tra, kết quả giống cục bộ.
   - **Giới hạn:** dữ liệu tổng hợp đơn giản (nhiễu ±3%, không có chu kỳ dài hơn tuần), nên chứng minh test bắt được lỗi cài sẵn, không chứng minh bắt được mọi lỗi thật. Chưa có kịch bản cho id trùng và đợt sụt kéo dài hơn 3 tuần (điểm yếu đã biết của đường cơ sở trượt).
 - **Còn thiếu:** tài liệu `dbt docs`.
 
