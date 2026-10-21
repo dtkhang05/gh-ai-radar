@@ -60,7 +60,8 @@ Tài liệu này ghi từng giai đoạn của dự án: làm gì, đo được 
   - **Dự án giảm dần:** 132 repo có đỉnh quý 2023 ≥50 star/ngày mẫu; 117 (89%) còn dưới 50% đỉnh ở 2024-Q3/Q4, 81 (61%) còn dưới 20%. Loại 1 repo nghi đổi tên: 116/131 và 81/131.
   - **Thiên lệch người sống sót:** tập repo xác định từ star 2025 và metadata 2026, nên repo đã chết trước 2025 không có mặt. Tỉ lệ giảm dần ở trên vì vậy là **giới hạn dưới** của số repo mất sức hút, nhưng cũng không thể dùng để nói "bao nhiêu % repo AI chết".
   - **Đổi tên:** sự kiện mang tên repo lúc đó, tập repo dùng tên 2025. `gpt-engineer` chuyển sang tổ chức khác (~24 star/ngày mẫu ở 2024 dưới tên mới, 0 dưới tên cũ); bộ dò đổi tên thô (cùng tên repo, khác chủ, ≥20% đỉnh) chỉ bắt được 1/132, nên không loại trừ được các ca đổi tên khác.
-  - **Chưa kiểm tra:** độ chính xác bộ phân loại AI cho 2023–2024 (topic/mô tả là 2026, mẫu kiểm tay chỉ cho 2025); mẫu 3 ngày/tháng nên một đợt lan truyền ngắn có thể rơi ngoài mẫu; star đột biến do tài khoản giả không được lọc (đã thấy ở 2025).
+  - **Kiểm tay bộ phân loại trên 52 repo đứng top 8 mỗi quý (2023–2024):** 46 đúng, 4 ranh giới (`Follow` đọc RSS có AI, `markitdown` chuyển file cho LLM, `PDFMathTranslate`, `gpt-crawler`), 2 sai (`shadcn-ui/ui`, `drawdb`: thư viện giao diện và công cụ vẽ sơ đồ CSDL). Hai repo sai chiếm tối đa 0,5–1,5% star/ngày mẫu của tập AI mỗi quý nên không đổi kết luận. Mẫu chọn theo thứ hạng star (repo nổi tiếng, dễ phân loại đúng), nên không suy ra độ chính xác cho cả 4.033 repo; tôi là người xem và chấm.
+  - **Chưa kiểm tra:** độ phủ của bộ phân loại cho 2023–2024 (danh sách tham chiếu là repo 2025); mẫu 3 ngày/tháng nên một đợt lan truyền ngắn có thể rơi ngoài mẫu; star đột biến do tài khoản giả không được lọc (đã thấy ở 2025).
 - Ước tính (chưa đo): ~51 GB Parquet cho 29 tháng.
 
 ## 5. Xác định repo AI
