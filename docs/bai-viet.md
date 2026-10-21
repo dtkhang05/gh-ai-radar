@@ -1,44 +1,89 @@
 # Nguồn dữ liệu công khai mất 35% sự kiện mà không báo, và hệ thống kiểm tra của tôi bắt được
 
-Ngày 20/10/2026 tôi bắt đầu một dự án học dữ liệu: dựng pipeline trên GH Archive (mọi sự kiện công khai của GitHub, mỗi giờ một file) để xem hệ sinh thái AI mã nguồn mở vận động thế nào. Việc đầu tiên tôi làm là đo thử vài giờ mẫu mỗi tháng, và kết quả làm tôi đổi hướng: trong các giờ mẫu đó, số star giảm dần từ giữa năm 2025 và còn rất ít từ tháng 5/2026 (mỗi con số chỉ là một giờ trong tháng, chưa phải cả tháng). Phần còn lại của dự án xoay quanh việc đo điều đó cho chắc và tránh để nó làm hỏng các kết luận khác.
+Dự án học dữ liệu bắt đầu ngày 20/10/2026: dựng pipeline trên GH Archive (mọi sự kiện công khai của GitHub, mỗi giờ một file) để xem hệ sinh thái AI mã nguồn mở vận động thế nào.
+
+- Đo thử vài giờ mẫu mỗi tháng cho thấy số star giảm dần từ giữa 2025 và còn rất ít từ 05/2026 (mỗi số là một giờ trong tháng, chưa phải cả tháng).
+- Phần còn lại của dự án đo điều đó cho chắc, và tránh để nó làm hỏng các kết luận khác.
 
 ## Điểm sụt nằm giữa tháng 5/2025
 
-Tôi tải 2.208 file giờ từ 01/03 đến 31/05/2025 và so mỗi giờ với trung vị của cùng thứ, cùng giờ trong 4 tuần trước. Nếu một giờ thấp hơn 70% mức đó thì bị gắn cờ. Theo ngày, dữ liệu trông bình thường, vì cả 24 file đều tồn tại. Theo giờ thì khác: từ khoảng 17h UTC ngày 23/05/2025, số sự kiện rơi từ khoảng 250 nghìn xuống 150 nghìn mỗi giờ và không hồi lại. So trung bình mỗi giờ của 12–17/05 với 26–31/05 (cùng các thứ trong tuần), mức giảm là 35,5%. Tôi chưa biết nguyên nhân. Cộng đồng đã báo lỗi mất sự kiện của nguồn này cho chủ kho dữ liệu, nhưng chưa có xác nhận chính thức, và tôi cũng chưa kiểm tra đó có phải cùng nguyên nhân với điểm sụt này hay không.
+- Dữ liệu: 2.208 file giờ, 01/03 → 31/05/2025.
+- Cách kiểm tra: so mỗi giờ với trung vị của cùng thứ, cùng giờ trong 4 tuần trước; dưới 70% thì gắn cờ.
+- Theo ngày, dữ liệu trông bình thường vì cả 24 file đều có.
+- Theo giờ: từ khoảng 17h UTC ngày 23/05/2025, số sự kiện rơi từ ~250 nghìn xuống ~150 nghìn mỗi giờ và không hồi lại.
+- Mức giảm là **35,5%** (trung bình mỗi giờ của 12–17/05 so với 26–31/05, cùng các thứ trong tuần).
+- Nguyên nhân chưa biết. Cộng đồng đã báo lỗi mất sự kiện cho chủ kho, chưa có xác nhận chính thức, và tôi chưa kiểm tra đó có phải cùng nguyên nhân hay không.
+- Bộ kiểm tra còn bắt được một giờ tôi bỏ sót lúc tải: file 01h UTC ngày 08/05/2025 tải báo thành công nhưng chỉ có 27.469 sự kiện (12% mức thường), nặng 11,6 MB thay vì ~105 MB. Script tải chỉ kiểm tra file có tải được, không kiểm tra nội dung.
+- Vì vậy mọi phân tích dừng ở 22/05/2025.
 
-Cùng bộ kiểm tra còn bắt được một giờ mà tôi đã bỏ sót lúc tải: file 01h UTC ngày 08/05/2025 tải về báo thành công, nhưng chỉ chứa 27.469 sự kiện (12% mức thường) và nặng 11,6 MB thay vì khoảng 105 MB. Script tải của tôi chỉ kiểm tra file có tải được hay không, không kiểm tra nội dung. Từ đó mọi phân tích dừng ở 22/05/2025.
+## Star tăng đột biến: đa số là người thật
 
-## Star tăng đột biến: đa số là người thật, trừ một repo
+- Phạm vi: 4.033 repo AI có từ 100 star trong 12 tuần.
+- Ngày đột biến: ≥50 star và gấp 5 lần trung vị 14 ngày trước. Có 1.513 ngày như vậy ở 526 repo.
+- Tài khoản "mỏng": không quá 3 sự kiện trong 12 tuần. Ngày đột biến có 6,7% tài khoản mỏng, thấp hơn ngày thường (8,2%).
+- Đọc: phần lớn đột biến đến từ ra mắt hoặc được chia sẻ rộng.
 
-Trong 4.033 repo AI có từ 100 star trong 12 tuần, tôi tìm các ngày có ít nhất 50 star và gấp 5 lần trung vị 14 ngày trước. Có 1.513 ngày như vậy ở 526 repo. Với mỗi ngày, tôi xem người star có "mỏng" không, tức có không quá 3 sự kiện nào trong 12 tuần. Trung bình, ngày đột biến có 6,7% tài khoản mỏng, thấp hơn ngày thường (8,2%): phần lớn đột biến đến từ ra mắt hoặc được chia sẻ rộng.
+**Hai repo lệch hẳn (Repo X và Repo X2, cùng một tổ chức)**
+- Các ngày 11, 12, 14, 15/04/2025: 85–93% người star là tài khoản mỏng, so với ~30% ngày thường.
+- Cả hai bị gắn cờ ở 9/9 bộ ngưỡng thử.
+- Repo X2 chỉ hiện ra sau khi tôi mở rộng tập repo ra ngoài tên repo; bộ lọc cũ chỉ thấy Repo X.
 
-Hai repo của cùng một tổ chức lệch hẳn. Tôi gọi chúng là Repo X và Repo X2. Ở các ngày 11, 12, 14 và 15/04/2025, 85–93% người star là tài khoản mỏng, trong khi ngày thường của chúng là khoảng 30%. Cả hai bị gắn cờ ở cả 9 bộ ngưỡng tôi thử. Repo X2 chỉ xuất hiện sau khi tôi mở rộng tập repo ra ngoài tên repo; bộ lọc theo tên cũ chỉ thấy Repo X. Một repo khác (Repo Y) bị gắn cờ ở 6/9 bộ ngưỡng, trong một ngày (25/04/2025). Để không dừng ở một chỉ số, tôi lấy mẫu người star và hỏi API công khai của GitHub về ngày tạo tài khoản. Nhóm ngày đột biến có tuổi tài khoản trung vị 0 ngày: 20/21 tài khoản đọc được mới tạo chưa đến 30 ngày và 19/21 chưa có repo nào. Hai đợt lan truyền thật làm đối chứng cho kết quả khác hẳn: tuổi trung vị 3.820 ngày (github-mcp-server) và 2.050 ngày (một repo tập hợp system prompt).
+**Kiểm chứng bằng tuổi tài khoản** (GitHub API, mẫu 21–25 tài khoản mỗi nhóm):
 
-Kết quả này chỉ cho biết các tài khoản đó là tài khoản dùng một lần. Nó không cho biết ai tạo ra chúng, nên tôi không gán lỗi cho ai. Tôi cũng kiểm Repo X2 và Repo Y theo cách đó. Repo X2 giống Repo X: 22/24 tài khoản đọc được mới tạo chưa đến 30 ngày, tuổi trung vị 0 ngày. Repo Y thì không: tài khoản star ngày 25/04 có tuổi trung vị 419 ngày và chỉ 2/25 mới tạo, nên tuổi tài khoản không xác nhận dấu hiệu "mỏng" ở repo này; tỉ lệ mỏng ngày thường của nó vốn đã 60%. Mẫu chỉ có 21–25 tài khoản mỗi nhóm. Hai repo đối chứng là do tôi chọn vì tin chúng là lan truyền thật.
+| Nhóm | Tuổi trung vị | Tạo <30 ngày |
+|---|---|---|
+| Repo X, 14–15/04 | 0 ngày | 20/21 |
+| Repo X2, 14–15/04 | 0 ngày | 22/24 |
+| Repo Y, 25/04 | 419 ngày | 2/25 |
+| github-mcp-server, ra mắt (đối chứng) | 3.820 ngày | 0/22 |
+| system-prompts…, lan truyền (đối chứng) | 2.050 ngày | 2/24 |
+
+- Repo X và X2: phần lớn star đến từ tài khoản tạo ngay trong ngày, khác hẳn hai đợt lan truyền thật.
+- Repo Y bị gắn cờ ở 6/9 bộ ngưỡng, một ngày, nhưng tuổi tài khoản không xác nhận. Tỉ lệ mỏng ngày thường của nó vốn đã 60%.
+- Chỉ cho biết đó là tài khoản dùng một lần, không cho biết ai tạo ra. Tôi không gán lỗi cho ai.
+- Mẫu nhỏ, và hai repo đối chứng do tôi chọn vì tin chúng là lan truyền thật.
 
 ## Người đóng góp mới ít khi ở lại
 
-Với 143.991 người đóng góp (push, PR, issue, bình luận, review; loại bot), tôi chia theo tuần đầu tiên họ xuất hiện rồi đếm bao nhiêu người còn hoạt động sau đó. Sau 1 tuần còn 16,7%, sau 4 tuần 7,9%, sau 8 tuần 7,2%. Người bắt đầu bằng code giữ lại tốt hơn nhiều: 29,0% sau 1 tuần và 14,9% sau 8 tuần, so với 14,3% và 5,6% ở người chỉ để lại issue hoặc bình luận. Tôi chưa biết vì sao con số 8 tuần cao hơn khi mở rộng tập repo (trước đó là 5,8%); một giả thuyết là các repo thư viện và framework AI giữ người đóng góp lâu hơn các repo ứng dụng nhỏ, nhưng tôi chưa kiểm tra.
+- Phạm vi: 143.991 người (push, PR, issue, bình luận, review; loại bot), chia theo tuần đầu tiên họ xuất hiện.
+- Còn hoạt động sau 1 tuần: 16,7%; sau 4 tuần: 7,9%; sau 8 tuần: 7,2%.
+- Người bắt đầu bằng code giữ lại tốt hơn: 29,0% sau 1 tuần và 14,9% sau 8 tuần, so với 14,3% và 5,6% ở người chỉ để lại issue hoặc bình luận.
+- Số 8 tuần cao hơn khi mở rộng tập repo (trước đó 5,8%). Nguyên nhân chưa kiểm tra; giả thuyết: repo thư viện và framework giữ người lâu hơn repo ứng dụng nhỏ.
 
-Con số này có hai chỗ yếu. Dữ liệu bắt đầu từ 01/03 nên người cũ vắng mặt trong hai tuần đầu bị tính là người mới, làm các cohort đầu cao hơn thực tế; vì vậy xu hướng giảm giữa các cohort không có nghĩa hệ sinh thái yếu đi. Ngoài ra "còn hoạt động" chỉ tính trong tập repo đã lọc, nên người chuyển sang repo khác bị tính là đã rời đi. Tôi chưa có mốc so sánh bên ngoài để nói 17% là cao hay thấp.
+**Hai chỗ yếu**
+- Dữ liệu bắt đầu từ 01/03, nên người cũ vắng hai tuần đầu bị tính là người mới. Xu hướng giảm giữa các cohort vì vậy không có nghĩa hệ sinh thái yếu đi.
+- "Còn hoạt động" chỉ tính trong tập repo đã lọc; người chuyển sang repo khác bị tính là rời đi.
+- Chưa có mốc so sánh bên ngoài để nói 17% là cao hay thấp.
 
 ## Pipeline và những chỗ tôi làm sai
 
-Pipeline gồm script tải từng giờ (lọc 5 cột, ghi Parquet, xóa file thô), DuckDB đọc trực tiếp Parquet, và dbt với 7 mô hình và 25 test. Một lệnh `run_pipeline.py` chạy cả chuỗi, dừng ngay khi có lỗi và ghi log. Chạy từ đầu mất 70 giây; 23 test đạt, 2 cảnh báo có chủ đích, và kết quả dbt khớp với các script phân tích viết trước đó ở các chỉ số tôi đã so (số ngày đột biến, giữ chân người đóng góp, độ phủ).
+**Pipeline**
+- Tải từng giờ → lọc 5 cột → Parquet → xóa file thô.
+- DuckDB đọc trực tiếp Parquet; dbt có 7 mô hình và 25 test.
+- Một lệnh `run_pipeline.py` chạy cả chuỗi, dừng ngay khi lỗi, ghi log. Chạy từ đầu mất 70 giây: 23 test đạt, 2 cảnh báo có chủ đích.
+- Kết quả dbt khớp với các script phân tích ở các chỉ số tôi đã so (số ngày đột biến, giữ chân người đóng góp, độ phủ).
+- CI chạy dbt trên dữ liệu tổng hợp có lỗi cài sẵn và báo đỏ nếu test không còn bắt được lỗi.
 
-Một vài lỗi tôi đã gặp và sửa:
+**Lỗi đã gặp và sửa**
+- `build_db.py` bản đầu sao chép dữ liệu vào bảng DuckDB: 9,3 GB so với 2,6 GB Parquet (gấp 3,6 lần). Đổi sang view.
+- Một truy vấn thăm dò chiếm 12 GB RAM và tràn 16 GB file tạm. Từ đó mọi script đều giới hạn bộ nhớ và file tạm.
+- Lần đầu tìm star đột biến, repo mới ra mắt bị tính nhầm vì mức thường bằng 0. Thêm điều kiện repo phải có lịch sử star.
+- Trên dashboard, tôi từng tô cam cả một ngày không có gì bất thường. Chỉ thấy khi mở ảnh chụp màn hình.
 
-- Bản đầu của `build_db.py` sao chép dữ liệu vào bảng DuckDB, nặng 9,3 GB so với 2,6 GB Parquet, gấp 3,6 lần. Tôi đổi sang view để dữ liệu chỉ lưu một lần.
-- Một truy vấn thăm dò chiếm 12 GB RAM và tràn 16 GB file tạm ra ổ đĩa. Từ đó mọi script đều đặt giới hạn bộ nhớ và dung lượng file tạm.
-- Lần đầu tìm star đột biến, các repo mới ra mắt bị tính là đột biến vì mức thường bằng 0. Tôi thêm điều kiện repo phải có lịch sử star trước đó.
-- Ở dashboard, tôi từng tô cam toàn bộ ngày đột biến của Repo X, kể cả một ngày không có gì bất thường. Tôi chỉ phát hiện khi mở ảnh chụp màn hình ra xem.
+## Giới hạn
 
-## Giới hạn chung
+**Cách xác định repo AI**
+- Bản đầu chỉ lọc theo từ khóa trong tên: độ phủ 25% (19/76 repo nổi tiếng chọn tay).
+- Sót repo có từ khóa ở tên tổ chức (`modelcontextprotocol/servers`), tên ghép (`vllm`, `comfyui`) và thư viện không có từ khóa (`pytorch`).
+- Bản hiện tại thêm topic và mô tả repo (GitHub API, 20.000 repo nhiều star nhất): độ phủ **82%** trên danh sách cũ, **89%** trên danh sách thứ hai (71 repo, viết trước khi chạy bộ phân loại; bộ lọc theo tên chỉ đạt 20% ở đó).
+- Độ chính xác giảm: phần thêm từ topic/mô tả đúng khoảng 76–86% (mẫu 50 repo tôi xem bằng mắt), so với ~95% của bộ lọc theo tên.
+- Topic và mô tả là của năm 2026, không phải 03–05/2025. 12% repo không tra được (đổi tên, xóa) nên chỉ khớp theo tên.
+- Chỉ xét repo có từ 100 star. Hai danh sách kiểm tra do tôi chọn từ trí nhớ, thiên về repo nổi tiếng; repo ít người biết có thể có độ phủ thấp hơn.
 
-Bản đầu của dự án chỉ chọn repo theo từ khóa trong tên. Khi tôi đo ngược lại bằng 76 repo AI nổi tiếng chọn tay, bộ lọc chỉ bắt được 19, tức 25%: nó bỏ sót repo có từ khóa ở tên tổ chức (`modelcontextprotocol/servers`), tên ghép (`vllm`, `comfyui`) và thư viện nổi tiếng không có từ khóa (`pytorch`). Vì vậy tôi bổ sung hai tín hiệu: topic và mô tả của repo, lấy qua GitHub API cho 20.000 repo nhiều star nhất. Độ phủ lên 82% trên danh sách cũ, và 89% trên danh sách thứ hai gồm 71 repo tôi viết trước khi chạy bộ phân loại (bộ lọc theo tên chỉ đạt 20% trên danh sách đó).
+**Chung**
+- Chỉ 12 tuần dữ liệu (01/03 – 22/05/2025); 2023–2024 chưa tải vì mạng chậm.
+- Các ngưỡng (50 star, gấp 5 lần, 3 sự kiện, 0,70) do tôi chọn; chỉ ngưỡng star được thử nhiều bộ.
+- Lớp kiểm tra chất lượng dùng đường cơ sở trượt, nên một đợt sụt kéo dài chỉ bị gắn cờ trong vài tuần đầu.
+- Đây là dự án học tập, kết quả mang tính khám phá.
 
-Cách này có ba điểm yếu. Độ chính xác giảm: phần thêm từ topic và mô tả đúng khoảng 76–86% trên mẫu 50 repo tôi xem bằng mắt (so với khoảng 95% của bộ lọc theo tên); các lỗi hay gặp là repo chỉ nhắc "AI" trong mô tả hoặc gắn topic cho trò chơi. Topic và mô tả là của năm 2026, không phải của tháng 3–5/2025, và 12% repo không tra được (đổi tên, xóa) nên chỉ khớp được theo tên. Cuối cùng, chỉ repo có từ 100 star trong 12 tuần được xét, và hai danh sách kiểm tra do chính tôi chọn từ trí nhớ nên thiên về repo nổi tiếng; với repo ít người biết, độ phủ có thể thấp hơn.
-
-Toàn bộ kết quả dựa trên 12 tuần dữ liệu (01/03 – 22/05/2025); dữ liệu 2023–2024 tôi chưa tải vì mạng chậm. Các ngưỡng (50 star, gấp 5 lần, 3 sự kiện, 0,70) do tôi chọn và chỉ ngưỡng của star được thử nhiều bộ. Lớp kiểm tra chất lượng dùng đường cơ sở trượt, nên một đợt sụt kéo dài chỉ bị gắn cờ trong vài tuần đầu. Đây là dự án học tập, các kết quả mang tính khám phá.
-
-Mã nguồn, các bảng dbt và dashboard nằm cùng kho với bài viết này.
+Mã nguồn, các bảng dbt, tài liệu dbt và dashboard nằm cùng kho với bài viết này.
