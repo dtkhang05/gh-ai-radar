@@ -58,12 +58,31 @@ Dự án học dữ liệu bắt đầu ngày 20/10/2026: dựng pipeline trên 
 ## Thử nhìn lại 2023–2024 (bản đầu)
 
 - Dữ liệu: 72 ngày thứ Tư (3 ngày mỗi tháng), 341,8 triệu sự kiện. Kiểm tra chất lượng thấy một giờ lỗi ở nguồn (14/08/2024 chỉ có 489 sự kiện) và một đợt bot (12/04/2023), không thấy đợt sụt kéo dài kiểu 05/2025.
-- Phần star thuộc repo AI tăng từ 3,6–5,2% (01–03/2023) lên 5,8–7,6% (04–12/2023) và 6,7–9,9% trong 2024. Tổng star mọi repo gần như phẳng.
-- Top repo mỗi quý đổi theo từng làn sóng: prompt/ChatGPT (đầu 2023), agent tự chạy (giữa 2023), chạy mô hình cục bộ và RAG (2024).
-- Trong 132 repo có đỉnh ≥50 star/ngày mẫu ở 2023, 89% còn dưới nửa đỉnh sau một năm rưỡi.
-- Kiểm tay 52 repo đứng đầu các quý: 46 đúng, 4 ranh giới, 2 sai (thư viện giao diện, công cụ vẽ sơ đồ); hai repo sai chiếm ≤1,5% star của tập. Mẫu thiên về repo nổi tiếng nên không đủ để nói về độ chính xác chung.
-- Kiểm tra tài khoản mỏng (≤3 sự kiện trong cả mẫu): 15,3% người star của tập AI; không repo nào trong top 8 mỗi quý có ≥60% tài khoản mỏng, nên không thấy dấu hiệu kiểu Repo X. Phép đo yếu hơn bản 2025 (mẫu chỉ ~10% số ngày), nên "không thấy" chưa phải "không có".
-- Bỏ nhóm kém chính xác nhất (chỉ khớp qua mô tả): phần star thuộc repo AI thấp hơn khoảng 0,8–1,5 điểm phần trăm (quý cuối 2024: 7,7% thay vì 9,2%) nhưng xu hướng tăng giữ nguyên; tỉ lệ repo giảm dần là 86% thay vì 89%. Nên đọc các số này như khoảng, không phải một số chính xác.
+- Tổng star mọi repo gần như phẳng, nhưng phần thuộc repo AI tăng:
+
+| Quý | Bộ đầy đủ (4.033 repo) | Bộ lõi (bỏ nhóm chỉ khớp qua mô tả, 3.357 repo) |
+|---|---|---|
+| 2023-Q1 | 4,3% | 3,5% |
+| 2023-Q2 | 7,1% | 6,1% |
+| 2023-Q3 | 6,2% | 5,4% |
+| 2023-Q4 | 7,3% | 6,2% |
+| 2024-Q1 | 7,1% | 6,1% |
+| 2024-Q2 | 8,4% | 7,3% |
+| 2024-Q3 | 8,3% | 7,1% |
+| 2024-Q4 | 9,2% | 7,7% |
+
+- Hai cột cho xu hướng giống nhau nhưng mức chênh 0,8–1,5 điểm phần trăm, nên nên đọc như khoảng, không phải một số chính xác.
+- Top repo mỗi quý đổi theo từng làn sóng: prompt/ChatGPT (đầu 2023: `awesome-chatgpt-prompts`) → agent tự chạy (giữa 2023: `gpt-engineer`, `MetaGPT`) → chạy mô hình cục bộ và RAG (2024: `ollama`, `dify`, `LightRAG`).
+- Trong 132 repo có đỉnh ≥50 star/ngày mẫu ở 2023, 89% còn dưới nửa đỉnh sau một năm rưỡi (86% nếu dùng bộ lõi).
+
+**Các phép kiểm tra bộ phân loại và star**
+
+| Phép kiểm | Kết quả | Giới hạn |
+|---|---|---|
+| Xem tay 52 repo đứng top 8 mỗi quý | 46 đúng, 4 ranh giới, 2 sai (thư viện giao diện, công cụ vẽ sơ đồ); hai repo sai chiếm ≤1,5% star của tập | Thiên về repo nổi tiếng, một người chấm |
+| Xem tay 50 repo chỉ khớp qua mô tả (676 repo) | 35 đúng, 9 ranh giới, 6 sai (mẫu quản trị, sách Rust, bot tiền mã hóa...) | Mẫu nhỏ, một người chấm |
+| Tài khoản mỏng (≤3 sự kiện trong cả mẫu) | 15,3% người star của tập AI; 0/64 repo top 8 có ≥60% tài khoản mỏng | Mẫu chỉ ~10% số ngày nên yếu hơn bản 2025; "không thấy" chưa phải "không có" |
+
 - Thiên lệch: tập repo xác định từ dữ liệu 2025–2026 nên repo chết trước 2025 không có mặt; con số trên không phải tỉ lệ repo AI chết. Repo đổi tên bị tách lịch sử (chưa xử lý được hết).
 
 ## Pipeline và những chỗ tôi làm sai

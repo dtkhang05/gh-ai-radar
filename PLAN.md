@@ -48,17 +48,47 @@ Tài liệu này ghi từng giai đoạn của dự án: làm gì, đo được 
 - Chạy lại `ingest.py 2025-01-01 2025-02-28 2` sẽ tiếp tục từ chỗ dừng. 
 - **Mẫu 2023–2024** (`scripts/ingest_sample.py` → `data/parquet_sample/`, tách khỏi `data/parquet/` nên pipeline 2025 không đọc nhầm): thứ Tư tuần 2, 3, 4 của mỗi tháng từ 01/2023 đến 12/2024 = 72 ngày, 1.728 giờ, 341.798.089 sự kiện, 4,0 GB Parquet. Tải mất 10.968 giây (~3 tiếng, ~6,3 giây/giờ; mạng lúc này nhanh hơn lúc tải 01–02/2025). Cố định thứ Tư để thay đổi giữa các tháng không lẫn hiệu ứng cuối tuần.
 - **Kiểm tra chất lượng mẫu** (`scripts/dq_sample.py`): so mỗi giờ với trung vị cùng giờ của 6 ngày mẫu gần nhất (3 trước, 3 sau), cùng ngưỡng 0,70/1,50. Kết quả: 1.717 giờ ok, 8 low, 3 high; đủ 24 file mỗi ngày.
-  - **Lỗi của nguồn:** 14/08/2024 23:00 UTC chỉ có 489 sự kiện (0,3%), file 170.922 byte so với ~75 MB. Đã tải lại thẳng từ máy chủ: cùng kích thước, nên lỗi nằm ở GH Archive, không phải do mạng của tôi.
-  - **Hoạt động thật của bot:** 12/04/2023 02–04h UTC cao 1,54–1,65 lần; riêng `dependabot[bot]` tạo 110.425 sự kiện trong giờ 03h (~50%). Không phải lỗi dữ liệu nhưng làm lệch số đếm; phân tích sau này nên loại bot.
-  - **Chưa rõ nguyên nhân:** 13/03/2024 00h (0,67), 11/09/2024 14h (0,59); 25/12/2024 (Giáng sinh) có 6 giờ 0,66–0,69 và cả ngày chỉ bằng 0,70 trung vị quý. Giả thuyết ngày lễ chưa kiểm tra.
-  - **Không thấy** đợt sụt kéo dài kiểu 23/05/2025 trong mẫu (ngày thấp nhất ngoài Giáng sinh bằng 0,90 trung vị quý).
-  - **Mức nền:** trung vị theo ngày ~4,0–4,4 triệu sự kiện (2023) lên ~5,0–5,5 triệu (2024), so với ~5,4–5,9 triệu (03–05/2025). Chưa biết đó là tăng trưởng thật hay thay đổi cách thu thập của GH Archive.
+
+  | Phát hiện | Chi tiết | Trạng thái |
+  |---|---|---|
+  | Lỗi của nguồn | 14/08/2024 23:00 UTC chỉ có 489 sự kiện (0,3%), file 170.922 byte so với ~75 MB. Tải lại thẳng từ máy chủ: cùng kích thước | Lỗi ở GH Archive, không phải do mạng của tôi |
+  | Hoạt động thật của bot | 12/04/2023 02–04h UTC cao 1,54–1,65 lần; `dependabot[bot]` tạo 110.425 sự kiện trong giờ 03h (~50%) | Không phải lỗi dữ liệu nhưng làm lệch số đếm; phân tích sau nên loại bot |
+  | Chưa rõ nguyên nhân | 13/03/2024 00h (0,67); 11/09/2024 14h (0,59); 25/12/2024 có 6 giờ 0,66–0,69 và cả ngày bằng 0,70 trung vị quý | Giả thuyết ngày lễ chưa kiểm tra |
+  | Không thấy | Đợt sụt kéo dài kiểu 23/05/2025 | Ngày thấp nhất ngoài Giáng sinh bằng 0,90 trung vị quý |
+  | Mức nền | Trung vị theo ngày ~4,0–4,4 triệu sự kiện (2023), ~5,0–5,5 triệu (2024), ~5,4–5,9 triệu (03–05/2025) | Chưa biết là tăng trưởng thật hay GH Archive đổi cách thu thập |
+
   - **Giới hạn:** chỉ 3 ngày/tháng và đường cơ sở nhìn cả trước lẫn sau nên không bắt được một đợt sụt dài quá ~3 tháng; chưa tạo cột chất lượng này trong dbt.
 - **Phân tích mẫu 2023–2024** (`scripts/sample_waves.py`, đếm `WatchEvent` của người, loại `[bot]`, trên 4.033 repo AI):
   - **Phần star thuộc repo AI** (trên tổng star mọi repo, theo tháng mẫu): 3,6–5,2% (01–03/2023) → 5,8–7,6% (04–12/2023) → 6,7–9,9% (2024); tháng cuối 12/2024 là 9,9%. Tổng star mọi repo gần như phẳng (~190–240 nghìn/ngày mẫu), trừ 03/2023 (~405 nghìn, chưa xem nguyên nhân).
-  - **Làn sóng:** top repo mỗi quý đổi theo từng đợt: Q1/2023 prompt/ChatGPT (`awesome-chatgpt-prompts`), Q2/2023 agent tự chạy (`gpt-engineer` 803 sao/ngày mẫu, `AgentGPT`), Q3/2023 `MetaGPT`, `llama2.c`, Q4/2023 `lobe-chat`, `gpt-pilot`, 2024 chạy cục bộ và RAG/công cụ (`ollama`, `dify`, `open-webui`, `markitdown`, `LightRAG`). Chỉ là mô tả top 5, chưa có phép đo "làn sóng" nào chặt hơn.
+  - **Làn sóng:** top 3 repo mỗi quý theo star/ngày mẫu (tên bỏ chủ sở hữu cho gọn):
+
+  | Quý | Hạng 1 | Hạng 2 | Hạng 3 |
+  |---|---|---|---|
+  | 2023-Q1 | awesome-chatgpt-prompts (531) | awesome-chatgpt-prompts-zh (334) | stable-diffusion-webui (322) |
+  | 2023-Q2 | gpt-engineer (803) | gpt4free (478) | DragGAN (437) |
+  | 2023-Q3 | MetaGPT (308) | llama2.c (248) | stable-diffusion-webui (187) |
+  | 2023-Q4 | generative-ai-for-beginners (282) | lobe-chat (244) | gpt-crawler (232) |
+  | 2024-Q1 | ollama (225) | llm-course (202) | GPT-SoVITS (193) |
+  | 2024-Q2 | llm.c (337) | ollama (305) | dify (239) |
+  | 2024-Q3 | Deep-Live-Cam (330) | claude-engineer (193) | ollama (179) |
+  | 2024-Q4 | markitdown (372) | swarm (182) | PDFMathTranslate (166) |
+
+  Chỉ là mô tả top 5, chưa có phép đo "làn sóng" nào chặt hơn. Chủ đề đổi theo đợt: prompt/ChatGPT (đầu 2023) → agent tự chạy (giữa 2023) → chạy cục bộ và RAG/công cụ (2024).
   - **Dự án giảm dần:** 132 repo có đỉnh quý 2023 ≥50 star/ngày mẫu; 117 (89%) còn dưới 50% đỉnh ở 2024-Q3/Q4, 81 (61%) còn dưới 20%. Loại 1 repo nghi đổi tên: 116/131 và 81/131.
-  - **Độ nhạy khi bỏ nhóm chỉ khớp qua mô tả** (còn 3.357 repo khớp theo tên hoặc topic; cuối `sample_waves.py`): phần star thuộc repo AI theo quý, bộ đầy đủ → bộ lõi: 4,3 → 3,5% (2023-Q1), 7,1 → 6,1% (Q2), 6,2 → 5,4% (Q3), 7,3 → 6,2% (Q4), 7,1 → 6,1% (2024-Q1), 8,4 → 7,3% (Q2), 8,3 → 7,1% (Q3), 9,2 → 7,7% (Q4). Mức thấp hơn khoảng 0,8–1,5 điểm phần trăm nhưng xu hướng tăng giữ nguyên. Giảm dần: bộ lõi 105 repo có đỉnh ≥50 star/ngày mẫu, 90 (86%) còn dưới 50% đỉnh, 60 (57%) còn dưới 20% (bộ đầy đủ: 89% và 61%). Kết luận định tính không đổi; con số tuyệt đối phụ thuộc vào định nghĩa AI, nên nên đọc như khoảng (bộ lõi đến bộ đầy đủ), không phải một số chính xác. Danh sách top 5 mỗi quý chưa tính lại cho bộ lõi.
+  - **Độ nhạy khi bỏ nhóm chỉ khớp qua mô tả** (còn 3.357 repo khớp theo tên hoặc topic; cuối `sample_waves.py`): phần star thuộc repo AI trên tổng star mọi repo theo quý:
+
+  | Quý | Bộ đầy đủ (4.033) | Bộ lõi (3.357) |
+  |---|---|---|
+  | 2023-Q1 | 4,3% | 3,5% |
+  | 2023-Q2 | 7,1% | 6,1% |
+  | 2023-Q3 | 6,2% | 5,4% |
+  | 2023-Q4 | 7,3% | 6,2% |
+  | 2024-Q1 | 7,1% | 6,1% |
+  | 2024-Q2 | 8,4% | 7,3% |
+  | 2024-Q3 | 8,3% | 7,1% |
+  | 2024-Q4 | 9,2% | 7,7% |
+
+  Mức thấp hơn khoảng 0,8–1,5 điểm phần trăm nhưng xu hướng tăng giữ nguyên. Giảm dần: bộ lõi có 105 repo đỉnh ≥50 star/ngày mẫu, 90 (86%) còn dưới 50% đỉnh, 60 (57%) còn dưới 20% (bộ đầy đủ: 89% và 61%). Kết luận định tính không đổi; con số tuyệt đối phụ thuộc vào định nghĩa AI, nên đọc như khoảng (bộ lõi đến bộ đầy đủ). Danh sách top mỗi quý chưa tính lại cho bộ lõi.
   - **Thiên lệch người sống sót:** tập repo xác định từ star 2025 và metadata 2026, nên repo đã chết trước 2025 không có mặt. Tỉ lệ giảm dần ở trên vì vậy là **giới hạn dưới** của số repo mất sức hút, nhưng cũng không thể dùng để nói "bao nhiêu % repo AI chết".
   - **Đổi tên:** sự kiện mang tên repo lúc đó, tập repo dùng tên 2025. `gpt-engineer` chuyển sang tổ chức khác (~24 star/ngày mẫu ở 2024 dưới tên mới, 0 dưới tên cũ); bộ dò đổi tên thô (cùng tên repo, khác chủ, ≥20% đỉnh) chỉ bắt được 1/132, nên không loại trừ được các ca đổi tên khác.
   - **Kiểm tay bộ phân loại trên 52 repo đứng top 8 mỗi quý (2023–2024):** 46 đúng, 4 ranh giới (`Follow` đọc RSS có AI, `markitdown` chuyển file cho LLM, `PDFMathTranslate`, `gpt-crawler`), 2 sai (`shadcn-ui/ui`, `drawdb`: thư viện giao diện và công cụ vẽ sơ đồ CSDL). Hai repo sai chiếm tối đa 0,5–1,5% star/ngày mẫu của tập AI mỗi quý nên không đổi kết luận. Mẫu chọn theo thứ hạng star (repo nổi tiếng, dễ phân loại đúng), nên không suy ra độ chính xác cho cả 4.033 repo; tôi là người xem và chấm.
