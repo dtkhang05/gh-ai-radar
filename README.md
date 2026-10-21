@@ -175,7 +175,7 @@ Dữ liệu: 01/03 → 22/05/2025, 4.033 repo AI ≥100 star.
 | `scripts/ai_repos_recall.py`, `ai_reference_repos.txt`, `ai_reference_repos_2.txt` | Đo độ phủ end-to-end trên hai danh sách chọn tay |
 | `scripts/star_anomalies.py` | Ngày star đột biến và tỉ lệ tài khoản mỏng, 9 bộ ngưỡng |
 | `scripts/check_account_age.py` | Kiểm tuổi tài khoản bằng GitHub API công khai |
-| `scripts/ingest_sample.py`, `dq_sample.py`, `sample_waves.py` | Mẫu 2023–2024: tải, kiểm tra chất lượng, star theo quý của repo AI |
+| `scripts/ingest_sample.py`, `dq_sample.py`, `sample_waves.py`, `sample_thin_stars.py` | Mẫu 2023–2024: tải, kiểm tra chất lượng, star theo quý của repo AI |
 | `scripts/cohort_retention.py` | Giữ chân theo cohort (bản script; bản dbt: `fct_cohort_retention`) |
 | `scripts/build_dashboard.py`, `dashboard_template.html` | Tạo `docs/index.html` |
 | `scripts/build_dbt_docs.py` | Tạo `docs/dbt/index.html` (cần chạy `run_pipeline.py` trước) |
@@ -187,7 +187,7 @@ Dữ liệu: 01/03 → 22/05/2025, 4.033 repo AI ≥100 star.
 
 ## Hướng phát triển
 
-- Làm sâu phân tích mẫu 2023–2024: bộ phân loại AI cho 2023–2024, lọc star giả, xử lý đổi tên repo.
+- Làm sâu phân tích mẫu 2023–2024: bộ phân loại AI cho 2023–2024, kiểm tuổi tài khoản, xử lý đổi tên repo.
 - Phân loại repo AI: nâng độ chính xác (76–86%) và độ phủ (82–89%): thêm repo dưới 100 star, gán nhãn bằng mô hình ngôn ngữ, mẫu kiểm tay lớn hơn.
 - Câu hỏi chưa trả lời: dự án nào đang chết dần; các làn sóng nối tiếp nhau thế nào.
 - Nguồn thay thế như OpenDigger (tương thích GH Archive, [gharchive #323](https://github.com/igrigorik/gharchive.org/issues/323)) chưa thử.

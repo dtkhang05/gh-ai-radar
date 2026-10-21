@@ -62,6 +62,7 @@ Dự án học dữ liệu bắt đầu ngày 20/10/2026: dựng pipeline trên 
 - Top repo mỗi quý đổi theo từng làn sóng: prompt/ChatGPT (đầu 2023), agent tự chạy (giữa 2023), chạy mô hình cục bộ và RAG (2024).
 - Trong 132 repo có đỉnh ≥50 star/ngày mẫu ở 2023, 89% còn dưới nửa đỉnh sau một năm rưỡi.
 - Kiểm tay 52 repo đứng đầu các quý: 46 đúng, 4 ranh giới, 2 sai (thư viện giao diện, công cụ vẽ sơ đồ); hai repo sai chiếm ≤1,5% star của tập. Mẫu thiên về repo nổi tiếng nên không đủ để nói về độ chính xác chung.
+- Kiểm tra tài khoản mỏng (≤3 sự kiện trong cả mẫu): 15,3% người star của tập AI; không repo nào trong top 8 mỗi quý có ≥60% tài khoản mỏng, nên không thấy dấu hiệu kiểu Repo X. Phép đo yếu hơn bản 2025 (mẫu chỉ ~10% số ngày), nên "không thấy" chưa phải "không có".
 - Thiên lệch: tập repo xác định từ dữ liệu 2025–2026 nên repo chết trước 2025 không có mặt; con số trên không phải tỉ lệ repo AI chết. Repo đổi tên bị tách lịch sử (chưa xử lý được hết).
 
 ## Pipeline và những chỗ tôi làm sai

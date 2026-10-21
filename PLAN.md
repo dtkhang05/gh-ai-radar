@@ -61,6 +61,7 @@ Tài liệu này ghi từng giai đoạn của dự án: làm gì, đo được 
   - **Thiên lệch người sống sót:** tập repo xác định từ star 2025 và metadata 2026, nên repo đã chết trước 2025 không có mặt. Tỉ lệ giảm dần ở trên vì vậy là **giới hạn dưới** của số repo mất sức hút, nhưng cũng không thể dùng để nói "bao nhiêu % repo AI chết".
   - **Đổi tên:** sự kiện mang tên repo lúc đó, tập repo dùng tên 2025. `gpt-engineer` chuyển sang tổ chức khác (~24 star/ngày mẫu ở 2024 dưới tên mới, 0 dưới tên cũ); bộ dò đổi tên thô (cùng tên repo, khác chủ, ≥20% đỉnh) chỉ bắt được 1/132, nên không loại trừ được các ca đổi tên khác.
   - **Kiểm tay bộ phân loại trên 52 repo đứng top 8 mỗi quý (2023–2024):** 46 đúng, 4 ranh giới (`Follow` đọc RSS có AI, `markitdown` chuyển file cho LLM, `PDFMathTranslate`, `gpt-crawler`), 2 sai (`shadcn-ui/ui`, `drawdb`: thư viện giao diện và công cụ vẽ sơ đồ CSDL). Hai repo sai chiếm tối đa 0,5–1,5% star/ngày mẫu của tập AI mỗi quý nên không đổi kết luận. Mẫu chọn theo thứ hạng star (repo nổi tiếng, dễ phân loại đúng), nên không suy ra độ chính xác cho cả 4.033 repo; tôi là người xem và chấm.
+  - **Kiểm tra tài khoản mỏng** (`scripts/sample_thin_stars.py`): tài khoản mỏng = ≤3 sự kiện trong cả mẫu 72 ngày. Cả tập AI: 15,3% người star là tài khoản mỏng. Trong 366 cặp repo-quý có ≥500 star, chỉ 1 cặp có ≥60% mỏng (`ruoyi-vue-pro`, 2023-Q2, 61,3%, 831 star; mẫu kiểm tay không thấy có AI, có thể là repo phân loại nhầm). 0/64 repo top 8 mỗi quý bị gắn cờ; 5 repo đầu mỗi quý có 9–25% mỏng. Kết luận: không thấy dấu hiệu kiểu Repo X trong top các quý. Điểm yếu: mẫu chỉ ~10% số ngày nên tài khoản "mỏng" ở đây là "ít hoạt động trong các ngày mẫu", yếu hơn phép đo 12 tuần liên tục của 2025; ngưỡng 60% và 500 star do tôi chọn, chưa thử độ nhạy; chưa kiểm tuổi tài khoản bằng API cho 2023–2024. "Không thấy" chưa phải "không có".
   - **Chưa kiểm tra:** độ phủ của bộ phân loại cho 2023–2024 (danh sách tham chiếu là repo 2025); mẫu 3 ngày/tháng nên một đợt lan truyền ngắn có thể rơi ngoài mẫu; star đột biến do tài khoản giả không được lọc (đã thấy ở 2025).
 - Ước tính (chưa đo): ~51 GB Parquet cho 29 tháng.
 
@@ -201,6 +202,6 @@ Phạm vi: 01/03 → 22/05/2025, 4.033 repo AI có từ 100 star (giai đoạn 5
 ## 9. Hướng mở rộng
 Theo thứ tự nên làm:
 
-1. **Làm sâu phân tích mẫu 2023–2024** (đã có bản đầu, xem mục 4): kiểm tra bộ phân loại AI cho 2023–2024, lọc star do tài khoản giả, thử gán lại tên repo bị đổi, đo "làn sóng" bằng cách chặt hơn danh sách top 5.
+1. **Làm sâu phân tích mẫu 2023–2024** (đã có bản đầu, xem mục 4): kiểm tra bộ phân loại AI cho 2023–2024, thử độ nhạy ngưỡng tài khoản mỏng và kiểm tuổi tài khoản cho 2023–2024, thử gán lại tên repo bị đổi, đo "làn sóng" bằng cách chặt hơn danh sách top 5.
 2. **Kiểm tra thêm tập repo AI:** mẫu kiểm tay độ chính xác lớn hơn; thử thêm repo dưới 100 star (cần tra thêm ~500 lượt GraphQL cho ngưỡng 30 star).
 3. **Chạy định kỳ hằng ngày** và nguồn dữ liệu bổ sung (chưa thử).
