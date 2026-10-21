@@ -102,10 +102,13 @@ Phạm vi: 01/03 → 22/05/2025, 4.033 repo AI có từ 100 star (xem giai đo�
 |---|---|---|---|---|
 | Repo X, ngày đột biến 14–15/04 | 21 | 0 ngày | 20/21 | 19/21 |
 | Repo X, ngày thường | 23 | 442 ngày | 0/23 | 1/23 |
+| Repo X2, ngày đột biến 14–15/04 | 24 | 0 ngày | 22/24 | 21/24 |
+| Repo Y, ngày đột biến 25/04 | 25 | 419 ngày | 2/25 | 2/25 |
 | github-mcp-server, ra mắt 07–08/04 (đối chứng) | 22 | 3.820 ngày | 0/22 | 1/22 |
 | system-prompts-and-models-of-ai-tools, lan truyền 19–22/04 (đối chứng) | 24 | 2.050 ngày | 2/24 | 2/24 |
 
-- **Giới hạn:** "mỏng" không có nghĩa là giả. Phép kiểm tuổi tài khoản chỉ chạy trên Repo X; Repo X2 và Repo Y chưa kiểm. Mẫu nhỏ (21–24 người mỗi nhóm, 3 repo). Hai repo đối chứng do tác giả chọn vì tin là lan truyền thật. Kết quả cho biết các tài khoản đó là tài khoản dùng một lần, không cho biết ai đứng sau, nên không gán lỗi cho chủ repo. Ngưỡng "mỏng ≤3 sự kiện" chưa thử độ nhạy.
+- **Diễn giải:** Repo X2 giống Repo X (tuổi trung vị 0 ngày, 22/24 tạo <30 ngày). Repo Y thì không: tài khoản star ngày 25/04 lâu năm (trung vị 419 ngày, 2/25 tạo <30 ngày), nên tuổi tài khoản không xác nhận dấu hiệu "mỏng" ở đó; tỉ lệ mỏng ngày thường của Repo Y vốn đã 60%, nên có thể chỉ là người dùng ít hoạt động.
+- **Giới hạn:** "mỏng" không có nghĩa là giả. Mẫu nhỏ (21–25 người mỗi nhóm, 5 repo). Hai repo đối chứng do tác giả chọn vì tin là lan truyền thật. Kết quả cho biết các tài khoản đó là tài khoản dùng một lần, không cho biết ai đứng sau, nên không gán lỗi cho chủ repo. Ngưỡng "mỏng ≤3 sự kiện" chưa thử độ nhạy.
 
 ### Câu 2: người đóng góp mới có ở lại không?
 **Định nghĩa** (`scripts/cohort_retention.py`, mô hình `fct_cohort_retention`): chia 01/03 → 16/05/2025 thành 11 khối 7 ngày; người mới là người lần đầu xuất hiện từ khối 3 (khối 1–2 làm giai đoạn khởi động); chỉ tính push, PR, issue, bình luận, review; loại bot.
@@ -134,5 +137,5 @@ Theo thứ tự nên làm:
 1. **CI:** GitHub Actions chạy test dbt trên dữ liệu tổng hợp có cài sẵn một đợt sụt và một đợt star đột biến, để chứng minh test bắt được lỗi.
 2. **Đường cơ sở cố định** cho lớp chất lượng (giai đoạn 3) và `dbt docs` đăng cùng Pages.
 3. **Dữ liệu nhiều năm:** lấy mẫu vài ngày mỗi tháng từ 2023 để xem các làn sóng và dự án chết dần, vì tải đủ 29 tháng quá chậm với mạng hiện tại.
-4. **Kiểm tra thêm tập repo AI:** kiểm tuổi tài khoản cho Repo X2 và Repo Y; mẫu kiểm tay độ chính xác lớn hơn; thử thêm repo dưới 100 star (cần tra thêm ~500 lượt GraphQL cho ngưỡng 30 star).
+4. **Kiểm tra thêm tập repo AI:** mẫu kiểm tay độ chính xác lớn hơn; thử thêm repo dưới 100 star (cần tra thêm ~500 lượt GraphQL cho ngưỡng 30 star).
 5. **Chạy định kỳ hằng ngày** và nguồn dữ liệu bổ sung (chưa thử).

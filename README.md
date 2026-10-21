@@ -7,7 +7,7 @@ Pipeline dữ liệu trên [GH Archive](https://www.gharchive.org/) (mọi sự 
 ## Kết quả chính
 
 - **Nguồn dữ liệu mất sự kiện, và lớp kiểm tra chất lượng tự phát hiện được.** Từ khoảng 17h UTC ngày 23/05/2025, số sự kiện mỗi giờ giảm khoảng 35% và không hồi lại. Phân tích vì vậy chỉ dùng dữ liệu đến 22/05/2025. Cùng lớp kiểm tra còn bắt được một file giờ tải về báo thành công nhưng chỉ chứa 12% số sự kiện thường lệ (08/05/2025 01:00 UTC).
-- **Star tăng đột biến: phần lớn là người dùng thật.** Trong 4.033 repo AI có 1.513 ngày đột biến ở 526 repo, và nhìn chung các ngày đó không có nhiều tài khoản "mỏng" hơn ngày thường. Hai repo của cùng một tổ chức bị gắn cờ ở cả 9 bộ ngưỡng thử, trùng các ngày 11–15/04/2025; một trong hai được kiểm chứng thêm bằng tuổi tài khoản (xem bên dưới).
+- **Star tăng đột biến: phần lớn là người dùng thật.** Trong 4.033 repo AI có 1.513 ngày đột biến ở 526 repo, và nhìn chung các ngày đó không có nhiều tài khoản "mỏng" hơn ngày thường. Hai repo của cùng một tổ chức bị gắn cờ ở cả 9 bộ ngưỡng thử, trùng các ngày 11–15/04/2025; cả hai được kiểm chứng thêm bằng tuổi tài khoản (xem bên dưới).
 - **Người đóng góp mới ít khi ở lại.** 16,7% còn hoạt động sau 1 tuần và 7,2% sau 8 tuần; người bắt đầu bằng code giữ lại tốt hơn nhiều so với người chỉ để lại issue hoặc bình luận.
 - **Tập repo AI được xác định bằng tên, topic và mô tả repo.** Độ phủ đo được là 82% và 89% trên hai danh sách repo nổi tiếng chọn tay (bộ lọc chỉ theo tên là 25% và 20%), và chỉ áp dụng cho repo có từ 100 star trong 12 tuần. Xem phần [Giới hạn](#giới-hạn).
 
@@ -66,11 +66,13 @@ Dữ liệu: 01/03 → 22/05/2025, 4.033 repo AI có từ 100 star trong cửa s
 | Nhóm | Tuổi tài khoản lúc star (trung vị) | Tạo <30 ngày trước | Chưa có repo |
 |---|---|---|---|
 | Repo X, 14–15/04/2025 | 0 ngày | 20/21 | 19/21 |
+| Repo X2, 14–15/04/2025 | 0 ngày | 22/24 | 21/24 |
+| Repo Y, 25/04/2025 | 419 ngày | 2/25 | 2/25 |
 | Repo X, ngày thường | 442 ngày | 0/23 | 1/23 |
 | github-mcp-server, ra mắt 07–08/04 (đối chứng) | 3.820 ngày | 0/22 | 1/22 |
 | system-prompts…, 19–22/04 (đối chứng) | 2.050 ngày | 2/24 | 2/24 |
 
-Kết quả cho thấy các lượt star ngày 14–15/04/2025 của Repo X phần lớn đến từ tài khoản tạo ngay trong ngày và chưa có repo nào, khác hẳn hai đợt lan truyền thật. Nó **không** cho biết ai đứng sau (chủ repo, bên bán star hay người ngoài), nên dự án không gán lỗi cho ai. Phép kiểm tuổi tài khoản chỉ chạy trên Repo X; Repo X2 và Repo Y chưa kiểm. Vì bằng chứng chỉ là mẫu nhỏ về các dự án thật, tên repo được ẩn trong tài liệu, mã và dashboard. Để chạy lại phép kiểm tra, đặt biến môi trường `RADAR_FLAGGED_REPO=owner/repo` (tên nằm trong `data/derived/star_spikes.parquet` sau khi chạy `scripts/star_anomalies.py`); để dashboard hiện tên thật, thêm `--show-names` khi chạy `scripts/build_dashboard.py`.
+Kết quả cho thấy các lượt star ngày 14–15/04/2025 của Repo X và Repo X2 phần lớn đến từ tài khoản tạo ngay trong ngày và chưa có repo nào, khác hẳn hai đợt lan truyền thật. Repo Y thì không: tài khoản star ngày 25/04 lâu năm (trung vị 419 ngày), nên tuổi tài khoản không xác nhận dấu hiệu "mỏng" ở repo này (tỉ lệ mỏng ngày thường của nó vốn đã 60%). Nó **không** cho biết ai đứng sau (chủ repo, bên bán star hay người ngoài), nên dự án không gán lỗi cho ai. Vì bằng chứng chỉ là mẫu nhỏ về các dự án thật, tên repo được ẩn trong tài liệu, mã và dashboard. Để chạy lại phép kiểm tra, đặt biến môi trường `RADAR_FLAGGED_REPO=owner/repo` (tên nằm trong `data/derived/star_spikes.parquet` sau khi chạy `scripts/star_anomalies.py`); để dashboard hiện tên thật, thêm `--show-names` khi chạy `scripts/build_dashboard.py`.
 
 ### Người đóng góp mới có ở lại không?
 
@@ -92,7 +94,7 @@ Hai điều cần nhớ: dữ liệu bắt đầu từ 01/03 nên người cũ v
   - **Độ chính xác (ước tính):** phần khớp theo tên khoảng 95% (38/40 repo xem bằng mắt); phần thêm từ topic/mô tả 76–86% (mẫu 50 repo, tác giả xem tên và mô tả: 38 đúng, 7 ranh giới, 5 sai, ví dụ repo chỉ có "AI" trong mô tả hoặc topic chỉ trí tuệ nhân tạo trong trò chơi). Hai mẫu nhỏ, do một người đánh giá, nên sai số khoảng ±10 điểm %.
   - **Thời điểm:** topic và mô tả lấy từ GitHub năm 2026, không phải lúc 03–05/2025. 2.350 repo (12%) không tra được (đổi tên, xóa, chuyển sang riêng tư) nên chỉ khớp được theo tên.
 - **Chỉ 12 tuần dữ liệu đáng tin** (01/03 → 22/05/2025); chưa có dữ liệu 2023–2024 nên chưa nói được gì về xu hướng nhiều năm.
-- **Star đột biến chỉ là tín hiệu nghi ngờ.** Mẫu kiểm tra tuổi tài khoản nhỏ (21–24 tài khoản mỗi nhóm, chỉ một trong các repo bị gắn cờ) và hai repo đối chứng do tác giả chọn vì tin là lan truyền thật.
+- **Star đột biến chỉ là tín hiệu nghi ngờ.** Mẫu kiểm tra tuổi tài khoản nhỏ (21–25 tài khoản mỗi nhóm, 3 repo bị gắn cờ và 2 đối chứng) và hai repo đối chứng do tác giả chọn vì tin là lan truyền thật.
 - **Các ngưỡng do tác giả chọn** (50 star mỗi ngày, gấp 5 lần, ≤3 sự kiện, 0,70 cho cờ chất lượng). Ngưỡng star được thử 9 bộ; các ngưỡng còn lại chưa thử độ nhạy.
 - **Lớp kiểm tra chất lượng dùng đường cơ sở trượt**, nên một đợt sụt kéo dài chỉ bị gắn cờ trong vài tuần đầu. Ba tuần đầu của mỗi chuỗi dữ liệu chưa có đường cơ sở nên chưa được kiểm tra.
 - **Kiểm tra id trùng** chỉ chạy trên một tuần mẫu vì kiểm toàn bộ cần băm hơn 300 triệu id (tuần mẫu có 24 id trùng; một phép đo trước đó trên tháng 05/2025 ghi 55 id trùng trong 150 triệu dòng).
@@ -118,12 +120,14 @@ Hai điều cần nhớ: dữ liệu bắt đầu từ 01/03 nên người cũ v
    .venv\Scripts\python -I -X utf8 scripts\ai_repos_classify.py
    .venv\Scripts\python -I -X utf8 scripts\star_anomalies.py
    ```
-4. **Kiểm tra tuổi tài khoản** (gọi API công khai của GitHub, giới hạn 60 lượt/giờ, cần khoảng 75 lượt nên có thể phải chờ giữa các lần chạy). Lấy tên repo bị gắn cờ từ kết quả bước 3: `select repo, count(*) from 'data/derived/star_spikes.parquet' where n >= 100 and jump >= 0.30 group by 1` (mẫu trong dự án lấy từ repo có 4 ngày bị gắn cờ, 14–15/04).
+4. **Kiểm tra tuổi tài khoản** (gọi API công khai của GitHub, giới hạn 60 lượt/giờ, cần khoảng 150 lượt nên phải chờ giữa các lần chạy). Lấy tên repo bị gắn cờ từ kết quả bước 3: `select repo, count(*) from 'data/derived/star_spikes.parquet' where n >= 100 and jump >= 0.30 group by 1` (mẫu trong dự án lấy từ repo có 4 ngày bị gắn cờ, 14–15/04).
    ```
    set RADAR_FLAGGED_REPO=owner/repo
    .venv\Scripts\python -I -X utf8 scripts\check_account_age.py
    .venv\Scripts\python -I -X utf8 scripts\check_account_age.py github/github-mcp-server 2025-04-07 2025-04-08
    .venv\Scripts\python -I -X utf8 scripts\check_account_age.py x1xhlol/system-prompts-and-models-of-ai-tools 2025-04-19 2025-04-22
+   .venv\Scripts\python -I -X utf8 scripts\check_account_age.py owner/repo-x2 2025-04-14 2025-04-15
+   .venv\Scripts\python -I -X utf8 scripts\check_account_age.py owner/repo-y 2025-04-25 2025-04-25
    ```
 5. **Pipeline dbt (mô hình + test).**
    ```

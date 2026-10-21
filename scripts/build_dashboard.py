@@ -59,9 +59,21 @@ def summarize(rows, text, accent=False):
                 pct_zero_repos=100 * sum(r["public_repos"] == 0 for r in ok) / len(ok))
 flagged_sample = load("account_sample_flagged_repo.jsonl")  # written by check_account_age.py for the flagged repo
 name_x = ", ".join(sorted(flagged_repos)) if SHOW_NAMES else "Repo X"
+# Other flagged repos that were sampled with check_account_age.py in control mode (file name follows the repo name, read from data, not from code).
+def day_range(rows):
+    ds = sorted(r["star_day"][5:] for r in rows if "star_day" in r); fmtd = lambda d: f"{d[3:5]}/{d[0:2]}"
+    return fmtd(ds[0]) if ds[0] == ds[-1] else f"{fmtd(ds[0])[:2]}–{fmtd(ds[-1])}"
+extra_flagged = []
+for repo in _by_days:
+    f = f"account_sample_{repo.replace('/', '__')}.jsonl"
+    if repo != _main and os.path.exists(os.path.join(DERIVED, f)):
+        rows = load(f)
+        extra_flagged.append(summarize(rows, f"{label(repo)} · ngày đột biến {day_range(rows)}"))
+for d in extra_flagged: d["accent"] = d["pct_new"] >= 50  # orange only where account age backs the flag
 accounts = [
     summarize([r for r in flagged_sample if r["grp"] == "spike"], f"{name_x} · ngày đột biến 14–15/04", True),
     summarize([r for r in flagged_sample if r["grp"] == "normal"], f"{name_x} · ngày thường"),
+    *extra_flagged,
     summarize(load("account_sample_github__github-mcp-server.jsonl"), "github-mcp-server · ra mắt 07–08/04"),
     summarize(load("account_sample_x1xhlol__system-prompts-and-models-of-ai-tools.jsonl"), "system-prompts… · lan truyền 19–22/04"),
 ]
@@ -98,7 +110,7 @@ data = dict(
         "Chỉ có 12 tuần dữ liệu đáng tin (01/03 → 22/05/2025); 2023–2024 chưa được tải.",
         "Tập repo AI gồm repo khớp từ khóa trong tên, GitHub topic hoặc mô tả, chỉ xét repo ≥100 star trong 12 tuần. Topic và mô tả lấy từ GitHub năm 2026, không phải thời điểm 03–05/2025; ~12% repo không tra được (đổi tên, xóa) chỉ khớp được bằng tên.",
         "Độ phủ 82% và 89% đo trên hai danh sách repo nổi tiếng tác giả chọn tay (danh sách thứ hai viết trước khi chạy bộ phân loại); repo ít người biết có thể thấp hơn. Độ chính xác ước tính 95% cho phần khớp tên và 76–86% cho phần thêm từ topic/mô tả (mẫu 40 và 50 repo xem bằng mắt).",
-        "Star đột biến là tín hiệu nghi ngờ, không phải bằng chứng star mua. Mẫu tuổi tài khoản nhỏ (21–24 người mỗi nhóm, chỉ 1 trong các repo bị gắn cờ) và không cho biết ai đứng sau.",
+        "Star đột biến là tín hiệu nghi ngờ, không phải bằng chứng star mua. Mẫu tuổi tài khoản nhỏ (21–24 người mỗi nhóm, chỉ 2 trong 3 repo bị gắn cờ) và không cho biết ai đứng sau.",
         "Giữ chân: không có dữ liệu trước 01/03 nên các cohort đầu có thể cao hơn thực tế; chưa có mốc so sánh bên ngoài.",
         "Các ngưỡng do tác giả chọn; chỉ ngưỡng star được thử độ nhạy (9 bộ). Đường cơ sở trượt 4 tuần chỉ gắn cờ một đợt sụt kéo dài trong vài tuần đầu.",
     ],
