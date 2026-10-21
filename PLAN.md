@@ -109,7 +109,7 @@ Khớp từ khóa nguyên từ trong tên repo (`llm`, `gpt`, `agent`, `mcp`, ..
 | Loại sự kiện lạ | Một sự kiện có type lạ | `accepted_values` thất bại; mô hình phía sau bị bỏ qua |
 | Sụt kéo dài | Sụt 35% từ 15/03 đến hết dữ liệu (5 tuần), tuần tham chiếu = 2 | Cả 840 giờ sụt `low` theo đường cố định, không cờ nào trước đó; đường trượt chỉ gắn 168/840 giờ (nó thích nghi); test đường cố định cảnh báo |
 
-- Kịch bản 1–3: đã chạy trên GitHub Actions (Ubuntu, Python 3.13, 21/10/2026), đạt 18 kiểm tra. Kịch bản sụt kéo dài và các kiểm tra đường cố định (tổng 27 kiểm tra) mới chạy cục bộ, đạt hết (chưa đo thời gian); **chưa chạy trên GitHub Actions** (chưa đẩy).
+- Đã chạy cả 4 kịch bản trên GitHub Actions (Ubuntu, Python 3.13, 21/10/2026): 26 kiểm tra đạt (bản trước khi thêm đường cố định: 18). Chưa đo thời gian chạy.
 - Đã kiểm chứng đột biến: hạ ngưỡng `low` 0,70 → 0,50 (đường trượt) làm kiểm tra đợt sụt 35% đỏ; hạ ngưỡng của đường cố định làm 2 kiểm tra kịch bản sụt kéo dài đỏ (kiểm tra không rỗng).
 - Giới hạn: dữ liệu tổng hợp đơn giản (nhiễu ±3%, không chu kỳ dài hơn tuần, không tăng trưởng), nên chứng minh bắt được lỗi cài sẵn, không phải mọi lỗi thật. Chưa có kịch bản cho id trùng, và chưa có kịch bản cho thay đổi mức dài hạn thật (nơi đường cố định sẽ báo nhầm).
 
