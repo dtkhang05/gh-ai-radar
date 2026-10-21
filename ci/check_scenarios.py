@@ -27,7 +27,8 @@ def run_dbt(work, scenario):
     data = generate(work / "data", scenario)
     os.environ["RADAR_DB"] = str(work / "radar.duckdb")
     vars_ = dict(parquet_glob=(data / "events.parquet").as_posix(), ai_universe_parquet=(data / "universe.parquet").as_posix(),
-                 window_start=START, window_end=END_EXCL, dq_start=START, dq_end=END_EXCL, min_stars=20, retention_blocks=7, burn_in_blocks=2)
+                 window_start=START, window_end=END_EXCL, dq_start=START, dq_end=END_EXCL, min_stars=20, retention_blocks=7, burn_in_blocks=2,
+                 dq_fixed_weeks=2 if scenario == "long_drop" else 4)
     # A subprocess, like run_pipeline.py: dbt keeps the DuckDB file open for the life of its process, so the tables could not be read here.
     cmd = [sys.executable, "-c", "from dbt.cli.main import cli; cli()", "build", "--quiet", "--no-version-check", "--project-dir", str(DBT),
            "--profiles-dir", str(DBT), "--target-path", str(work / "target"), "--log-path", str(work / "logs"), "--vars", json.dumps(vars_)]
@@ -62,6 +63,9 @@ for scenario in SCENARIOS:
             flags = dict(q(db, "select flag, count(*) from fct_hourly_quality group by 1"))
             check(not any(f in flags for f in ("low", "high", "missing")), f"no false alarm in the hourly quality flags {flags}")
             check(flags.get("ok", 0) > 0, "hourly quality has hours with a baseline")
+            fixed = dict(q(db, "select fixed_flag, count(*) from fct_hourly_quality group by 1"))
+            check(not any(f in fixed for f in ("low", "high", "missing")), f"no false alarm against the fixed baseline {fixed}")
+            check(fixed.get("ok", 0) > 0 and fixed.get("reference", 0) == 28 * 24, "fixed baseline: 4 reference weeks, the rest compared")
             check(q(db, "select count(*) from fct_star_spike_days")[0][0] == 0, "no star spike on clean data")
             check(q(db, "select count(*) from fct_cohort_retention where still_active > 0")[0][0] > 0, "retention table has new contributors who came back")
         elif scenario == "faulty":
@@ -76,6 +80,10 @@ for scenario in SCENARIOS:
             stray = [h for h, f in flag.items() if f in ("low", "high", "missing")
                      and not (h >= "2025-04-15 16:00:00" or h in ("2025-04-10 05:00:00", "2025-04-09 01:00:00"))]
             check(not stray, f"no flagged hour outside the planted ones ({len(stray)} stray)")
+            fflag = dict(q(db, "select hr::varchar, fixed_flag from fct_hourly_quality"))
+            check(fflag.get("2025-04-10 05:00:00") == "missing" and fflag.get("2025-04-09 01:00:00") == "low",
+                  "fixed baseline also flags the missing hour and the 12% hour")
+            check(status_of(status, "assert_no_anomalous_hours_vs_fixed_baseline") == "warn", "fixed-baseline test warns")
             spikes = q(db, "select repo, d::varchar from fct_star_spike_days")
             check(spikes == [("lab/viral", "2025-04-02")], f"the planted star burst is the only spike: {spikes}")
             check(status.get("fct_star_spike_days") == "success", "other models still build when the quality test fails")
@@ -83,6 +91,15 @@ for scenario in SCENARIOS:
             check(not ok, "dbt build fails on an unknown event type")
             check(status_of(status, "accepted_values_stg_events_type") == "fail", "accepted_values test on event type fails")
             check(status.get("fct_star_daily") in ("skipped", None), "models downstream of the failed test are skipped")
+        elif scenario == "long_drop":
+            rows = q(db, "select hr::varchar, flag, fixed_flag from fct_hourly_quality")
+            after = [(h, f, x) for h, f, x in rows if h >= "2025-03-15 00:00:00"]
+            check(all(x == "low" for h, f, x in after), f"every hour of the 5-week drop is 'low' against the fixed baseline ({len(after)} hours)")
+            check(not any(x in ("low", "high", "missing") for h, f, x in rows if h < "2025-03-15 00:00:00"), "no fixed-baseline alarm before the drop")
+            rolling_low = sum(f == "low" for h, f, x in after)
+            print(f"  info: rolling baseline flags {rolling_low} of {len(after)} drop hours (it adapts); the fixed one flags all")
+            check(rolling_low < len(after), "the rolling baseline adapts to the long drop (this is why the fixed one exists)")
+            check(status_of(status, "assert_no_anomalous_hours_vs_fixed_baseline") == "warn", "fixed-baseline test warns on the long drop")
 
 print()
 if failures:

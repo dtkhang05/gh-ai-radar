@@ -28,6 +28,7 @@ vars:
   # data-quality range: continuous hours that we expect to exist (Jan-Feb 2025 download is partial, so excluded)
   dq_start: "2025-03-01"
   dq_end: "2025-06-01"       # exclusive
+  dq_fixed_weeks: 4          # first N weeks of the range form the frozen reference baseline (fixed_flag)
 
 models:
   radar:

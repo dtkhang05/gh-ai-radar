@@ -59,8 +59,8 @@ Dự án học dữ liệu bắt đầu ngày 20/10/2026: dựng pipeline trên 
 
 **Pipeline**
 - Tải từng giờ → lọc 5 cột → Parquet → xóa file thô.
-- DuckDB đọc trực tiếp Parquet; dbt có 7 mô hình và 25 test.
-- Một lệnh `run_pipeline.py` chạy cả chuỗi, dừng ngay khi lỗi, ghi log. Chạy từ đầu mất 70 giây: 23 test đạt, 2 cảnh báo có chủ đích.
+- DuckDB đọc trực tiếp Parquet; dbt có 7 mô hình và 28 test.
+- Một lệnh `run_pipeline.py` chạy cả chuỗi, dừng ngay khi lỗi, ghi log. Chạy từ đầu mất 70–140 giây (hai lần đo khác nhau): 25 test đạt, 3 cảnh báo có chủ đích.
 - Kết quả dbt khớp với các script phân tích ở các chỉ số tôi đã so (số ngày đột biến, giữ chân người đóng góp, độ phủ).
 - CI chạy dbt trên dữ liệu tổng hợp có lỗi cài sẵn và báo đỏ nếu test không còn bắt được lỗi.
 
@@ -83,7 +83,7 @@ Dự án học dữ liệu bắt đầu ngày 20/10/2026: dựng pipeline trên 
 **Chung**
 - Chỉ 12 tuần dữ liệu (01/03 – 22/05/2025); 2023–2024 chưa tải vì mạng chậm.
 - Các ngưỡng (50 star, gấp 5 lần, 3 sự kiện, 0,70) do tôi chọn; chỉ ngưỡng star được thử nhiều bộ.
-- Lớp kiểm tra chất lượng dùng đường cơ sở trượt, nên một đợt sụt kéo dài chỉ bị gắn cờ trong vài tuần đầu.
+- Đường cơ sở trượt chỉ gắn cờ đợt sụt kéo dài trong vài tuần đầu, nên tôi thêm đường cố định (4 tuần đầu). Dữ liệu thật chỉ có 8 ngày sau điểm sụt, nên khác biệt này mới kiểm chứng bằng dữ liệu tổng hợp; đường cố định cũng không phân biệt được lỗi với thay đổi mức thật.
 - Đây là dự án học tập, kết quả mang tính khám phá.
 
 Mã nguồn, các bảng dbt, tài liệu dbt và dashboard nằm cùng kho với bài viết này.

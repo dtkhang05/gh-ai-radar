@@ -5,12 +5,14 @@
 #   faulty   : one hour at 12% of normal (04-09 01:00), one hour with no events (04-10 05:00), a sustained 35% drop from 04-15 16:00,
 #              and a star burst of 400 one-event accounts on the viral repo on 04-02.
 #   bad_type : one event with a type dbt does not know (an accepted_values test must fail and block downstream models).
+#   long_drop: a 35% drop from 03-15 that lasts 5 weeks to the end of the data, longer than the rolling baseline's 4 weeks of memory
+#              (checked with dq_fixed_weeks=2 so the reference window is 03-01..03-14).
 # Usage: python ci/make_synthetic.py <out_dir> <clean|faulty|bad_type>   (writes <out_dir>/events.parquet and universe.parquet)
 import duckdb, sys
 from pathlib import Path
 
 START, END_EXCL = "2025-03-01", "2025-04-19"   # 49 days = 7 blocks of 7 days
-SCENARIOS = ("clean", "faulty", "bad_type")
+SCENARIOS = ("clean", "faulty", "bad_type", "long_drop")
 
 
 def generate(out_dir, scenario):
@@ -28,6 +30,8 @@ def generate(out_dir, scenario):
         con.execute("""update hours set n = round(n * 0.12) where h = timestamp '2025-04-09 01:00';
                        update hours set n = 0 where h = timestamp '2025-04-10 05:00';
                        update hours set n = round(n * 0.65) where h >= timestamp '2025-04-15 16:00' and h <> timestamp '2025-04-10 05:00'""")
+    if scenario == "long_drop":
+        con.execute("update hours set n = round(n * 0.65) where h >= timestamp '2025-03-15'")
     con.execute("""create table base as
       select h + to_seconds(floor(random() * 3600)::bigint) ts, r,
              -- the user pool grows by 60 a day, so new contributors keep appearing after the burn-in blocks (retention needs them)

@@ -37,7 +37,11 @@ Tài liệu này ghi từng giai đoạn của dự án: làm gì, đo được 
 - **Kết quả** (2.208 giờ, 01/03 → 31/05/2025): 1.588 ok, 116 low, 504 no_baseline.
 - Bắt đúng điểm sụt 23/05 (giờ đầu bị cờ: 17h UTC, tỉ lệ 0,655).
 - Bắt một giờ mà file tải thành công nhưng thiếu nội dung: **08/05/2025 01:00 UTC chỉ có 27.469 sự kiện** (12% mức thường), file 11,6 MB so với ~105 MB. Script tải chỉ kiểm tra file có tải được, không kiểm tra nội dung.
-- **Còn thiếu:** đường cơ sở cố định lấy từ giai đoạn đã biết ổn (đường cơ sở trượt thích nghi với đợt sụt kéo dài nên chỉ gắn cờ trong vài tuần đầu); chưa thử ngưỡng 0,70/1,50 trên tháng khác; `ingest.py` chưa cảnh báo khi file nén nhỏ bất thường.
+- **Đường cơ sở cố định** (`fixed_base_events`, `fixed_ratio`, `fixed_flag` trong `fct_hourly_quality`): cùng ngưỡng, nhưng so với trung vị cùng thứ, cùng giờ của 4 tuần đầu (01–28/03, biến `dq_fixed_weeks`), không thích nghi. Lý do: đường cơ sở trượt coi mức mới là bình thường nên chỉ gắn cờ một đợt sụt kéo dài trong vài tuần đầu. Giờ trong 4 tuần tham chiếu có cờ `reference`.
+  - **Đo trên dữ liệu thật** (1.536 giờ ngoài tuần tham chiếu): trong cửa sổ tin cậy (đến 22/05) cờ cố định gắn đúng hai giờ đã biết (13/04 01:00, 08/05 01:00), không thêm cảnh báo giả. Từ 23/05 (216 giờ): 158 giờ `low` so với 114 của đường trượt (thêm 44 giờ, nằm ở cuối ngày 23/05 và các ngày sau).
+  - **Chưa chứng minh trên dữ liệu thật:** dữ liệu chỉ có 8 ngày sau điểm sụt nên chưa đủ dài để đường trượt "quên" mất đợt sụt; sự khác biệt đó chỉ được kiểm chứng bằng dữ liệu tổng hợp (mục 6, kịch bản sụt 5 tuần).
+  - **Điểm yếu:** nó không phân biệt lỗi thật với thay đổi mức dài hạn thật (tăng trưởng, mùa vụ). Tỉ lệ trung bình theo tuần đã trôi từ ~0,98 (đầu tháng 4) xuống 0,93–0,96 (tháng 4–5); chưa biết là tăng trưởng thật hay nhiễu, nhưng còn cách ngưỡng 0,70 khá xa.
+- **Còn thiếu:** chưa thử ngưỡng 0,70/1,50 trên tháng khác; `ingest.py` chưa cảnh báo khi file nén nhỏ bất thường.
 
 ## 4. Tải thêm dữ liệu lịch sử
 - Hiện có đủ 03, 04, 05/2025. Tháng 01–02/2025 tải dở (960/1.416 giờ, đến 09/02/2025), tạm dừng vì mạng chậm (~2 phút/giờ).
@@ -79,9 +83,10 @@ Khớp từ khóa nguyên từ trong tên repo (`llm`, `gpt`, `agent`, `mcp`, ..
 
 ### Mô hình và kết quả build
 - `dbt_radar/` (dbt-core 1.12.6, dbt-duckdb 1.11.0, DuckDB 1.5.6). Luồng: `stg_events` (view trên Parquet) → `int_ai_repo_candidates` → `fct_star_daily`, `fct_star_spike_days`, `fct_contributor_week`, `fct_cohort_retention`, `fct_hourly_quality`. Ngưỡng và cửa sổ là biến trong `dbt_project.yml`.
-- Build: 7 mô hình, 25 test: 23 đạt, 2 cảnh báo có chủ đích, 0 lỗi, ~70 giây (lúc đầu ~166 giây; nhanh hơn vì ghép danh sách repo trước khi gom nhóm).
+- Build: 7 mô hình, 28 test: 25 đạt, 3 cảnh báo có chủ đích, 0 lỗi, ~140 giây trong lần chạy gần nhất (đã từng đo ~70 giây; chưa tìm nguyên nhân chênh lệch, có thể do máy bận). Lúc đầu ~166 giây; nhanh hơn nhờ ghép danh sách repo trước khi gom nhóm.
 - Cảnh báo 1: 24 id trùng trong tuần mẫu 01–07/05/2025 (chỉ kiểm 1 tuần vì kiểm toàn bộ cần băm >300 triệu id).
 - Cảnh báo 2: 2 giờ bất thường trong cửa sổ tin cậy (13/04 01:00 tỉ lệ 0,606; 08/05 01:00 tỉ lệ 0,121).
+- Cảnh báo 3: cùng 2 giờ đó theo đường cơ sở cố định (`assert_no_anomalous_hours_vs_fixed_baseline`).
 - Khớp script Python ở mọi chỉ số đã so:
   - Vòng 1 (tập theo tên): 8.068 repo; 444 ngày đột biến ở 153 repo; 91.655 dòng người-tuần; cờ chất lượng 1.588 / 116 / 504.
   - Vòng 2 (4.033 repo AI): 1.513 ngày đột biến ở 526 repo; giữ chân 16,7% / 10,2% / 7,9% / 7,2%. Chưa so lại số dòng người-tuần.
@@ -99,12 +104,14 @@ Khớp từ khóa nguyên từ trong tên repo (`llm`, `gpt`, `agent`, `mcp`, ..
 
 | Kịch bản | Lỗi cài sẵn | Kiểm tra |
 |---|---|---|
-| Sạch | Không | Build thành công, 25 test đạt; không cờ giả (504 `no_baseline`, 672 `ok`); không ngày đột biến; giữ chân có người quay lại |
+| Sạch | Không | Build thành công, 28 test đạt; không cờ giả (đường trượt: 504 `no_baseline`, 672 `ok`; đường cố định: 672 `reference`, 504 `ok`); không ngày đột biến; giữ chân có người quay lại |
 | Lỗi cài sẵn | Một giờ trống; một giờ còn 12%; sụt 35% từ 15/04 16:00; 400 tài khoản star một lần trong một ngày | `assert_no_missing_hours` thất bại; test giờ bất thường cảnh báo; giờ trống `missing`, giờ 12% `low`, cả 80 giờ sụt `low`; không cờ nào ngoài giờ cài sẵn; ngày đột biến duy nhất là ngày cài sẵn; mô hình khác vẫn dựng được |
 | Loại sự kiện lạ | Một sự kiện có type lạ | `accepted_values` thất bại; mô hình phía sau bị bỏ qua |
+| Sụt kéo dài | Sụt 35% từ 15/03 đến hết dữ liệu (5 tuần), tuần tham chiếu = 2 | Cả 840 giờ sụt `low` theo đường cố định, không cờ nào trước đó; đường trượt chỉ gắn 168/840 giờ (nó thích nghi); test đường cố định cảnh báo |
 
-- Đã kiểm chứng: cục bộ ~21 giây, đạt cả 3 kịch bản; đổi ngưỡng `low` từ 0,70 xuống 0,50 thì kiểm tra đợt sụt báo đỏ (kiểm tra không rỗng); GitHub Actions (Ubuntu, Python 3.13, 21/10/2026) đạt cả 18 kiểm tra.
-- Giới hạn: dữ liệu tổng hợp đơn giản (nhiễu ±3%, không chu kỳ dài hơn tuần), nên chứng minh bắt được lỗi cài sẵn, không phải mọi lỗi thật. Chưa có kịch bản cho id trùng và đợt sụt kéo dài >3 tuần.
+- Kịch bản 1–3: đã chạy trên GitHub Actions (Ubuntu, Python 3.13, 21/10/2026), đạt 18 kiểm tra. Kịch bản sụt kéo dài và các kiểm tra đường cố định (tổng 27 kiểm tra) mới chạy cục bộ, đạt hết (chưa đo thời gian); **chưa chạy trên GitHub Actions** (chưa đẩy).
+- Đã kiểm chứng đột biến: hạ ngưỡng `low` 0,70 → 0,50 (đường trượt) làm kiểm tra đợt sụt 35% đỏ; hạ ngưỡng của đường cố định làm 2 kiểm tra kịch bản sụt kéo dài đỏ (kiểm tra không rỗng).
+- Giới hạn: dữ liệu tổng hợp đơn giản (nhiễu ±3%, không chu kỳ dài hơn tuần, không tăng trưởng), nên chứng minh bắt được lỗi cài sẵn, không phải mọi lỗi thật. Chưa có kịch bản cho id trùng, và chưa có kịch bản cho thay đổi mức dài hạn thật (nơi đường cố định sẽ báo nhầm).
 
 ### Tài liệu dbt
 - `scripts/build_dbt_docs.py` chạy `dbt docs generate --static` rồi chép ra `docs/dbt/index.html` (một file 2,5 MB, đăng cùng GitHub Pages). Mô tả mô hình và cột marts nằm trong `models/marts/schema.yml`.
@@ -178,7 +185,6 @@ Phạm vi: 01/03 → 22/05/2025, 4.033 repo AI có từ 100 star (giai đoạn 5
 ## 9. Hướng mở rộng
 Theo thứ tự nên làm:
 
-1. **Đường cơ sở cố định** cho lớp chất lượng (giai đoạn 3).
-2. **Dữ liệu nhiều năm:** lấy mẫu vài ngày mỗi tháng từ 2023 để xem các làn sóng và dự án chết dần, vì tải đủ 29 tháng quá chậm với mạng hiện tại.
-3. **Kiểm tra thêm tập repo AI:** mẫu kiểm tay độ chính xác lớn hơn; thử thêm repo dưới 100 star (cần tra thêm ~500 lượt GraphQL cho ngưỡng 30 star).
-4. **Chạy định kỳ hằng ngày** và nguồn dữ liệu bổ sung (chưa thử).
+1. **Dữ liệu nhiều năm:** lấy mẫu vài ngày mỗi tháng từ 2023 để xem các làn sóng và dự án chết dần, vì tải đủ 29 tháng quá chậm với mạng hiện tại.
+2. **Kiểm tra thêm tập repo AI:** mẫu kiểm tay độ chính xác lớn hơn; thử thêm repo dưới 100 star (cần tra thêm ~500 lượt GraphQL cho ngưỡng 30 star).
+3. **Chạy định kỳ hằng ngày** và nguồn dữ liệu bổ sung (chưa thử).

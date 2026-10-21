@@ -105,3 +105,14 @@ models:
           - accepted_values:
               arguments:
                 values: [ok, low, high, missing, no_baseline]
+      - name: fixed_base_events
+        description: Median of the same weekday and hour over the first dq_fixed_weeks weeks (frozen, does not adapt).
+      - name: fixed_ratio
+        description: events / fixed_base_events.
+      - name: fixed_flag
+        description: Same thresholds as flag but against the frozen baseline; reference for hours inside the reference window.
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [reference, ok, low, high, missing]
