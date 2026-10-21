@@ -112,37 +112,58 @@ Khớp từ khóa nguyên từ trong tên repo (`llm`, `gpt`, `agent`, `mcp`, ..
 - Chưa làm: mở trang công khai bằng trình duyệt; mô tả cột `stg_events` ngoài `id`, `type`, `actor`, `repo`; sơ đồ phụ thuộc trong README.
 
 ## 7. Phân tích
-Phạm vi: 01/03 → 22/05/2025, 4.033 repo AI có từ 100 star (xem giai đoạn 5, vòng 2). Các số dưới đây là kết quả trên tập này; kết quả vòng 1 (tập theo tên, 8.068 repo ≥10 star) được ghi ở cuối mục để so sánh.
+Phạm vi: 01/03 → 22/05/2025, 4.033 repo AI có từ 100 star (giai đoạn 5, vòng 2). Mỗi câu hỏi có một dòng so với vòng 1 (tập theo tên, 8.068 repo ≥10 star).
 
 ### Câu 1: star tăng đột biến có phải người thật?
-**Định nghĩa** (`scripts/star_anomalies.py`, mô hình `fct_star_spike_days`): ngày đột biến là ngày có ≥50 star và ≥5 lần trung vị 14 ngày trước, với điều kiện repo có ≥7 ngày có star trong 14 ngày đó (loại ngày ra mắt có mức thường bằng 0; lỗi này từng làm bản đầu báo 823 ngày). Tài khoản "mỏng" là tài khoản có ≤3 sự kiện trong cửa sổ.
-
-- **Kết quả:** 1.513 ngày đột biến ở 526 repo (626–2.772 ngày tùy 9 bộ ngưỡng thử: ≥30/50/100 star × 3/5/10 lần). Tỉ lệ mỏng trung bình ở ngày đột biến là 6,7%, thấp hơn ngày thường (8,2%); kết luận giữ nguyên ở cả 9 bộ (6,3–7,6% so với 7,4–9,0%): phần lớn đột biến đến từ ra mắt hoặc được chia sẻ rộng.
-- **Hai repo của cùng một tổ chức lệch hẳn** (ẩn tên, gọi là Repo X và Repo X2; cả hai bị gắn cờ ở 9/9 bộ ngưỡng): ngày 11, 12, 14, 15/04/2025 có 85–93% người star là tài khoản mỏng, so với khoảng 30% ngày thường. Repo X2 không khớp từ khóa trong tên nên bộ lọc vòng 1 không thấy; nó chỉ hiện ra sau khi mở rộng tập repo. Ngoài ra Repo Y bị gắn cờ ở 6/9 bộ ngưỡng, một ngày (25/04/2025, 124 star, 95% mỏng so với 60% ngày thường); hai repo khác bị gắn cờ ở 3/9 bộ ngưỡng nhưng không vượt ngưỡng ở cấu hình chính.
-- **Kiểm tra độc lập bằng tuổi tài khoản** (`scripts/check_account_age.py`, GitHub API công khai, mẫu ~25 người mỗi nhóm):
+- Định nghĩa (`scripts/star_anomalies.py`, mô hình `fct_star_spike_days`):
+  - Ngày đột biến: ≥50 star và ≥5 lần trung vị 14 ngày trước; repo phải có star ở ≥7 trong 14 ngày đó (không thì ngày ra mắt bị tính nhầm; lỗi này từng làm bản đầu báo 823 ngày).
+  - Tài khoản "mỏng": ≤3 sự kiện trong cửa sổ.
+- Kết quả chung:
+  - 1.513 ngày ở 526 repo (626–2.772 ngày tùy 9 bộ ngưỡng: ≥30/50/100 star × 3/5/10 lần).
+  - Tỉ lệ mỏng: ngày đột biến 6,7%, ngày thường 8,2% (cả 9 bộ: 6,3–7,6% so với 7,4–9,0%) → phần lớn đột biến đến từ ra mắt hoặc chia sẻ rộng.
+  - Vòng 1: 444 ngày ở 153 repo; mỏng 7,6% so với 9,2%; chỉ một repo gắn cờ 9/9.
+- Repo lệch (ẩn tên):
+  - Repo X và Repo X2 (cùng tổ chức), gắn cờ 9/9: ngày 11, 12, 14, 15/04/2025 có 85–93% người star mỏng, so với ~30% ngày thường. Repo X2 không khớp từ khóa tên nên vòng 1 không thấy.
+  - Repo Y, gắn cờ 6/9: một ngày (25/04/2025), 124 star, 95% mỏng so với 60% ngày thường.
+  - Hai repo khác gắn cờ 3/9, không vượt ngưỡng ở cấu hình chính.
+- Kiểm tra tuổi tài khoản (`scripts/check_account_age.py`, GitHub API công khai, ~25 người mỗi nhóm):
 
 | Nhóm | Đọc được | Tuổi trung vị | Tạo <30 ngày | Chưa có repo |
 |---|---|---|---|---|
-| Repo X, ngày đột biến 14–15/04 | 21 | 0 ngày | 20/21 | 19/21 |
+| Repo X, đột biến 14–15/04 | 21 | 0 ngày | 20/21 | 19/21 |
 | Repo X, ngày thường | 23 | 442 ngày | 0/23 | 1/23 |
-| Repo X2, ngày đột biến 14–15/04 | 24 | 0 ngày | 22/24 | 21/24 |
-| Repo Y, ngày đột biến 25/04 | 25 | 419 ngày | 2/25 | 2/25 |
+| Repo X2, đột biến 14–15/04 | 24 | 0 ngày | 22/24 | 21/24 |
+| Repo Y, đột biến 25/04 | 25 | 419 ngày | 2/25 | 2/25 |
 | github-mcp-server, ra mắt 07–08/04 (đối chứng) | 22 | 3.820 ngày | 0/22 | 1/22 |
 | system-prompts-and-models-of-ai-tools, lan truyền 19–22/04 (đối chứng) | 24 | 2.050 ngày | 2/24 | 2/24 |
 
-- **Diễn giải:** Repo X2 giống Repo X (tuổi trung vị 0 ngày, 22/24 tạo <30 ngày). Repo Y thì không: tài khoản star ngày 25/04 lâu năm (trung vị 419 ngày, 2/25 tạo <30 ngày), nên tuổi tài khoản không xác nhận dấu hiệu "mỏng" ở đó; tỉ lệ mỏng ngày thường của Repo Y vốn đã 60%, nên có thể chỉ là người dùng ít hoạt động.
-- **Giới hạn:** "mỏng" không có nghĩa là giả. Mẫu nhỏ (21–25 người mỗi nhóm, 5 repo). Hai repo đối chứng do tác giả chọn vì tin là lan truyền thật. Kết quả cho biết các tài khoản đó là tài khoản dùng một lần, không cho biết ai đứng sau, nên không gán lỗi cho chủ repo. Ngưỡng "mỏng ≤3 sự kiện" chưa thử độ nhạy.
+- Diễn giải:
+  - Repo X2 giống Repo X: tài khoản tạo ngay trong ngày.
+  - Repo Y không: tài khoản lâu năm nên tuổi tài khoản không xác nhận "mỏng"; tỉ lệ mỏng ngày thường của nó vốn 60%, có thể chỉ là người dùng ít hoạt động.
+- Giới hạn:
+  - "Mỏng" không có nghĩa là giả.
+  - Mẫu nhỏ (21–25 người mỗi nhóm, 5 repo); hai repo đối chứng do tác giả chọn vì tin là lan truyền thật.
+  - Chỉ cho biết đó là tài khoản dùng một lần, không cho biết ai đứng sau, nên không gán lỗi cho chủ repo.
+  - Ngưỡng "mỏng ≤3 sự kiện" chưa thử độ nhạy.
 
 ### Câu 2: người đóng góp mới có ở lại không?
-**Định nghĩa** (`scripts/cohort_retention.py`, mô hình `fct_cohort_retention`): chia 01/03 → 16/05/2025 thành 11 khối 7 ngày; người mới là người lần đầu xuất hiện từ khối 3 (khối 1–2 làm giai đoạn khởi động); chỉ tính push, PR, issue, bình luận, review; loại bot.
-
-- **Kết quả** (143.991 người, 273.688 dòng người-tuần, trung bình có trọng số theo cohort): 16,7% hoạt động lại sau 1 tuần, 10,2% sau 2, 7,9% sau 4, 7,2% sau 8.
-- **Theo hoạt động đầu tiên:** bắt đầu bằng push/PR giữ lại 29,0% sau 1 tuần và 14,9% sau 8 tuần; chỉ issue/bình luận/review là 14,3% và 5,6%.
-- **So với vòng 1** (52.417 người, tập theo tên): 16,9% / 5,8% (1 và 8 tuần), code 29,8% / 12,9%, issue 12,5% / 3,3%. Tuần 1 gần như không đổi, nhưng mức 8 tuần và nhóm issue-first cao hơn. Nguyên nhân chưa kiểm tra; một giả thuyết là repo thư viện/framework AI giữ người lâu hơn repo ứng dụng nhỏ, nhưng chưa có dữ liệu để xác nhận.
-- **Giới hạn:** (1) không có dữ liệu trước 01/03 nên người cũ vắng 2 tuần đầu bị tính là người mới, làm các cohort đầu cao hơn thực tế, vì vậy xu hướng giảm giữa các cohort không có nghĩa hệ sinh thái yếu đi; (2) "còn hoạt động" chỉ tính trong tập repo đã lọc; (3) chưa có mốc so sánh bên ngoài; (4) cohort muộn quan sát ngắn; (5) giờ 08/05 01:00 UTC thiếu dữ liệu nằm trong khối 9.
+- Định nghĩa (`scripts/cohort_retention.py`, mô hình `fct_cohort_retention`):
+  - 11 khối 7 ngày, 01/03 → 16/05/2025; người mới = lần đầu xuất hiện từ khối 3 (khối 1–2 để khởi động).
+  - Chỉ tính push, PR, issue, bình luận, review; loại bot.
+- Kết quả (143.991 người, 273.688 dòng người-tuần, trung bình có trọng số theo cohort):
+  - Còn hoạt động: 16,7% sau 1 tuần, 10,2% sau 2, 7,9% sau 4, 7,2% sau 8.
+  - Bắt đầu bằng push/PR: 29,0% sau 1 tuần, 14,9% sau 8. Chỉ issue/bình luận/review: 14,3% và 5,6%.
+- So với vòng 1 (52.417 người): 16,9% / 5,8% (1 và 8 tuần); code 29,8% / 12,9%; issue 12,5% / 3,3%.
+  - Tuần 1 gần như không đổi; mức 8 tuần và nhóm issue-first cao hơn.
+  - Nguyên nhân chưa kiểm tra; giả thuyết: repo thư viện/framework giữ người lâu hơn repo ứng dụng nhỏ.
+- Giới hạn:
+  - Không có dữ liệu trước 01/03: người cũ vắng 2 tuần đầu bị tính là mới → cohort đầu cao ảo; xu hướng giảm giữa các cohort không có nghĩa hệ sinh thái yếu đi.
+  - "Còn hoạt động" chỉ tính trong tập repo đã lọc.
+  - Chưa có mốc so sánh bên ngoài; cohort muộn quan sát ngắn; giờ 08/05 01:00 UTC thiếu dữ liệu nằm trong khối 9.
 
 ### Chưa làm
-Dự án chết dần; làn sóng LangChain → agent → MCP (cần dữ liệu nhiều năm); so với các nguồn tương tự như OSS Insight (chưa kiểm tra).
+- Dự án chết dần; làn sóng LangChain → agent → MCP (cần dữ liệu nhiều năm).
+- So với nguồn tương tự như OSS Insight (chưa kiểm tra).
 
 ## 8. Dashboard, bài viết, đăng GitHub
 - **Dashboard** `docs/index.html`: trang HTML tĩnh tự chứa, tự vẽ SVG, không cần máy chủ, đăng bằng GitHub Pages. Tạo bởi `scripts/build_dashboard.py` và `scripts/dashboard_template.html` từ các bảng dbt và file mẫu tài khoản. Chọn HTML tĩnh thay vì Streamlit vì Streamlit kéo nhiều gói nặng và mạng máy rất chậm (~16 kB/s khi cài dbt).
