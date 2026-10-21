@@ -1,0 +1,22 @@
+# Runs the real dbt project on synthetic data with faults planted on purpose (ci/check_scenarios.py) and fails if a test or model
+# stops catching them, or raises a false alarm on clean data. No real GH Archive data and no secrets are used.
+name: ci
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  scenarios:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - run: python -m compileall -q scripts ci
+      - run: python ci/check_scenarios.py

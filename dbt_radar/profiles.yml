@@ -3,7 +3,7 @@ radar:
   outputs:
     dev:
       type: duckdb
-      path: ../data/radar_dbt.duckdb
+      path: "{{ env_var('RADAR_DB', '../data/radar_dbt.duckdb') }}"   # RADAR_DB lets CI build into a throwaway file
       threads: 2
       # shared machine (another project runs Docker): cap resources so one model cannot exhaust RAM or disk
       settings:

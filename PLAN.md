@@ -86,7 +86,13 @@ Khớp từ khóa nguyên từ trong tên repo (`llm`, `gpt`, `agent`, `mcp`, ..
 - **Lỗi đã gặp khi đổi sang tập repo mới:** (1) đặt `temp_directory` trong `profiles.yml` gây lỗi "Cannot switch temporary directory after the current one has been used" khi một luồng mở kết nối sau khi luồng khác đã dùng đĩa tạm; đã bỏ cài đặt này, dùng thư mục mặc định cạnh file DuckDB; (2) lần đầu mô hình `int_ai_repo_candidates` gom nhóm mọi repo rồi mới ghép với danh sách AI nên tràn giới hạn file tạm 5 GB; đã ghép trước khi gom nhóm.
 - **Đã thử:** chạy từ đầu sau khi xóa kho và `target/` (mã thoát 0); đường lỗi khi ngày không hợp lệ (dừng, mã thoát 1, dbt không chạy); cài đặt và chạy trên bản clone sạch.
 - **Chưa thử:** đường lỗi khi một test dbt ở mức error; dựng lại toàn bộ từ đầu trên máy khác; Linux/macOS.
-- **Còn thiếu:** tài liệu `dbt docs`, CI chạy test tự động.
+- **Kiểm thử tự động (CI)** (`ci/make_synthetic.py`, `ci/check_scenarios.py`, `.github/workflows/ci.yml`): sinh 49 ngày dữ liệu tổng hợp (~370 nghìn dòng, mỗi giờ ~400 sự kiện, 40 repo AI và một repo "viral") rồi chạy chính dự án dbt (đường dẫn dữ liệu và cửa sổ thời gian truyền bằng `--vars`, kho DuckDB tạm qua biến môi trường `RADAR_DB`). Ba kịch bản:
+  - **sạch:** `dbt build` thành công, 25 test đạt, không cờ giả (504 giờ `no_baseline`, 672 giờ `ok`), không ngày đột biến, bảng giữ chân có người quay lại.
+  - **có lỗi cài sẵn:** một giờ không có sự kiện, một giờ chỉ còn 12%, đợt sụt 35% từ 15/04 16:00, 400 tài khoản star một lần trong một ngày. Kiểm tra: `assert_no_missing_hours` thất bại, test giờ bất thường cảnh báo, giờ thiếu được gắn `missing`, giờ 12% gắn `low`, cả 80 giờ sụt đều `low`, không giờ nào bị gắn cờ ngoài các giờ cài sẵn, ngày đột biến duy nhất là ngày cài sẵn, các mô hình khác vẫn dựng được.
+  - **loại sự kiện lạ:** `accepted_values` thất bại và các mô hình phía sau bị bỏ qua.
+  - **Đã kiểm chứng:** chạy cục bộ ~21 giây, đạt cả 3 kịch bản; thử đổi ngưỡng cờ `low` từ 0,70 xuống 0,50 thì kiểm tra "đợt sụt 35% đều `low`" báo đỏ (nên kiểm tra không rỗng). **Chưa kiểm chứng:** chạy trên GitHub Actions (Ubuntu, Python 3.13); chỉ biết file workflow hợp lệ về cú pháp YAML.
+  - **Giới hạn:** dữ liệu tổng hợp đơn giản (nhiễu ±3%, không có chu kỳ dài hơn tuần), nên chứng minh test bắt được lỗi cài sẵn, không chứng minh bắt được mọi lỗi thật. Chưa có kịch bản cho id trùng và đợt sụt kéo dài hơn 3 tuần (điểm yếu đã biết của đường cơ sở trượt).
+- **Còn thiếu:** tài liệu `dbt docs`.
 
 ## 7. Phân tích
 Phạm vi: 01/03 → 22/05/2025, 4.033 repo AI có từ 100 star (xem giai đoạn 5, vòng 2). Các số dưới đây là kết quả trên tập này; kết quả vòng 1 (tập theo tên, 8.068 repo ≥10 star) được ghi ở cuối mục để so sánh.
@@ -134,8 +140,7 @@ Dự án chết dần; làn sóng LangChain → agent → MCP (cần dữ liệu
 ## 9. Hướng mở rộng
 Theo thứ tự nên làm:
 
-1. **CI:** GitHub Actions chạy test dbt trên dữ liệu tổng hợp có cài sẵn một đợt sụt và một đợt star đột biến, để chứng minh test bắt được lỗi.
-2. **Đường cơ sở cố định** cho lớp chất lượng (giai đoạn 3) và `dbt docs` đăng cùng Pages.
-3. **Dữ liệu nhiều năm:** lấy mẫu vài ngày mỗi tháng từ 2023 để xem các làn sóng và dự án chết dần, vì tải đủ 29 tháng quá chậm với mạng hiện tại.
-4. **Kiểm tra thêm tập repo AI:** mẫu kiểm tay độ chính xác lớn hơn; thử thêm repo dưới 100 star (cần tra thêm ~500 lượt GraphQL cho ngưỡng 30 star).
-5. **Chạy định kỳ hằng ngày** và nguồn dữ liệu bổ sung (chưa thử).
+1. **Đường cơ sở cố định** cho lớp chất lượng (giai đoạn 3) và `dbt docs` đăng cùng Pages.
+2. **Dữ liệu nhiều năm:** lấy mẫu vài ngày mỗi tháng từ 2023 để xem các làn sóng và dự án chết dần, vì tải đủ 29 tháng quá chậm với mạng hiện tại.
+3. **Kiểm tra thêm tập repo AI:** mẫu kiểm tay độ chính xác lớn hơn; thử thêm repo dưới 100 star (cần tra thêm ~500 lượt GraphQL cho ngưỡng 30 star).
+4. **Chạy định kỳ hằng ngày** và nguồn dữ liệu bổ sung (chưa thử).

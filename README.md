@@ -20,6 +20,7 @@ Pipeline dữ liệu trên [GH Archive](https://www.gharchive.org/) (mọi sự 
 | Xác định repo AI | `scripts/top_repos_by_stars.py`, `fetch_repo_metadata.py`, `ai_repos_classify.py` | Lấy 20.000 repo nhiều star nhất, tra topic và mô tả qua GitHub GraphQL API (100 repo mỗi lần gọi), rồi phân loại AI theo tên, topic hoặc mô tả |
 | Mô hình | `dbt_radar/` (dbt-core 1.12, dbt-duckdb 1.11) | staging (view) → intermediate → marts: `fct_star_daily`, `fct_star_spike_days`, `fct_contributor_week`, `fct_cohort_retention`, `fct_hourly_quality` |
 | Chất lượng | `fct_hourly_quality` + 25 test dbt | So số sự kiện từng giờ với trung vị của cùng thứ và giờ trong 4 tuần trước; test bắt giờ thiếu, giờ bất thường, id trùng, giá trị lạ |
+| Kiểm thử tự động | `ci/` + `.github/workflows/ci.yml` | Chạy chính dự án dbt trên dữ liệu tổng hợp có cài sẵn lỗi (giờ thiếu, giờ chỉ còn 12%, đợt sụt 35%, đợt star dồn dập, loại sự kiện lạ) và báo đỏ nếu test hoặc mô hình không còn bắt được lỗi, hoặc báo nhầm trên dữ liệu sạch |
 | Điều phối | `scripts/run_pipeline.py` | Một lệnh: kiểm tra trước → (tùy chọn) tải → `dbt build` → tóm tắt; dừng ngay khi lỗi (mã thoát khác 0) và ghi log có dấu thời gian |
 | Trình bày | `docs/index.html` | Trang HTML tĩnh tự chứa (không cần máy chủ), dựng từ các bảng dbt bằng `scripts/build_dashboard.py` |
 
@@ -139,6 +140,8 @@ Hai điều cần nhớ: dữ liệu bắt đầu từ 01/03 nên người cũ v
    .venv\Scripts\python -I -X utf8 scripts\build_dashboard.py
    ```
 
+**Chạy kiểm thử tự động** (không cần dữ liệu thật, khoảng 20 giây): `.venv\Scripts\python -X utf8 ci\check_scenarios.py`. Nó dựng 3 bộ dữ liệu tổng hợp (sạch, có lỗi cài sẵn, có loại sự kiện lạ), chạy `dbt build` trên từng bộ và kiểm tra từng lỗi cài sẵn có bị bắt đúng không (xem `ci/make_synthetic.py`).
+
 **Đã kiểm chứng:** tải kho từ GitHub về thư mục trống, cài môi trường, tải thật 2 giờ dữ liệu bằng `ingest.py`, rồi chạy `run_pipeline.py`: dbt dựng đủ 7 mô hình, 24 test đạt và pipeline dừng đúng ở test thiếu giờ (kết quả mong đợi với 2 giờ dữ liệu). Chạy trên kho trống dữ liệu cũng dừng ngay với thông báo rõ ràng. Sau khi đổi cách xác định repo AI, các bảng dbt khớp với script phân tích ở các chỉ số đã so (số ngày đột biến và số repo, giữ chân người đóng góp, độ phủ).
 **Chưa kiểm chứng:** dựng lại toàn bộ con số từ đầu trên một máy khác (cần tải khoảng 230 GB), chạy trên Linux hoặc macOS, và các bước 3, 4, 6 trong một bản clone sạch (hiện chỉ chạy được trên máy của tác giả, nơi dữ liệu đã có).
 
@@ -148,6 +151,7 @@ Hai điều cần nhớ: dữ liệu bắt đầu từ 01/03 nên người cũ v
 |---|---|
 | `scripts/ingest.py` | Thu thập dữ liệu theo giờ |
 | `scripts/run_pipeline.py` | Điều phối cả chuỗi (kiểm tra trước → tải → dbt → tóm tắt) |
+| `ci/make_synthetic.py`, `ci/check_scenarios.py`, `.github/workflows/ci.yml` | Dữ liệu tổng hợp có lỗi cài sẵn và kiểm tra tự động cho test dbt, chạy trên GitHub Actions mỗi lần đẩy mã |
 | `dbt_radar/` | Dự án dbt: staging → intermediate → marts và 25 test. Chạy từ trong thư mục này: `..\.venv\Scripts\dbt.exe build --profiles-dir .` |
 | `scripts/top_repos_by_stars.py`, `scripts/fetch_repo_metadata.py`, `scripts/ai_repos_classify.py` | Chọn 20.000 repo nhiều star, tra topic và mô tả qua GitHub API, phân loại AI và đo độ phủ từng tín hiệu |
 | `scripts/ai_repos_recall.py`, `scripts/ai_reference_repos.txt`, `scripts/ai_reference_repos_2.txt` | Đo độ phủ end-to-end của bảng dbt trên hai danh sách repo AI nổi tiếng chọn tay |
@@ -165,7 +169,7 @@ Hai điều cần nhớ: dữ liệu bắt đầu từ 01/03 nên người cũ v
 
 ## Hướng phát triển
 
-Chưa làm: tải dữ liệu 2023–2024 (có thể lấy mẫu một vài ngày mỗi tháng thay vì tải đủ, để vẫn thấy xu hướng nhiều năm); nâng độ chính xác và độ phủ của phân loại repo AI (hiện 76–86% và 82–89%; ví dụ thêm repo dưới 100 star, hoặc gán nhãn bằng mô hình ngôn ngữ), với mẫu kiểm tay lớn hơn; đường cơ sở cố định cho lớp kiểm tra chất lượng; chạy kiểm thử trên CI; các câu hỏi chưa trả lời (dự án nào đang chết dần, làn sóng nối tiếp nhau như thế nào). Nguồn dữ liệu thay thế như OpenDigger (một kho tương thích GH Archive, [gharchive issue #323](https://github.com/igrigorik/gharchive.org/issues/323)) chưa được thử.
+Chưa làm: tải dữ liệu 2023–2024 (có thể lấy mẫu một vài ngày mỗi tháng thay vì tải đủ, để vẫn thấy xu hướng nhiều năm); nâng độ chính xác và độ phủ của phân loại repo AI (hiện 76–86% và 82–89%; ví dụ thêm repo dưới 100 star, hoặc gán nhãn bằng mô hình ngôn ngữ), với mẫu kiểm tay lớn hơn; đường cơ sở cố định cho lớp kiểm tra chất lượng; các câu hỏi chưa trả lời (dự án nào đang chết dần, làn sóng nối tiếp nhau như thế nào). Nguồn dữ liệu thay thế như OpenDigger (một kho tương thích GH Archive, [gharchive issue #323](https://github.com/igrigorik/gharchive.org/issues/323)) chưa được thử.
 
 ## Giấy phép
 
