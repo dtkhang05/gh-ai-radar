@@ -89,7 +89,7 @@ Dự án học dữ liệu bắt đầu ngày 20/10/2026: dựng pipeline trên 
 
 **Pipeline**
 - Tải từng giờ → lọc 5 cột → Parquet → xóa file thô.
-- DuckDB đọc trực tiếp Parquet; dbt có 7 mô hình và 28 test.
+- DuckDB đọc trực tiếp Parquet; dbt có 7 mô hình và 28 test (8 mô hình và 34 test khi có thêm mẫu 2023–2024).
 - Một lệnh `run_pipeline.py` chạy cả chuỗi, dừng ngay khi lỗi, ghi log. Chạy từ đầu mất 70–140 giây (hai lần đo khác nhau): 25 test đạt, 3 cảnh báo có chủ đích.
 - Kết quả dbt khớp với các script phân tích ở các chỉ số tôi đã so (số ngày đột biến, giữ chân người đóng góp, độ phủ).
 - CI chạy dbt trên dữ liệu tổng hợp có lỗi cài sẵn và báo đỏ nếu test không còn bắt được lỗi.

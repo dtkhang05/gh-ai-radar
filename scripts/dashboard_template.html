@@ -99,6 +99,13 @@
     <div class="chart" id="c1"></div>
     <details><summary>Xem bảng số liệu (theo ngày)</summary><div class="tablewrap" id="t1"></div></details>
   </div>
+  <div class="card">
+    <h3>Hai đường cơ sở: sụt có bị "quên" không?</h3>
+    <p class="why">Tỉ lệ = sự kiện của giờ ÷ mức thường. Đường trượt dùng 4 tuần liền trước nên sau vài tuần sụt kéo dài nó coi mức thấp là bình thường và tỉ lệ quay về gần 1. Đường cố định dùng 4 tuần đầu (<span id="n-ref"></span> giờ, để trống) nên tỉ lệ vẫn thấp suốt. Dưới 0,70 thì gắn cờ low. Dữ liệu thật chỉ có 8 ngày sau điểm sụt, nên khác biệt giữa hai đường mới chứng minh bằng dữ liệu tổng hợp trong CI.</p>
+    <div class="legend" id="lg1b"></div>
+    <div class="chart" id="c1b"></div>
+    <details><summary>Xem bảng số liệu (ngày có giờ bị gắn cờ)</summary><div class="tablewrap" id="t1b"></div></details>
+  </div>
 
   <h2>2. Star tăng đột biến có phải người thật?</h2>
   <p class="sub">Trong <span id="n-repos"></span> repo AI có <span id="n-spike"></span> ngày star tăng đột biến. Phần lớn đến từ người thật (ra mắt, được chia sẻ). Hai repo của cùng một tổ chức (Repo X, Repo X2) bị gắn cờ ở cả 9 bộ ngưỡng thử, trùng các ngày 11–15/04; một repo khác (Repo Y) bị gắn cờ ở 6/9 bộ ngưỡng nhưng tuổi tài khoản không xác nhận.</p>
@@ -255,6 +262,41 @@ function chart1() {
   svg.addEventListener("keydown", e => { if (e.key === "ArrowRight") go(idx + (e.shiftKey ? 24 : 1)); else if (e.key === "ArrowLeft") go(idx - (e.shiftKey ? 24 : 1)); else return; e.preventDefault(); });
   svg.addEventListener("blur", () => { cross.style.display = "none"; dot.style.display = "none"; tip.hide(); });
 }
+/* ---------- chart 1b: ratio vs rolling and fixed baselines ---------- */
+function chart1b() {
+  const box = document.getElementById("c1b"), W = Math.max(320, box.clientWidth), H = 260, m = { l: 52, r: 14, t: 28, b: 30 }, pts = D.hourly;
+  const t0 = utc(pts[0].hr), t1 = utc(pts[pts.length - 1].hr), cut = utc(D.hourly_cutoff), ymax = 1.6;
+  const X = (t) => m.l + (t - t0) / (t1 - t0) * (W - m.l - m.r), Y = (v) => H - m.b - Math.min(v, ymax) / ymax * (H - m.t - m.b);
+  const svg = mkSvg(box, W, H, "Tỉ lệ sự kiện mỗi giờ so với mức thường theo hai đường cơ sở. Đường trượt quay về gần 1 sau khi sụt kéo dài, đường cố định vẫn dưới 0,70.");
+  [0, 0.5, 1, 1.5].forEach(v => { el("line", { x1: m.l, x2: W - m.r, y1: Y(v), y2: Y(v), class: "grid" }, svg); txt(svg, m.l - 8, Y(v) + 4, fmt1.format(v).replace(",0", ""), "tick", "end"); });
+  el("line", { x1: m.l, x2: W - m.r, y1: H - m.b, y2: H - m.b, class: "axis" }, svg);
+  D.xticks.forEach(s => { const x = X(utc(s)); el("line", { x1: x, x2: x, y1: H - m.b, y2: H - m.b + 4, class: "axis" }, svg); txt(svg, x, H - m.b + 18, dmy(utc(s)), "tick", "middle"); });
+  const wash = el("rect", { x: X(cut), y: m.t, width: X(t1) - X(cut), height: H - m.t - m.b }, svg); wash.style.fill = "var(--wash)";
+  txt(svg, W - m.r, m.t - 10, "Sau 23/05 16h UTC: không đáng tin", "lbl-strong", "end");
+  const thr = el("line", { x1: m.l, x2: W - m.r, y1: Y(0.7), y2: Y(0.7), "stroke-width": 1.5, "stroke-dasharray": "5 4" }, svg); thr.style.stroke = "var(--ink2)";
+  txt(svg, m.l + 4, Y(0.7) - 5, "ngưỡng 0,70", "lbl", "start");
+  const series = [{ k: "ratio", name: "Đường trượt (4 tuần trước)", c: "var(--s1)" }, { k: "fixed_ratio", name: "Đường cố định (4 tuần đầu)", c: "var(--s2)" }];
+  series.forEach(s => {
+    let d = "", pen = false;
+    pts.forEach(p => { const v = p[s.k]; if (v == null) { pen = false; return; } d += (pen ? "L" : "M") + X(utc(p.hr)).toFixed(1) + " " + Y(v).toFixed(1); pen = true; });
+    const path = el("path", { d, fill: "none", "stroke-width": 1.5, "stroke-linejoin": "round" }, svg); path.style.stroke = s.c;
+  });
+  const cross = el("line", { y1: m.t, y2: H - m.b, class: "axis" }, svg); cross.style.display = "none";
+  const tip = tooltip(box); let idx = 0;
+  const go = (i, py) => {
+    idx = Math.max(0, Math.min(pts.length - 1, i)); const p = pts[idx], x = X(utc(p.hr));
+    cross.setAttribute("x1", x); cross.setAttribute("x2", x); cross.style.display = "";
+    tip.show(x, py == null ? m.t + 40 : py, [{ label: dmyh(utc(p.hr)) }].concat(series.map(s => ({ key: s.c, value: p[s.k] == null ? "–" : fmt1.format(p[s.k] * 100) + "%", label: s.name }))).concat([{ label: "cờ trượt: " + p.flag + " · cờ cố định: " + p.fixed_flag }]));
+  };
+  svg.addEventListener("pointermove", e => { const r = svg.getBoundingClientRect(), x = (e.clientX - r.left) / r.width * W; go(Math.round((x - m.l) / (W - m.l - m.r) * (pts.length - 1)), (e.clientY - r.top) / r.height * H); });
+  svg.addEventListener("pointerleave", () => { cross.style.display = "none"; tip.hide(); });
+  svg.addEventListener("keydown", e => { if (e.key === "ArrowRight") go(idx + (e.shiftKey ? 24 : 1)); else if (e.key === "ArrowLeft") go(idx - (e.shiftKey ? 24 : 1)); else return; e.preventDefault(); });
+  svg.addEventListener("blur", () => { cross.style.display = "none"; tip.hide(); });
+}
+legend("lg1b", [{ kind: "line", color: "var(--s1)", text: "Đường trượt (4 tuần liền trước)" }, { kind: "line", color: "var(--s2)", text: "Đường cố định (4 tuần đầu)" }, { kind: "line", color: "var(--ink2)", text: "Ngưỡng 0,70" }]);
+table("t1b", [{ h: "Ngày" }, { h: "Giờ low (trượt)", n: 1 }, { h: "Giờ low (cố định)", n: 1 }], D.daily.filter(r => r.low_hours || r.low_fixed).map(r => [r.d, r.low_hours, r.low_fixed]));
+document.getElementById("n-ref").textContent = fmt.format(D.n_ref);
+
 legend("lg1", [{ kind: "line", color: "var(--s1)", text: "Sự kiện mỗi giờ" }, { kind: "dot", color: "var(--s2)", text: "Giờ bất thường trước 23/05" }, { kind: "wash", text: "Vùng dữ liệu không đáng tin" }]);
 table("t1", [{ h: "Ngày" }, { h: "Sự kiện", n: 1 }, { h: "Giờ bị gắn cờ low", n: 1 }], D.daily.map(r => [r.d, fmt.format(r.events), r.low_hours]));
 
@@ -335,7 +377,7 @@ function chart4() {
 legend("lg4", [{ kind: "line", color: "var(--s1)", text: "Bắt đầu bằng code (push/PR)" }, { kind: "line", color: "var(--neutral)", text: "Tất cả" }, { kind: "line", color: "var(--s3)", text: "Chỉ issue/bình luận/review" }]);
 table("t4", [{ h: "Sau (tuần)", n: 1 }, { h: "Người theo dõi", n: 1 }, { h: "Tất cả", n: 1 }, { h: "Bắt đầu bằng code", n: 1 }, { h: "Chỉ issue/bình luận", n: 1 }], D.retention.map(r => [r.k, fmt.format(r.people), fmt1.format(r.all) + "%", fmt1.format(r.code) + "%", fmt1.format(r.issue) + "%"]));
 
-function draw() { chart1(); chart2(); chart3(); chart4(); }
+function draw() { chart1(); chart1b(); chart2(); chart3(); chart4(); }
 draw();
 let rt; new ResizeObserver(() => { clearTimeout(rt); rt = setTimeout(draw, 120); }).observe(document.querySelector("main"));
 </script>

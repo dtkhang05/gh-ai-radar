@@ -19,10 +19,14 @@ def q(sql): return con.sql(sql).fetchall()
 def iso(ts): return ts.strftime("%Y-%m-%d %H:%M")
 
 # ---- chart 1: hourly quality -------------------------------------------------------------------
-hourly = [dict(hr=iso(r[0]), events=r[1], base=r[2], ratio=r[3], flag=r[4], pre_cut_flag=(r[4] in ("low", "high") and iso(r[0]) < CUTOFF))
-          for r in q("select hr, events, base_events, events_ratio, flag from fct_hourly_quality order by hr")]
-daily = [dict(d=str(r[0]), events=r[1], low_hours=r[2]) for r in q(
-    "select hr::date, sum(events), count(*) filter (flag = 'low') from fct_hourly_quality group by 1 order by 1")]
+# fixed_ratio is null on the 'reference' hours (the first dq_fixed_weeks weeks that define the fixed baseline), so the chart leaves them blank.
+hourly = [dict(hr=iso(r[0]), events=r[1], base=r[2], ratio=r[3], flag=r[4], pre_cut_flag=(r[4] in ("low", "high") and iso(r[0]) < CUTOFF),
+               fixed_ratio=(None if r[6] == "reference" else r[5]), fixed_flag=r[6])
+          for r in q("select hr, events, base_events, events_ratio, flag, fixed_ratio, fixed_flag from fct_hourly_quality order by hr")]
+daily = [dict(d=str(r[0]), events=r[1], low_hours=r[2], low_fixed=r[3]) for r in q(
+    "select hr::date, sum(events), count(*) filter (flag = 'low'), count(*) filter (fixed_flag = 'low') from fct_hourly_quality group by 1 order by 1")]
+n_ref = sum(h["fixed_flag"] == "reference" for h in hourly)
+n_low_fixed = sum(h["fixed_flag"] == "low" for h in hourly)
 # drop size: same weekdays (Mon-Sat) one week before vs after the break, average events per hour
 def avg_events(a, b): return q(f"select avg(events) from fct_hourly_quality where hr >= '{a}' and hr < date '{b}' + 1")[0][0]
 before, after = avg_events("2025-05-12", "2025-05-17"), avg_events("2025-05-26", "2025-05-31")
@@ -102,19 +106,19 @@ data = dict(
         "(so 12–17/05 với 26–31/05, cùng các thứ trong tuần). Nhiều khả năng nguồn dữ liệu mất sự kiện; nguyên nhân chưa được xác nhận.")),
     tiles=[
         dict(label="Giờ được kiểm tra", value=fmt(n_hours), note="01/03 → 31/05/2025"),
-        dict(label="Giờ bị gắn cờ low", value=fmt(n_low), note=f"{n_low_pre} trước mốc sụt, còn lại sau 23/05"),
+        dict(label="Giờ bị gắn cờ low", value=fmt(n_low), note=f"đường trượt: {n_low_pre} trước mốc sụt; đường cố định: {fmt(n_low_fixed)} giờ"),
         dict(label="Repo AI", value=fmt(n_repos), note="≥100 star; độ phủ 82% và 89% trên 2 danh sách"),
         dict(label="Người đóng góp", value=fmt(n_people), note="không tính bot, 11 tuần"),
     ],
     limits=[
-        "Chỉ có 12 tuần dữ liệu đáng tin (01/03 → 22/05/2025); 2023–2024 chưa được tải.",
+        "Chỉ có 12 tuần dữ liệu đáng tin (01/03 → 22/05/2025) cho các phân tích chính. Mẫu 2023–2024 (3 ngày mỗi tháng) mới được kiểm tra chất lượng và phân tích bản đầu, không nằm trên trang này.",
         "Tập repo AI gồm repo khớp từ khóa trong tên, GitHub topic hoặc mô tả, chỉ xét repo ≥100 star trong 12 tuần. Topic và mô tả lấy từ GitHub năm 2026, không phải thời điểm 03–05/2025; ~12% repo không tra được (đổi tên, xóa) chỉ khớp được bằng tên.",
         "Độ phủ 82% và 89% đo trên hai danh sách repo nổi tiếng tác giả chọn tay (danh sách thứ hai viết trước khi chạy bộ phân loại); repo ít người biết có thể thấp hơn. Độ chính xác ước tính 95% cho phần khớp tên và 76–86% cho phần thêm từ topic/mô tả (mẫu 40 và 50 repo xem bằng mắt).",
         "Star đột biến là tín hiệu nghi ngờ, không phải bằng chứng star mua. Mẫu tuổi tài khoản nhỏ (21–24 người mỗi nhóm, chỉ 2 trong 3 repo bị gắn cờ) và không cho biết ai đứng sau.",
         "Giữ chân: không có dữ liệu trước 01/03 nên các cohort đầu có thể cao hơn thực tế; chưa có mốc so sánh bên ngoài.",
-        "Các ngưỡng do tác giả chọn; chỉ ngưỡng star được thử độ nhạy (9 bộ). Đường cơ sở trượt 4 tuần chỉ gắn cờ một đợt sụt kéo dài trong vài tuần đầu.",
+        "Các ngưỡng do tác giả chọn; chỉ ngưỡng star được thử độ nhạy (9 bộ). Đường cơ sở trượt 4 tuần chỉ gắn cờ một đợt sụt kéo dài trong vài tuần đầu; đường cố định (4 tuần đầu) gắn cờ suốt nhưng không phân biệt lỗi với thay đổi mức dài hạn thật. Dữ liệu thật chỉ có 8 ngày sau điểm sụt nên khác biệt này mới chứng minh bằng dữ liệu tổng hợp.",
     ],
-    hourly=hourly, hourly_cutoff=CUTOFF, xticks=XTICKS, daily=daily,
+    hourly=hourly, hourly_cutoff=CUTOFF, xticks=XTICKS, daily=daily, n_ref=n_ref,
     spikes=dict(points=points, x0="2025-03-01", x1="2025-05-22", suspect_label=name_x,
                 top_label=f"{short(top[0].split('/')[1])} ({fmt(top[2])})", n_flagged_repos=len(flagged_repos)),
     xticks2=XTICKS, accounts=accounts, retention=retention,

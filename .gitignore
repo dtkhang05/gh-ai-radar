@@ -11,3 +11,4 @@ dbt_radar/dbt_packages/
 *.duckdb.tmp/
 # Instructions for the AI assistant working in this folder (personal notes); not part of the project itself
 CLAUDE.md
+dbt_radar/.user.yml

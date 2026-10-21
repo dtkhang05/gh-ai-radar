@@ -21,10 +21,10 @@ Pipeline dữ liệu trên [GH Archive](https://www.gharchive.org/) (mọi sự 
 | Lưu trữ | Parquet (zstd 9) + DuckDB | Một bản dữ liệu (~2,7 MB/giờ); DuckDB đọc bằng view. Bảng sao chép nặng gấp 3,6 lần nên đã bỏ |
 | Xác định repo AI | `top_repos_by_stars.py`, `fetch_repo_metadata.py`, `ai_repos_classify.py` | 20.000 repo nhiều star → topic và mô tả qua GitHub GraphQL (100 repo/lần) → phân loại theo tên, topic, mô tả |
 | Mô hình | `dbt_radar/` (dbt-core 1.12, dbt-duckdb 1.11) | staging → intermediate → marts: `fct_star_daily`, `fct_star_spike_days`, `fct_contributor_week`, `fct_cohort_retention`, `fct_hourly_quality` |
-| Chất lượng | `fct_hourly_quality` + 28 test | So mỗi giờ với trung vị cùng thứ, cùng giờ của 4 tuần trước (đường trượt) và của 4 tuần đầu (đường cố định); test bắt giờ thiếu, giờ bất thường, id trùng, giá trị lạ |
+| Chất lượng | `fct_hourly_quality` + 28 test (thêm `fct_hourly_quality_sample` + 6 test khi có mẫu 2023–2024) | So mỗi giờ với trung vị cùng thứ, cùng giờ của 4 tuần trước (đường trượt) và của 4 tuần đầu (đường cố định); test bắt giờ thiếu, giờ bất thường, id trùng, giá trị lạ |
 | Kiểm thử tự động | `ci/`, `.github/workflows/ci.yml` | Chạy dbt trên dữ liệu tổng hợp có lỗi cài sẵn; đỏ nếu test không bắt được lỗi hoặc báo nhầm trên dữ liệu sạch |
 | Điều phối | `scripts/run_pipeline.py` | Kiểm tra trước → (tùy chọn) tải → `dbt build` → tóm tắt; dừng ngay khi lỗi, ghi log |
-| Trình bày | `docs/index.html` | HTML tĩnh tự chứa, dựng từ bảng dbt bằng `scripts/build_dashboard.py` |
+| Trình bày | `docs/index.html` | HTML tĩnh tự chứa, dựng từ bảng dbt bằng `scripts/build_dashboard.py`; có cả hai đường cơ sở chất lượng (trượt và cố định) |
 
 - Mọi script DuckDB giới hạn bộ nhớ và file tạm (sau một truy vấn thăm dò từng chiếm 12 GB RAM và 16 GB file tạm).
 
@@ -158,11 +158,11 @@ Dữ liệu: 01/03 → 22/05/2025, 4.033 repo AI ≥100 star.
    .venv\Scripts\python -I -X utf8 scripts\build_dashboard.py
    ```
 
-- **Kiểm thử tự động** (không cần dữ liệu thật; thời gian chạy với 4 kịch bản chưa đo): `.venv\Scripts\python -X utf8 ci\check_scenarios.py`. Dựng 4 bộ dữ liệu tổng hợp (sạch, lỗi cài sẵn, loại sự kiện lạ, sụt kéo dài 5 tuần), chạy `dbt build` và kiểm tra từng lỗi có bị bắt đúng không (`ci/make_synthetic.py`).
+- **Kiểm thử tự động** (không cần dữ liệu thật; 4 kịch bản chạy hết ~31 giây trên máy tác giả, 26 kiểm tra đạt): `.venv\Scripts\python -X utf8 ci\check_scenarios.py`. Dựng 4 bộ dữ liệu tổng hợp (sạch, lỗi cài sẵn, loại sự kiện lạ, sụt kéo dài 5 tuần), chạy `dbt build` và kiểm tra từng lỗi có bị bắt đúng không (`ci/make_synthetic.py`).
 - **Đã kiểm chứng:**
-  - Clone sạch → cài môi trường → tải thật 2 giờ → `run_pipeline.py`: dựng đủ 7 mô hình, 24 test đạt (lúc đó chưa có 4 test sau này), dừng đúng ở test thiếu giờ. Kho trống dữ liệu dừng ngay với thông báo rõ.
+  - Clone sạch → cài môi trường → tải thật 2 giờ → `run_pipeline.py` (làm lại ngày 21/10/2026 với mã hiện tại): dựng đủ 7 mô hình, 27 test đạt, dừng đúng ở test thiếu giờ (`assert_no_missing_hours`, mã thoát 1). Trong clone đó `ci/check_scenarios.py` cũng đạt. Cần chép sẵn `data/derived/ai_repo_universe.parquet` (bước 3 chưa dựng lại được từ đầu). Kho trống dữ liệu dừng ngay với thông báo rõ.
   - Bảng dbt khớp script phân tích ở các chỉ số đã so (ngày đột biến, số repo, giữ chân, độ phủ).
-- **Chưa kiểm chứng:** dựng lại toàn bộ con số trên máy khác (~230 GB); Linux/macOS cho pipeline thật (CI chỉ chạy dữ liệu tổng hợp); các bước 3, 4, 6 trong clone sạch.
+- **Chưa kiểm chứng:** dựng lại toàn bộ con số trên máy khác (~230 GB); Linux/macOS cho pipeline thật (CI chỉ chạy dữ liệu tổng hợp); các bước 3, 4 trong clone sạch (bước 3 cần dữ liệu đủ 12 tuần, bước 4 cần API chờ giờ); dashboard dựng từ dữ liệu đầy đủ, chưa dựng trong clone.
 
 ## Cấu trúc thư mục
 
@@ -170,7 +170,7 @@ Dữ liệu: 01/03 → 22/05/2025, 4.033 repo AI ≥100 star.
 |---|---|
 | `scripts/ingest.py` | Thu thập theo giờ |
 | `scripts/run_pipeline.py` | Điều phối cả chuỗi |
-| `dbt_radar/` | Dự án dbt (staging → intermediate → marts, 28 test). Chạy trong thư mục này: `..\.venv\Scripts\dbt.exe build --profiles-dir .` |
+| `dbt_radar/` | Dự án dbt (staging → intermediate → marts, 28 test; 34 test khi có mẫu 2023–2024). Chạy trong thư mục này: `..\.venv\Scripts\dbt.exe build --profiles-dir .` |
 | `ci/`, `.github/workflows/ci.yml` | Dữ liệu tổng hợp có lỗi cài sẵn + kiểm tra tự động (GitHub Actions) |
 | `scripts/top_repos_by_stars.py`, `fetch_repo_metadata.py`, `ai_repos_classify.py` | Chọn 20.000 repo, tra topic/mô tả, phân loại AI, đo độ phủ từng tín hiệu |
 | `scripts/ai_repos_recall.py`, `ai_reference_repos.txt`, `ai_reference_repos_2.txt` | Đo độ phủ end-to-end trên hai danh sách chọn tay |

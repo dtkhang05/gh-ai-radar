@@ -116,3 +116,27 @@ models:
           - accepted_values:
               arguments:
                 values: [reference, ok, low, high, missing]
+
+  - name: fct_hourly_quality_sample
+    description: >
+      One row per downloaded hour of the 2023-2024 sample (72 Wednesdays x 24) with a flag against the median of the same hour on the 6 nearest
+      other sample days. Centered baseline, so it cannot see a sustained drop longer than about 3 months. Enabled only with with_sample.
+    config:
+      enabled: "{{ var('with_sample', false) }}"
+    columns:
+      - name: hr
+        description: Hour (UTC), from the Parquet file name.
+        data_tests: [not_null, unique]
+      - name: events
+        description: Events in that hour's file.
+      - name: base_events
+        description: Median of the same hour over the 6 nearest other sample days (3 before, 3 after).
+      - name: events_ratio
+        description: events / base_events.
+      - name: flag
+        description: ok; low (< 0.70); high (> 1.50); missing (0 events).
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [ok, low, high, missing]

@@ -162,10 +162,15 @@ Câu hỏi: bỏ qua repo dưới 100 star có làm lệch kết luận không? 
 
 ### Mô hình và kết quả build
 - `dbt_radar/` (dbt-core 1.12.6, dbt-duckdb 1.11.0, DuckDB 1.5.6). Luồng: `stg_events` (view trên Parquet) → `int_ai_repo_candidates` → `fct_star_daily`, `fct_star_spike_days`, `fct_contributor_week`, `fct_cohort_retention`, `fct_hourly_quality`. Ngưỡng và cửa sổ là biến trong `dbt_project.yml`.
-- Build: 7 mô hình, 28 test: 25 đạt, 3 cảnh báo có chủ đích, 0 lỗi, ~140 giây trong lần chạy gần nhất (đã từng đo ~70 giây; chưa tìm nguyên nhân chênh lệch, có thể do máy bận). Lúc đầu ~166 giây; nhanh hơn nhờ ghép danh sách repo trước khi gom nhóm.
+- Build: 7 mô hình, 28 test: 25 đạt, 3 cảnh báo có chủ đích, 0 lỗi, ~140 giây trong lần chạy gần nhất (cả hai lần chạy 21/10/2026 đều ~140 giây, lần đo ~70 giây từ trước) (đã từng đo ~70 giây; chưa tìm nguyên nhân chênh lệch, có thể do máy bận). Lúc đầu ~166 giây; nhanh hơn nhờ ghép danh sách repo trước khi gom nhóm.
 - Cảnh báo 1: 24 id trùng trong tuần mẫu 01–07/05/2025 (chỉ kiểm 1 tuần vì kiểm toàn bộ cần băm >300 triệu id).
 - Cảnh báo 2: 2 giờ bất thường trong cửa sổ tin cậy (13/04 01:00 tỉ lệ 0,606; 08/05 01:00 tỉ lệ 0,121).
 - Cảnh báo 3: cùng 2 giờ đó theo đường cơ sở cố định (`assert_no_anomalous_hours_vs_fixed_baseline`).
+- **Kiểm tra chất lượng mẫu 2023–2024 trong dbt** (`fct_hourly_quality_sample`, 21/10/2026): bật bằng `--vars '{with_sample: true}'`; `run_pipeline.py` tự bật khi `data/parquet_sample` có file, nên CI (không có mẫu) vẫn dựng 7 mô hình và 28 test. Giờ lấy từ tên file Parquet (cùng định nghĩa với manifest). Có 6 test: `not_null`/`unique` cho `hr`, `not_null` và `accepted_values` cho `flag`, `assert_sample_has_all_hours` (đủ 72 ngày × 24 giờ, không giờ nào 0 sự kiện; mức lỗi), `assert_no_anomalous_hours_in_sample` (mức cảnh báo, 11 dòng).
+  - **Khớp script:** 1.728 giờ, 0 giờ lệch cờ, chênh lệch tỉ lệ tối đa 0,0 so với `dq_sample.py` (8 low, 3 high, 1.717 ok).
+  - **Chạy đủ pipeline thật** (có mẫu): 8 mô hình, 34 test: 30 đạt, 4 cảnh báo (`unique_stg_events_id` 24 dòng, 2 giờ trong cửa sổ tin cậy, 2 giờ theo đường cố định, 11 giờ mẫu), 0 lỗi, 140 giây. Mô hình mẫu dựng trong ~1 giây.
+  - **Thử đột biến:** đặt `sample_expected_days: 73` thì `assert_sample_has_all_hours` đỏ (1 dòng) như mong đợi.
+  - **Giới hạn:** đường cơ sở nhìn cả trước lẫn sau, không bắt được đợt sụt dài quá ~3 tháng; chưa có kiểm tra giờ trùng/đổi tên trong mẫu.
 - Khớp script Python ở mọi chỉ số đã so:
   - Vòng 1 (tập theo tên): 8.068 repo; 444 ngày đột biến ở 153 repo; 91.655 dòng người-tuần; cờ chất lượng 1.588 / 116 / 504.
   - Vòng 2 (4.033 repo AI): 1.513 ngày đột biến ở 526 repo; giữ chân 16,7% / 10,2% / 7,9% / 7,2%. Chưa so lại số dòng người-tuần.

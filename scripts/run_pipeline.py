@@ -81,7 +81,11 @@ def main():
     # 3) dbt build = run models + run tests in dependency order (a failing test blocks the models that depend on it)
     env = {**os.environ, "DBT_SEND_ANONYMOUS_USAGE_STATS": "False"}
     dbt = Path(sys.executable).parent / ("dbt.exe" if os.name == "nt" else "dbt")
-    rc = run("dbt build", [str(dbt), "build", "--profiles-dir", ".", "--no-version-check"], DBT_DIR, env)
+    cmd = [str(dbt), "build", "--profiles-dir", ".", "--no-version-check"]
+    if any((DATA / "parquet_sample").glob("*.parquet")):   # the 2023-2024 sample model and tests only exist when that data is on disk
+        cmd += ["--vars", "{with_sample: true}"]
+        log("multi-year sample found: building fct_hourly_quality_sample and its tests too")
+    rc = run("dbt build", cmd, DBT_DIR, env)
 
     # 4) summary straight from dbt's own result file (not from parsing console text)
     rr = DBT_DIR / "target" / "run_results.json"
