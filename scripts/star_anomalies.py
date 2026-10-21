@@ -7,6 +7,10 @@
 import duckdb, os, time
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__))).replace("\\", "/")
 PQ, OUT = f"{ROOT}/data/parquet", f"{ROOT}/data/derived"
+# RADAR_UNIVERSE (default ai_repo_universe.parquet) and RADAR_OUT_SUFFIX let the same analysis run on another repo set (e.g. the 30-star
+# universe, ai_repo_universe_low.parquet) without overwriting the files the dashboard reads.
+UNIVERSE = os.environ.get("RADAR_UNIVERSE", "ai_repo_universe.parquet")
+SUFFIX = os.environ.get("RADAR_OUT_SUFFIX", "")
 files = f"['{PQ}/2025-03-*.parquet', '{PQ}/2025-04-*.parquet', '{PQ}/2025-05-*.parquet']"
 END = "2025-05-23"  # exclusive; data after 2025-05-23 16:00 UTC is incomplete
 THIN_MAX = 3        # thin: <=3 events in the window
@@ -22,7 +26,7 @@ con.execute(f"set temp_directory='{ROOT}/data/duck_tmp'")
 t = time.time()
 def lap(msg): print(f"[{time.time()-t:5.0f}s] {msg}", flush=True)
 
-con.execute(f"create table cand as select repo from read_parquet('{OUT}/ai_repo_universe.parquet')")
+con.execute(f"create table cand as select repo from read_parquet('{OUT}/{UNIVERSE}')")
 con.execute(f"""create table stars as
   select repo, ts::date d, actor from read_parquet({files})
   where type = 'WatchEvent' and ts < '{END}' and actor is not null and repo in (select repo from cand)""")
@@ -63,7 +67,7 @@ for m, x in GRID:
     for r in sus: seen[r] = seen.get(r, 0) + 1
     rows.append((m, x, n_sp, n_rp, med_s, med_n, len(sus)))
     if (m, x) == MAIN:
-        con.execute(f"copy sp to '{OUT}/star_spikes.parquet' (format parquet)")
+        con.execute(f"copy sp to '{OUT}/star_spikes{SUFFIX}.parquet' (format parquet)")
         con.execute("create or replace table sp_main as select * from sp")
 print(f"{'min/day':>8} {'xBase':>6} {'spike-days':>11} {'repos':>6} {'thin@spike':>11} {'thin@normal':>12} {'suspicious':>11}")
 for r in rows: print(f"{r[0]:>8} {r[1]:>6} {r[2]:>11} {r[3]:>6} {r[4]:>11} {r[5]:>12} {r[6]:>11}")

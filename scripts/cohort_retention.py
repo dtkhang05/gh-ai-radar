@@ -8,6 +8,10 @@
 import duckdb, os, time
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__))).replace("\\", "/")
 PQ, OUT = f"{ROOT}/data/parquet", f"{ROOT}/data/derived"
+# RADAR_UNIVERSE (default ai_repo_universe.parquet) and RADAR_OUT_SUFFIX let the same analysis run on another repo set (e.g. the 30-star
+# universe, ai_repo_universe_low.parquet) without overwriting the files the dashboard reads.
+UNIVERSE = os.environ.get("RADAR_UNIVERSE", "ai_repo_universe.parquet")
+SUFFIX = os.environ.get("RADAR_OUT_SUFFIX", "")
 files = f"['{PQ}/2025-03-*.parquet', '{PQ}/2025-04-*.parquet', '{PQ}/2025-05-*.parquet']"
 TYPES = "('PushEvent','PullRequestEvent','IssuesEvent','IssueCommentEvent','PullRequestReviewEvent','PullRequestReviewCommentEvent')"
 BURN_IN, LAST = 2, 10  # blocks 0..1 = burn-in; last full block = 10
@@ -18,7 +22,7 @@ con.execute(f"set temp_directory='{ROOT}/data/duck_tmp'")
 t = time.time()
 def lap(msg): print(f"[{time.time()-t:4.0f}s] {msg}", flush=True)
 
-con.execute(f"create table cand as select repo from read_parquet('{OUT}/ai_repo_universe.parquet')")
+con.execute(f"create table cand as select repo from read_parquet('{OUT}/{UNIVERSE}')")
 # one row per (actor, block): small table; 'code' = did any Push/PR that block
 con.execute(f"""create table ab as
   select actor, ((ts::date - date '2025-03-01') // 7)::int blk, bool_or(type in ('PushEvent','PullRequestEvent')) code
@@ -41,7 +45,7 @@ con.execute("""create table ret as
          c.first_is_code
   from cohort c cross join (select unnest(range(1, 9)) k) k
   where c.c + k.k <= %d group by all""" % LAST)
-con.execute(f"copy ret to '{OUT}/cohort_retention.parquet' (format parquet)")
+con.execute(f"copy ret to '{OUT}/cohort_retention{SUFFIX}.parquet' (format parquet)")
 
 def triangle(where, title):
     print(f"\n{title}  (rows = cohort block of first activity; cols = blocks later; value = % of cohort active again)")

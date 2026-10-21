@@ -136,10 +136,24 @@ Câu hỏi: bỏ qua repo dưới 100 star có làm lệch kết luận không? 
 | ≥100 | 19.704 | 4.033 | 2.829.767 | 34,1% | 43 |
 | 30–99 | 48.081 | 6.252 | 328.906 | 13,3% | 152 |
 
-- **Kết luận chính:** nhóm 30–99 star thêm 6.252 repo AI (+155% số repo) nhưng chỉ thêm 328.906 star, tức 10,4% tổng star của repo AI (từ 30 star). Phân tích dùng ≥100 star vì vậy thấy khoảng 90% khối lượng star của repo AI theo định nghĩa này; chưa tính lại từng chỉ số (đột biến, giữ chân) với nhóm mới.
+- **Kết luận chính:** nhóm 30–99 star thêm 6.252 repo AI (+155% số repo) nhưng chỉ thêm 328.906 star, tức 10,4% tổng star của repo AI (từ 30 star). Phân tích chính dùng ≥100 star vì vậy thấy khoảng 90% khối lượng star của repo AI theo định nghĩa này; đã tính lại hai chỉ số chính ở bên dưới.
 - **Độ phủ gần như không đổi:** danh sách 1 vẫn 82% (62/76); danh sách 2 là 89% (64/72), có thêm 1 repo thuộc nhóm 30–99 star (trước đây 63/71) và bộ phân loại bắt được repo đó. Đây chỉ là 1 repo nên không nói được gì về độ phủ cho repo ít người biết, vẫn **chưa đo**.
 - **Tra không được nhiều hơn:** 8.409/48.081 repo (17,5%) so với 12% ở nhóm ≥100; các repo này chỉ khớp được theo tên.
 - **Độ chính xác nhóm 30–99** (mẫu 50 repo xếp theo `hash(repo || 's2')`, tác giả xem tên, mô tả, topic): 41 đúng (82%), 5 ranh giới (10%), 4 sai (8%). Sai: ghi chú môn học tổng hợp ĐH có chữ "AI" trong topic, thư viện RPA, ngôn ngữ CSS, framework Go. Ranh giới: repo thực tập AI/IoT, công cụ mở khóa Copilot, bản đóng gói Claude Desktop cho Debian, trợ lý giọng nói, repo dịch PDF. Mẫu nhỏ, một người chấm; khoảng sai có thể từ ~3% đến ~19%.
+- **Chạy lại hai phân tích trên tập 10.285 repo AI** (`RADAR_UNIVERSE=ai_repo_universe_low.parquet RADAR_OUT_SUFFIX=_low`; file `_low` không đè file dashboard đọc; `cohort_retention.py` 80 giây, `star_anomalies.py` vài phút):
+
+| Chỉ số | Tập ≥100 star (4.033 repo) | Tập ≥30 star (10.285 repo) |
+|---|---|---|
+| Ngày star đột biến (≥50 star, ×5) | 1.513 ngày, 526 repo | 1.513 ngày, 526 repo (0 ngày thuộc nhóm 30–99) |
+| Tài khoản mỏng: ngày đột biến / ngày thường | 6,7% / 8,2% | 6,7% / 8,2% |
+| Repo bị gắn cờ nghi vấn | 3 repo ở ≥6/9 bộ ngưỡng (Repo X, X2 cùng tổ chức; Repo Y) | cùng 3 repo, cùng 9/9, 9/9, 6/9; thêm 2 repo khác ở 3/9 (không nêu tên: chỉ là tín hiệu yếu), chưa đối chiếu với tập ≥100 vì bản cũ không lưu cả lưới ngưỡng |
+| Người đóng góp (loại bot) | 143.991 | 165.869 (+15%) |
+| Giữ chân sau 1 / 2 / 4 / 8 tuần | 16,7 / 10,2 / 7,9 / 7,2% | 17,2 / 10,7 / 8,3 / 7,7% |
+| Mở đầu bằng code, 1 / 8 tuần | 29,0 / 14,9% | 29,4 / 15,3% |
+| Mở đầu bằng issue/bình luận, 1 / 8 tuần | 14,3 / 5,6% | 14,5 / 5,8% |
+
+  - **Đột biến ở cấu hình chính (50 star, ×5) không đổi theo thiết kế, không phải do lọc kỹ** (các cấu hình ngưỡng thấp hơn trong lưới 9 bộ chưa đối chiếu): luật yêu cầu ≥50 star trong một ngày và ≥7 ngày có star trong 14 ngày trước, mà repo nhóm 30–99 có dưới 100 star cả 12 tuần nên gần như không thể thỏa. Vậy phép kiểm tra này **không nhìn thấy** repo nhỏ; kết quả "không có đột biến ở nhóm nhỏ" là hệ quả của ngưỡng, chưa phải bằng chứng repo nhỏ sạch.
+  - **Giữ chân cao hơn khoảng 0,4–0,5 điểm phần trăm** ở mọi mốc, cùng chiều và cùng thứ tự (code-first cao hơn gấp đôi); kết luận định tính không đổi. Chưa biết vì sao cao hơn (có thể người đóng góp repo nhỏ gắn bó hơn, hoặc do khác biệt trong cách tính cohort); chưa kiểm tra.
 - **Giới hạn thêm:** vẫn bỏ repo dưới 30 star; "AI / star cùng nhóm" thấp hơn ở nhóm nhỏ (13,3% so với 34,1%) có thể do repo AI nhỏ ít hơn thật, hoặc do metadata repo nhỏ thiếu hơn (topic/mô tả trống) nên khớp ít hơn; chưa phân biệt được hai khả năng.
 
 **Giới hạn:** hai danh sách do tác giả chọn từ trí nhớ nên thiên về repo nổi tiếng; chỉ xét repo ≥100 star trong phân tích chính (vòng 3 thử xuống 30 star, repo dưới 30 star vẫn bị bỏ); topic và mô tả là của năm 2026, không phải 03–05/2025; 12% repo không tra được chỉ khớp được theo tên; mẫu độ chính xác nhỏ, một người đánh giá; chưa thử ngưỡng nào khác cho danh sách topic và mẫu mô tả.

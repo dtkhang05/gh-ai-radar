@@ -101,7 +101,7 @@ Dữ liệu: 01/03 → 22/05/2025, 4.033 repo AI ≥100 star.
 
 ## Giới hạn
 
-- **Cách xác định repo AI còn thô.** AI = tên khớp từ khóa, hoặc topic AI (`llm`, `machine-learning`, `mcp`...), hoặc mô tả chứa từ khóa AI. Chỉ xét 19.704 repo ≥100 star (top 20.000 theo star); 4.033 được xếp là AI. Thử thêm 48.081 repo 30–99 star: thêm 6.252 repo AI nhưng chỉ ~10% star của repo AI (chưa dùng cho các phân tích).
+- **Cách xác định repo AI còn thô.** AI = tên khớp từ khóa, hoặc topic AI (`llm`, `machine-learning`, `mcp`...), hoặc mô tả chứa từ khóa AI. Chỉ xét 19.704 repo ≥100 star (top 20.000 theo star); 4.033 được xếp là AI. Thử thêm 48.081 repo 30–99 star: thêm 6.252 repo AI nhưng chỉ ~10% star của repo AI (chạy lại đột biến và giữ chân với tập này: đột biến không đổi, giữ chân cao hơn ~0,5 điểm %).
   - **Độ phủ:** 82% (62/76) trên danh sách 1, 89% (63/71) trên danh sách 2; chỉ theo tên: 25% và 20%.
   - Hai danh sách do tác giả chọn từ trí nhớ, thiên về repo nổi tiếng. Danh sách 2 (`ai_reference_repos_2.txt`) viết trước khi chạy bộ phân loại nên độc lập hơn. Repo ít người biết có thể thấp hơn.
   - Còn sót: `jax`, `triton`, `mlx`, `tinygrad`, `segment-anything`, `faiss`.
