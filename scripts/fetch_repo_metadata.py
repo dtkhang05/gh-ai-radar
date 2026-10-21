@@ -5,7 +5,9 @@
 # Usage: python -I -X utf8 scripts/fetch_repo_metadata.py [max_batches]
 import duckdb, json, os, re, subprocess, sys, time
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__))).replace("\\", "/")
-SRC, OUT = f"{ROOT}/data/derived/top_repos_by_stars.parquet", f"{ROOT}/data/derived/repo_metadata.jsonl"
+# Env overrides let the same script fetch a second pool (repos with 30-99 stars) into its own file without touching the first one.
+SRC = os.environ.get("RADAR_META_SRC", f"{ROOT}/data/derived/top_repos_by_stars.parquet")
+OUT = os.environ.get("RADAR_META_OUT", f"{ROOT}/data/derived/repo_metadata.jsonl")
 MAX_BATCHES = int(sys.argv[1]) if len(sys.argv) > 1 else 10**9
 NAME = re.compile(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+")
 GH = "gh"

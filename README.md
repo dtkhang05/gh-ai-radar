@@ -101,7 +101,7 @@ Dữ liệu: 01/03 → 22/05/2025, 4.033 repo AI ≥100 star.
 
 ## Giới hạn
 
-- **Cách xác định repo AI còn thô.** AI = tên khớp từ khóa, hoặc topic AI (`llm`, `machine-learning`, `mcp`...), hoặc mô tả chứa từ khóa AI. Chỉ xét 19.704 repo ≥100 star (top 20.000 theo star); 4.033 được xếp là AI.
+- **Cách xác định repo AI còn thô.** AI = tên khớp từ khóa, hoặc topic AI (`llm`, `machine-learning`, `mcp`...), hoặc mô tả chứa từ khóa AI. Chỉ xét 19.704 repo ≥100 star (top 20.000 theo star); 4.033 được xếp là AI. Thử thêm 48.081 repo 30–99 star: thêm 6.252 repo AI nhưng chỉ ~10% star của repo AI (chưa dùng cho các phân tích).
   - **Độ phủ:** 82% (62/76) trên danh sách 1, 89% (63/71) trên danh sách 2; chỉ theo tên: 25% và 20%.
   - Hai danh sách do tác giả chọn từ trí nhớ, thiên về repo nổi tiếng. Danh sách 2 (`ai_reference_repos_2.txt`) viết trước khi chạy bộ phân loại nên độc lập hơn. Repo ít người biết có thể thấp hơn.
   - Còn sót: `jax`, `triton`, `mlx`, `tinygrad`, `segment-anything`, `faiss`.
@@ -188,7 +188,7 @@ Dữ liệu: 01/03 → 22/05/2025, 4.033 repo AI ≥100 star.
 ## Hướng phát triển
 
 - Làm sâu phân tích mẫu 2023–2024: bộ phân loại AI cho 2023–2024, kiểm tuổi tài khoản, xử lý đổi tên repo.
-- Phân loại repo AI: nâng độ chính xác (76–86%) và độ phủ (82–89%): thêm repo dưới 100 star, gán nhãn bằng mô hình ngôn ngữ, mẫu kiểm tay lớn hơn.
+- Phân loại repo AI: nâng độ chính xác (76–86%) và độ phủ (82–89%): tính lại chỉ số với nhóm 30–99 star, đo độ phủ cho repo ít người biết, gán nhãn bằng mô hình ngôn ngữ, mẫu kiểm tay lớn hơn.
 - Câu hỏi chưa trả lời: dự án nào đang chết dần; các làn sóng nối tiếp nhau thế nào.
 - Nguồn thay thế như OpenDigger (tương thích GH Archive, [gharchive #323](https://github.com/igrigorik/gharchive.org/issues/323)) chưa thử.
 

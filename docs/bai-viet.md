@@ -109,7 +109,7 @@ Dự án học dữ liệu bắt đầu ngày 20/10/2026: dựng pipeline trên 
 - Độ chính xác giảm: phần thêm từ topic/mô tả đúng khoảng 76–86% (mẫu 50 repo tôi xem bằng mắt), so với ~95% của bộ lọc theo tên.
 - Nhóm chỉ khớp qua mô tả (676 repo) kém hơn: mẫu 50 repo cho 35 đúng, 9 ranh giới, 6 sai (mẫu quản trị, sách Rust, bot tiền mã hóa...). Mẫu nhỏ, một người chấm.
 - Topic và mô tả là của năm 2026, không phải 03–05/2025. 12% repo không tra được (đổi tên, xóa) nên chỉ khớp theo tên.
-- Chỉ xét repo có từ 100 star. Hai danh sách kiểm tra do tôi chọn từ trí nhớ, thiên về repo nổi tiếng; repo ít người biết có thể có độ phủ thấp hơn.
+- Chỉ xét repo có từ 100 star. Thử thêm 48.081 repo 30–99 star: thêm 6.252 repo AI (xem tay mẫu 50: 41 đúng, 5 ranh giới, 4 sai) nhưng chỉ khoảng 10% star của repo AI, nên chưa đưa vào các phân tích. Hai danh sách kiểm tra do tôi chọn từ trí nhớ, thiên về repo nổi tiếng; repo ít người biết có thể có độ phủ thấp hơn.
 
 **Chung**
 - Phân tích chính chỉ dùng 12 tuần dữ liệu (01/03 – 22/05/2025). Mẫu 2023–2024 (72 ngày thứ Tư) chỉ có bản phân tích đầu, tập repo AI thiên lệch người sống sót (xem mục trên).

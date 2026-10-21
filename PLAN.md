@@ -128,7 +128,21 @@ Khớp từ khóa nguyên từ trong tên repo (`llm`, `gpt`, `agent`, `mcp`, ..
 
 **Nhóm chỉ khớp qua mô tả** (không có tên hay topic AI; 676 repo = 16,8% của 4.033): mẫu 50 repo (xếp theo `hash(repo || 's1')`, lấy 50 đầu), tác giả xem tên và mô tả đầy đủ: 35 đúng (70%), 9 ranh giới (18%), 6 sai (12%). Sai: `yudao-ui-admin-vue3` (mẫu quản trị, cùng kiểu `ruoyi-vue-pro`), `rainbond` (nền tảng container), `sunface/rust-course` (sách Rust), `better-genshin-impact` (tự động hóa game), `legacy-cc` (bot giao dịch tiền mã hóa), `Bend` (ngôn ngữ lập trình). Ranh giới: `scalene`, `viral-predictor`, `Element-Plus-X`, `physics-sims`, `bambot`, `warp`, `datahub`, `Conference-Acceptance-Rate`, `AiEditor`. Nếu tính 12% sai trên 676 repo thì khoảng 80 repo (ước tính, khoảng tin cậy rộng vì mẫu 50: sai có thể từ ~5% đến ~24%), tức ~2% của tập 4.033; chưa đo, và mẫu do một người chấm. Hai repo `NVIDIA/AgentIQ` và `AIQToolkit` cùng mô tả (một dự án đổi tên, đếm hai lần). Lỗi điển hình: từ khóa AI nằm trong danh sách tính năng hoặc là phụ của sản phẩm không phải AI. Ảnh hưởng lên kết luận 2023–2024 chưa tính lại; repo nhóm này nhỏ (lấy mẫu có 100–1.500 star năm 2025) nên ít khả năng vào top các quý.
 
-**Giới hạn:** hai danh sách do tác giả chọn từ trí nhớ nên thiên về repo nổi tiếng; chỉ xét repo ≥100 star (repo ít star hơn bị bỏ); topic và mô tả là của năm 2026, không phải 03–05/2025; 12% repo không tra được chỉ khớp được theo tên; mẫu độ chính xác nhỏ, một người đánh giá; chưa thử ngưỡng nào khác cho danh sách topic và mẫu mô tả.
+### Vòng 3: mở rộng xuống 30 star (21/10/2026)
+Câu hỏi: bỏ qua repo dưới 100 star có làm lệch kết luận không? Làm bằng cách tra thêm 48.081 repo có 30–99 star (480 lượt GraphQL, mỗi lượt 1 điểm, không lỗi) rồi chạy cùng bộ phân loại ở chế độ `RADAR_INCLUDE_LOW=1`. Kết quả ghi ở `ai_repo_universe_low.parquet`; `ai_repo_universe.parquet` (dbt đọc) và mọi phân tích khác **không đổi**.
+
+| Nhóm (star trong 12 tuần) | Repo | Repo AI | Star của repo AI | AI / star cùng nhóm | Không tra được (trong repo AI) |
+|---|---|---|---|---|---|
+| ≥100 | 19.704 | 4.033 | 2.829.767 | 34,1% | 43 |
+| 30–99 | 48.081 | 6.252 | 328.906 | 13,3% | 152 |
+
+- **Kết luận chính:** nhóm 30–99 star thêm 6.252 repo AI (+155% số repo) nhưng chỉ thêm 328.906 star, tức 10,4% tổng star của repo AI (từ 30 star). Phân tích dùng ≥100 star vì vậy thấy khoảng 90% khối lượng star của repo AI theo định nghĩa này; chưa tính lại từng chỉ số (đột biến, giữ chân) với nhóm mới.
+- **Độ phủ gần như không đổi:** danh sách 1 vẫn 82% (62/76); danh sách 2 là 89% (64/72), có thêm 1 repo thuộc nhóm 30–99 star (trước đây 63/71) và bộ phân loại bắt được repo đó. Đây chỉ là 1 repo nên không nói được gì về độ phủ cho repo ít người biết, vẫn **chưa đo**.
+- **Tra không được nhiều hơn:** 8.409/48.081 repo (17,5%) so với 12% ở nhóm ≥100; các repo này chỉ khớp được theo tên.
+- **Độ chính xác nhóm 30–99** (mẫu 50 repo xếp theo `hash(repo || 's2')`, tác giả xem tên, mô tả, topic): 41 đúng (82%), 5 ranh giới (10%), 4 sai (8%). Sai: ghi chú môn học tổng hợp ĐH có chữ "AI" trong topic, thư viện RPA, ngôn ngữ CSS, framework Go. Ranh giới: repo thực tập AI/IoT, công cụ mở khóa Copilot, bản đóng gói Claude Desktop cho Debian, trợ lý giọng nói, repo dịch PDF. Mẫu nhỏ, một người chấm; khoảng sai có thể từ ~3% đến ~19%.
+- **Giới hạn thêm:** vẫn bỏ repo dưới 30 star; "AI / star cùng nhóm" thấp hơn ở nhóm nhỏ (13,3% so với 34,1%) có thể do repo AI nhỏ ít hơn thật, hoặc do metadata repo nhỏ thiếu hơn (topic/mô tả trống) nên khớp ít hơn; chưa phân biệt được hai khả năng.
+
+**Giới hạn:** hai danh sách do tác giả chọn từ trí nhớ nên thiên về repo nổi tiếng; chỉ xét repo ≥100 star trong phân tích chính (vòng 3 thử xuống 30 star, repo dưới 30 star vẫn bị bỏ); topic và mô tả là của năm 2026, không phải 03–05/2025; 12% repo không tra được chỉ khớp được theo tên; mẫu độ chính xác nhỏ, một người đánh giá; chưa thử ngưỡng nào khác cho danh sách topic và mẫu mô tả.
 
 ## 6. dbt và kiểm thử
 
@@ -237,5 +251,5 @@ Phạm vi: 01/03 → 22/05/2025, 4.033 repo AI có từ 100 star (giai đoạn 5
 Theo thứ tự nên làm:
 
 1. **Làm sâu phân tích mẫu 2023–2024** (đã có bản đầu, xem mục 4): kiểm tra bộ phân loại AI cho 2023–2024, thử độ nhạy ngưỡng tài khoản mỏng và kiểm tuổi tài khoản cho 2023–2024, thử gán lại tên repo bị đổi, đo "làn sóng" bằng cách chặt hơn danh sách top 5.
-2. **Kiểm tra thêm tập repo AI:** mẫu kiểm tay độ chính xác lớn hơn; thử thêm repo dưới 100 star (cần tra thêm ~500 lượt GraphQL cho ngưỡng 30 star).
+2. **Kiểm tra thêm tập repo AI:** mẫu kiểm tay độ chính xác lớn hơn; tính lại các chỉ số chính (đột biến, giữ chân) với nhóm 30–99 star (đã có phân loại, xem vòng 3); đo độ phủ cho repo ít người biết.
 3. **Chạy định kỳ hằng ngày** và nguồn dữ liệu bổ sung (chưa thử).

@@ -6,10 +6,14 @@
 # were found by fetch_repo_metadata.py. Repos the API could not find (renamed/deleted/private) can only match by name.
 # The rules are fixed BEFORE looking at list 2; list 1 was used to see which kinds of repos the name filter missed.
 # Usage: python -I -X utf8 scripts/ai_repos_classify.py
+# With RADAR_INCLUDE_LOW=1 the pool also contains the 30-99 star repos (repos_30_99.parquet, metadata from fetch_repo_metadata.py with
+# RADAR_META_SRC/RADAR_META_OUT) and the result goes to ai_repo_universe_low.parquet; ai_repo_universe.parquet (the one dbt reads) is untouched.
 import duckdb, json, os, re
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__))).replace("\\", "/")
 D = f"{ROOT}/data/derived"
-MIN_STARS = 100
+LOW = os.environ.get("RADAR_INCLUDE_LOW") == "1"
+MIN_STARS = 30 if LOW else 100
+SUFFIX = "_low" if LOW else ""
 NAME_TOKENS = "llm|llms|gpt|agent|agents|rag|diffusion|transformers|embedding|embeddings|mcp|genai|chatbot|copilot|ai|ml"
 NAME_SUBSTR = "langchain|llamaindex|ollama|llama|openai|chatgpt|anthropic|claude|huggingface|stable-diffusion|deepseek|langgraph|autogen|crewai"
 NAME_RE = re.compile(rf"(^|[^a-z0-9])({NAME_TOKENS})([^a-z0-9]|$)|({NAME_SUBSTR})")
@@ -24,8 +28,14 @@ DESC_RE = re.compile(r"\b(llms?|gpt|chatgpt|openai|ai|artificial intelligence|ma
 meta = {}
 for l in open(f"{D}/repo_metadata.jsonl", encoding="utf-8"):
     r = json.loads(l); meta[r["repo"]] = r
+if LOW:
+    for l in open(f"{D}/repo_metadata_30_99.jsonl", encoding="utf-8"):
+        r = json.loads(l); meta[r["repo"]] = r
 con = duckdb.connect()
-pool = con.execute(f"select repo, stars from read_parquet('{D}/top_repos_by_stars.parquet') where stars >= {MIN_STARS}").fetchall()
+# The top-20k list reaches down to 98 stars, so it always uses 100 here; the 30-99 star pool is the second list (no repo is in both).
+pool = con.execute(f"select repo, stars from read_parquet('{D}/top_repos_by_stars.parquet') where stars >= 100").fetchall()
+if LOW:
+    pool += con.execute(f"select repo, stars from read_parquet('{D}/repos_30_99.parquet')").fetchall()
 rows = []
 for repo, stars in pool:
     m = meta.get(repo) or {}
@@ -36,7 +46,7 @@ for repo, stars in pool:
                      is_ai=by_name or by_topic or by_desc, descr=(m.get("desc") or "")[:140], topics=",".join((m.get("topics") or [])[:8])))
 con.execute("create table u as select * from (values " + ",".join(["(?,?,?,?,?,?,?,?,?)"] * len(rows)) + ") t(repo,stars,found,by_name,by_topic,by_desc,is_ai,descr,topics)",
             [v for r in rows for v in (r["repo"], r["stars"], r["found"], r["by_name"], r["by_topic"], r["by_desc"], r["is_ai"], r["descr"], r["topics"])])
-con.execute(f"copy (select * from u where is_ai) to '{D}/ai_repo_universe.parquet' (format parquet)")
+con.execute(f"copy (select * from u where is_ai) to '{D}/ai_repo_universe{SUFFIX}.parquet' (format parquet)")
 print(f"pool (>= {MIN_STARS} stars, top-20k list): {len(rows)} | API found: {sum(r['found'] for r in rows)} | not found: {sum(not r['found'] for r in rows)}")
 con.sql("select count(*) filter (is_ai) ai_total, count(*) filter (by_name) by_name, count(*) filter (by_topic) by_topic, count(*) filter (by_desc) by_desc, "
         "count(*) filter (is_ai and not by_name) added_by_metadata from u").show()
