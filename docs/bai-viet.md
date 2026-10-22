@@ -72,6 +72,7 @@ Dự án học dữ liệu bắt đầu ngày 20/10/2026: dựng pipeline trên 
 | 2024-Q4 | 11,7% | 9,8% | 9,2% |
 
 - Bản đầu của tôi cho thấy xu hướng tăng đều (4,3% → 9,2%). Dựng lại tập repo từ chính mẫu thì không còn tăng đều: có một bước nhảy ở 2023-Q2 (làn sóng AutoGPT, 14,8%) rồi đi ngang quanh 11,5–12,5%. Phần lớn "xu hướng tăng" ở bản đầu là thiên lệch người sống sót: tập chỉ gồm repo còn nhiều star năm 2025, nên các repo nổi 2023 rồi biến mất không có mặt.
+- Mốc 2023-Q1 bị kéo thấp bởi một ngày bất thường: 08/03/2023 có 585.902 star (ngày khác ~230–350 nghìn), rải trên gần 370 nghìn repo, trông như một đợt star hàng loạt không liên quan đến AI (chưa kiểm tài khoản). Bỏ ngày đó thì phần AI của quý là 9,2% thay vì 8,1%. Số star AI mỗi ngày mẫu vẫn tăng đều từ ~12 nghìn (01/2023) lên ~47 nghìn (04/2023).
 - Bộ lõi và bộ đầy đủ chênh khoảng 1,5–2 điểm phần trăm, nên đọc như khoảng, không phải một số chính xác. Độ phủ của luật phân loại trên mẫu này là 84–88%, nên phần AI có thể còn bị đánh giá thấp.
 - Top repo mỗi quý đổi theo từng làn sóng: prompt/ChatGPT (đầu 2023: `prompts.chat`) → agent tự chạy (giữa 2023: `AutoGPT`, `gpt-engineer`, `MetaGPT`) → chạy mô hình cục bộ và RAG (2024: `ollama`, `dify`, `LightRAG`).
 - Trong 215 repo có đỉnh ≥50 star/ngày mẫu ở 2023, 93% còn dưới nửa đỉnh sau một năm rưỡi (92% nếu dùng bộ lõi). Chỉ tính repo còn ≥30 star trong mẫu, nên không phải tỉ lệ repo AI chết.
