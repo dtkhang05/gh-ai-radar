@@ -55,25 +55,26 @@ Dự án học dữ liệu bắt đầu ngày 20/10/2026: dựng pipeline trên 
 - "Còn hoạt động" chỉ tính trong tập repo đã lọc; người chuyển sang repo khác bị tính là rời đi.
 - Chưa có mốc so sánh bên ngoài để nói 17% là cao hay thấp.
 
-## Thử nhìn lại 2023–2024 (bản đầu)
+## Thử nhìn lại 2023–2024
 
 - Dữ liệu: 72 ngày thứ Tư (3 ngày mỗi tháng), 341,8 triệu sự kiện. Kiểm tra chất lượng thấy một giờ lỗi ở nguồn (14/08/2024 chỉ có 489 sự kiện) và một đợt bot (12/04/2023), không thấy đợt sụt kéo dài kiểu 05/2025.
-- Tổng star mọi repo gần như phẳng, nhưng phần thuộc repo AI tăng:
+- Tổng star mọi repo gần như phẳng. Phần thuộc repo AI, tính trên tập repo dựng từ chính mẫu (8.313 repo, tên đã đổi được gộp về tên hiện tại):
 
-| Quý | Bộ đầy đủ (4.033 repo) | Bộ lõi (bỏ nhóm chỉ khớp qua mô tả, 3.357 repo) |
-|---|---|---|
-| 2023-Q1 | 4,3% | 3,5% |
-| 2023-Q2 | 7,1% | 6,1% |
-| 2023-Q3 | 6,2% | 5,4% |
-| 2023-Q4 | 7,3% | 6,2% |
-| 2024-Q1 | 7,1% | 6,1% |
-| 2024-Q2 | 8,4% | 7,3% |
-| 2024-Q3 | 8,3% | 7,1% |
-| 2024-Q4 | 9,2% | 7,7% |
+| Quý | Bộ đầy đủ | Bộ lõi (bỏ nhóm chỉ khớp qua mô tả) | Bản đầu (dựng từ star 2025) |
+|---|---|---|---|
+| 2023-Q1 | 8,1% | 6,9% | 4,3% |
+| 2023-Q2 | 14,8% | 12,8% | 7,1% |
+| 2023-Q3 | 11,9% | 10,3% | 6,2% |
+| 2023-Q4 | 12,5% | 10,6% | 7,3% |
+| 2024-Q1 | 11,5% | 9,8% | 7,1% |
+| 2024-Q2 | 12,3% | 10,5% | 8,4% |
+| 2024-Q3 | 11,5% | 9,8% | 8,3% |
+| 2024-Q4 | 11,7% | 9,8% | 9,2% |
 
-- Hai cột cho xu hướng giống nhau nhưng mức chênh 0,8–1,5 điểm phần trăm, nên nên đọc như khoảng, không phải một số chính xác.
-- Top repo mỗi quý đổi theo từng làn sóng: prompt/ChatGPT (đầu 2023: `awesome-chatgpt-prompts`) → agent tự chạy (giữa 2023: `gpt-engineer`, `MetaGPT`) → chạy mô hình cục bộ và RAG (2024: `ollama`, `dify`, `LightRAG`).
-- Trong 132 repo có đỉnh ≥50 star/ngày mẫu ở 2023, 89% còn dưới nửa đỉnh sau một năm rưỡi (86% nếu dùng bộ lõi).
+- Bản đầu của tôi cho thấy xu hướng tăng đều (4,3% → 9,2%). Dựng lại tập repo từ chính mẫu thì không còn tăng đều: có một bước nhảy ở 2023-Q2 (làn sóng AutoGPT, 14,8%) rồi đi ngang quanh 11,5–12,5%. Phần lớn "xu hướng tăng" ở bản đầu là thiên lệch người sống sót: tập chỉ gồm repo còn nhiều star năm 2025, nên các repo nổi 2023 rồi biến mất không có mặt.
+- Bộ lõi và bộ đầy đủ chênh khoảng 1,5–2 điểm phần trăm, nên đọc như khoảng, không phải một số chính xác. Độ phủ của luật phân loại trên mẫu này là 84–88%, nên phần AI có thể còn bị đánh giá thấp.
+- Top repo mỗi quý đổi theo từng làn sóng: prompt/ChatGPT (đầu 2023: `prompts.chat`) → agent tự chạy (giữa 2023: `AutoGPT`, `gpt-engineer`, `MetaGPT`) → chạy mô hình cục bộ và RAG (2024: `ollama`, `dify`, `LightRAG`).
+- Trong 215 repo có đỉnh ≥50 star/ngày mẫu ở 2023, 93% còn dưới nửa đỉnh sau một năm rưỡi (92% nếu dùng bộ lõi). Chỉ tính repo còn ≥30 star trong mẫu, nên không phải tỉ lệ repo AI chết.
 
 **Các phép kiểm tra bộ phân loại và star**
 
@@ -112,7 +113,7 @@ Dự án học dữ liệu bắt đầu ngày 20/10/2026: dựng pipeline trên 
 - Chỉ xét repo có từ 100 star. Thử thêm 48.081 repo 30–99 star: thêm 6.252 repo AI (xem tay mẫu 50: 41 đúng, 5 ranh giới, 4 sai) nhưng chỉ khoảng 10% star của repo AI, nên không đưa vào các phân tích chính. Chạy lại với tập này: ngày đột biến và repo bị gắn cờ không đổi (luật ≥50 star/ngày không thể thỏa ở repo nhỏ, nên đây là giới hạn của phép kiểm tra), giữ chân cao hơn khoảng 0,5 điểm phần trăm (17,2% so với 16,7% sau 1 tuần). Hai danh sách kiểm tra do tôi chọn từ trí nhớ, thiên về repo nổi tiếng; repo ít người biết có thể có độ phủ thấp hơn.
 
 **Chung**
-- Phân tích chính chỉ dùng 12 tuần dữ liệu (01/03 – 22/05/2025). Mẫu 2023–2024 (72 ngày thứ Tư) chỉ có bản phân tích đầu, tập repo AI thiên lệch người sống sót (xem mục trên).
+- Phân tích chính chỉ dùng 12 tuần dữ liệu (01/03 – 22/05/2025). Mẫu 2023–2024 (72 ngày thứ Tư) chỉ phủ 3 ngày mỗi tháng; độ chính xác của tập repo AI dựng từ mẫu chưa kiểm tay riêng.
 - Các ngưỡng (50 star, gấp 5 lần, 3 sự kiện, 0,70) do tôi chọn; chỉ ngưỡng star được thử nhiều bộ.
 - Đường cơ sở trượt chỉ gắn cờ đợt sụt kéo dài trong vài tuần đầu, nên tôi thêm đường cố định (4 tuần đầu). Dữ liệu thật chỉ có 8 ngày sau điểm sụt, nên khác biệt này mới kiểm chứng bằng dữ liệu tổng hợp; đường cố định cũng không phân biệt được lỗi với thay đổi mức thật.
 - Đây là dự án học tập, kết quả mang tính khám phá.

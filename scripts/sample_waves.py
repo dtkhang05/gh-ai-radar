@@ -2,21 +2,34 @@
 # The universe (data/derived/ai_repo_universe.parquet) is defined from 2025 stars and 2026 GitHub metadata, so it only contains repos that
 # still existed and had >= 100 stars in 03-05/2025: repos that died before 2025 are invisible (survivorship bias).
 # Usage: RADAR_FLAGGED_REPO=<owner/name> python -I -X utf8 scripts/sample_waves.py
+# RADAR_UNIVERSE_MODE=sample: use data/derived/ai_repo_universe_sample.parquet instead (built from the sample's own >= 30-star pool, see
+# ai_repos_classify_sample.py) and merge renamed repos: every event repo is mapped to its current name (canon) before aggregating.
 import os
 import duckdb
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SAMPLE = os.path.join(ROOT, "data", "parquet_sample", "*.parquet").replace(os.sep, "/")
-UNIVERSE = os.path.join(ROOT, "data", "derived", "ai_repo_universe.parquet").replace(os.sep, "/")
-OUT = os.path.join(ROOT, "data", "derived", "sample_repo_quarters.parquet").replace(os.sep, "/")
+SAMPLE_MODE = os.environ.get("RADAR_UNIVERSE_MODE") == "sample"
+UNIVERSE = os.path.join(ROOT, "data", "derived", "ai_repo_universe_sample.parquet" if SAMPLE_MODE else "ai_repo_universe.parquet").replace(os.sep, "/")
+OUT = os.path.join(ROOT, "data", "derived", "sample_repo_quarters" + ("_canon" if SAMPLE_MODE else "") + ".parquet").replace(os.sep, "/")
 
 con = duckdb.connect()
 con.execute("set memory_limit='4GB'; set threads=4")
-con.execute(f"create view u as select repo from read_parquet('{UNIVERSE}') where is_ai")
-# Stars only (WatchEvent), humans only; one row per repo-day.
+if SAMPLE_MODE:
+    # canon = current name; old and new names of one repo are summed into one row per day.
+    con.execute(f"create view m as select repo, coalesce(canon, repo) canon, is_ai, by_name, by_topic from read_parquet('{UNIVERSE}')")
+    con.execute("create view u as select distinct canon repo from m where is_ai")
+    con.execute("create view core_src as select distinct canon repo from m where is_ai and (by_name or by_topic)")
+else:
+    con.execute(f"create view u as select repo from read_parquet('{UNIVERSE}') where is_ai")
+    con.execute(f"create view core_src as select repo from read_parquet('{UNIVERSE}') where is_ai and (by_name or by_topic)")
+# Stars only (WatchEvent), humans only; one row per repo-day. A stargazer counted once per name; sample mode can double count
+# an actor who starred under both names on one day (negligible: needs two stars of one repo in one day).
+src = "coalesce(m.canon, w.repo)" if SAMPLE_MODE else "w.repo"
+join = "left join m on m.repo = w.repo" if SAMPLE_MODE else ""
 con.execute(f"""create table s as
-  select repo, ts::date d, count(*) stars, count(distinct actor) stargazers
-  from read_parquet('{SAMPLE}') where type = 'WatchEvent' and actor not like '%[bot]' group by 1, 2""")
+  select {src} repo, w.ts::date d, count(*) stars, count(distinct w.actor) stargazers
+  from read_parquet('{SAMPLE}') w {join} where w.type = 'WatchEvent' and w.actor not like '%[bot]' group by 1, 2""")
 con.execute("create table days as select d, strftime(d, '%Y') || '-Q' || quarter(d) q, strftime(d, '%Y-%m') m from (select distinct d from s)")
 print("sample days", con.sql("select count(*) from days").fetchone()[0], "universe", con.sql("select count(*) from u").fetchone()[0])
 
@@ -70,7 +83,7 @@ print("fading after dropping possible renames: late < 50% of peak:",
 
 # Sensitivity: repeat the quarterly share and the fading count without the repos matched ONLY by description (676 repos, ~70% correct in a
 # hand-checked sample of 50, see PLAN.md), i.e. keep repos matched by name or topic.
-con.execute(f"""create view core as select repo from read_parquet('{UNIVERSE}') where is_ai and (by_name or by_topic)""")
+con.execute("create view core as select repo from core_src")
 print("\nsensitivity: quarterly stars/day of the AI set (all humans-only stars in the sample = denominator)")
 print("   quarter, all, full set, core (name/topic), core share of all % , full share %")
 for r in con.sql("""select dd.q, round(sum(s.stars) / count(distinct s.d)) a,

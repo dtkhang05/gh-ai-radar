@@ -10,7 +10,7 @@ Pipeline dữ liệu trên [GH Archive](https://www.gharchive.org/) (mọi sự 
 - **Nguồn mất sự kiện, lớp kiểm tra tự phát hiện được.** Từ ~17h UTC ngày 23/05/2025, số sự kiện mỗi giờ giảm ~35% và không hồi lại. Phân tích chỉ dùng dữ liệu đến 22/05/2025. Lớp kiểm tra cũng bắt được một file giờ chỉ có 12% sự kiện thường lệ (08/05/2025 01:00 UTC).
 - **Star đột biến: phần lớn là người thật.** 4.033 repo AI có 1.513 ngày đột biến ở 526 repo; nhìn chung không nhiều tài khoản "mỏng" hơn ngày thường. Hai repo cùng một tổ chức bị gắn cờ ở 9/9 bộ ngưỡng (ngày 11–15/04/2025) và được kiểm chứng thêm bằng tuổi tài khoản.
 - **Người đóng góp mới ít khi ở lại.** 16,7% còn hoạt động sau 1 tuần, 7,2% sau 8 tuần; người bắt đầu bằng code giữ lại tốt hơn nhiều.
-- **Mẫu 2023–2024 (bản đầu).** Phần star thuộc repo AI tăng từ 3,5–4,3% (01–03/2023) lên 7,7–9,2% (cuối 2024), tùy có tính nhóm chỉ khớp qua mô tả hay không; top repo mỗi quý đổi theo từng làn sóng; 86–89% repo có đỉnh ≥50 star/ngày mẫu ở 2023 còn dưới nửa đỉnh sau 1,5 năm. Thiên lệch người sống sót nên không phải tỉ lệ repo AI chết.
+- **Mẫu 2023–2024.** Dựng lại tập repo AI từ chính mẫu (8.313 repo, tên đổi đã gộp): phần star thuộc repo AI nhảy lên 14,8% ở 2023-Q2 (làn sóng AutoGPT) rồi đi ngang quanh 11,5–12,5% (bộ lõi 9,8–10,6%). Bản đầu dựng từ star 2025 cho xu hướng tăng đều 4,3% → 9,2%, phần lớn do thiên lệch người sống sót. Top repo mỗi quý đổi theo từng làn sóng; 92–93% trong 176–215 repo có đỉnh ≥50 star/ngày mẫu ở 2023 còn dưới nửa đỉnh sau 1,5 năm (chỉ tính repo còn ≥30 star, không phải tỉ lệ repo AI chết).
 - **Repo AI xác định bằng tên, topic và mô tả.** Độ phủ 82% và 89% trên hai danh sách chọn tay (chỉ theo tên: 25% và 20%), chỉ cho repo ≥100 star. Xem [Giới hạn](#giới-hạn).
 
 ## Cách hệ thống hoạt động
@@ -108,7 +108,7 @@ Dữ liệu: 01/03 → 22/05/2025, 4.033 repo AI ≥100 star.
   - Còn sót: `jax`, `triton`, `mlx`, `tinygrad`, `segment-anything`, `faiss`.
   - **Độ chính xác (ước tính):** ~95% phần khớp tên (38/40 repo xem bằng mắt); 76–86% phần thêm từ topic/mô tả (mẫu 50: 38 đúng, 7 ranh giới, 5 sai). Hai mẫu nhỏ, một người đánh giá, sai số ~±10 điểm %.
   - **Thời điểm:** topic và mô tả lấy năm 2026, không phải 03–05/2025; 2.350 repo (12%) không tra được nên chỉ khớp theo tên.
-- **Phân tích chính dùng 12 tuần dữ liệu đáng tin;** mẫu 2023–2024 chỉ có bản phân tích đầu (3 ngày/tháng, tập repo AI xác định từ dữ liệu 2025–2026 nên thiên lệch người sống sót, repo đổi tên bị tách lịch sử).
+- **Phân tích chính dùng 12 tuần dữ liệu đáng tin;** mẫu 2023–2024 chỉ 3 ngày/tháng. Độ phủ bộ phân loại ở đó 84–88% (3 danh sách chọn tay), repo bị xóa (149) chỉ phân loại theo tên, độ chính xác của tập dựng từ mẫu chưa kiểm tay riêng.
 - **Star đột biến chỉ là tín hiệu nghi ngờ.** Mẫu tuổi tài khoản nhỏ (21–25 người mỗi nhóm); hai repo đối chứng do tác giả chọn vì tin là lan truyền thật.
 - **Ngưỡng do tác giả chọn** (50 star, ×5, ≤3 sự kiện, 0,70). Ngưỡng star thử 9 bộ; các ngưỡng khác chưa thử độ nhạy.
 - **Đường cơ sở:** đường trượt chỉ gắn cờ đợt sụt kéo dài vài tuần đầu; đường cố định (4 tuần đầu) gắn cờ suốt nhưng không phân biệt lỗi với thay đổi mức dài hạn thật. Dữ liệu thật chỉ có 8 ngày sau điểm sụt nên sự khác biệt này mới chứng minh bằng dữ liệu tổng hợp.
@@ -188,7 +188,7 @@ Dữ liệu: 01/03 → 22/05/2025, 4.033 repo AI ≥100 star.
 
 ## Hướng phát triển
 
-- Làm sâu phân tích mẫu 2023–2024: đo độ phủ của bộ phân loại cho 2023–2024, kiểm tuổi tài khoản, xử lý đổi tên repo.
+- Làm sâu phân tích mẫu 2023–2024: kiểm tay độ chính xác của tập bản 2, độ nhạy ngưỡng tài khoản mỏng, đo "làn sóng" chặt hơn (độ phủ, tuổi tài khoản, đổi tên đã làm).
 - Phân loại repo AI: nâng độ chính xác (76–86%; nhóm chỉ khớp qua mô tả ~70%) và độ phủ (82–89%): đo độ phủ cho repo ít người biết (repo 30–99 star đã thử: chỉ thêm ~10% star), gán nhãn bằng mô hình ngôn ngữ, mẫu kiểm tay lớn hơn.
 - Câu hỏi mới trả lời sơ bộ (mẫu 2023–2024, 3 ngày/tháng): dự án nào giảm dần, các làn sóng nối tiếp nhau thế nào. Cần dữ liệu đầy đủ hơn và xử lý đổi tên repo để kết luận chắc.
 - Nguồn thay thế như OpenDigger (tương thích GH Archive, [gharchive #323](https://github.com/igrigorik/gharchive.org/issues/323)) chưa thử.

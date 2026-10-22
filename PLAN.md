@@ -58,39 +58,40 @@ Tài liệu này ghi từng giai đoạn của dự án: làm gì, đo được 
   | Mức nền | Trung vị theo ngày ~4,0–4,4 triệu sự kiện (2023), ~5,0–5,5 triệu (2024), ~5,4–5,9 triệu (03–05/2025) | Chưa biết là tăng trưởng thật hay GH Archive đổi cách thu thập |
 
   - **Giới hạn:** chỉ 3 ngày/tháng và đường cơ sở nhìn cả trước lẫn sau nên không bắt được một đợt sụt dài quá ~3 tháng; chưa tạo cột chất lượng này trong dbt.
-- **Phân tích mẫu 2023–2024** (`scripts/sample_waves.py`, đếm `WatchEvent` của người, loại `[bot]`, trên 4.033 repo AI):
-  - **Phần star thuộc repo AI** (trên tổng star mọi repo, theo tháng mẫu): 3,6–5,2% (01–03/2023) → 5,8–7,6% (04–12/2023) → 6,7–9,9% (2024); tháng cuối 12/2024 là 9,9%. Tổng star mọi repo gần như phẳng (~190–240 nghìn/ngày mẫu), trừ 03/2023 (~405 nghìn, chưa xem nguyên nhân).
-  - **Làn sóng:** top 3 repo mỗi quý theo star/ngày mẫu (tên bỏ chủ sở hữu cho gọn):
+- **Phân tích mẫu 2023–2024** (`scripts/sample_waves.py`, đếm `WatchEvent` của người, loại `[bot]`). Có hai bản; **bản 2 (tập dựng từ mẫu, tên đã gộp) là bản chính**:
+  - **Bản 1 (tập 4.033 repo dựng từ star 2025):** phần star thuộc repo AI tăng từ 3,5–4,3% (2023-Q1) lên 7,7–9,2% (2024-Q4).
+  - **Bản 2 (`RADAR_UNIVERSE_MODE=sample`, 8.313 repo AI dựng từ 64.714 repo ≥30 star trong chính mẫu, mọi tên cũ gộp về tên hiện tại):** phần star thuộc repo AI trên tổng star mọi repo, theo quý:
+
+  | Quý | Bản 2 đầy đủ | Bản 2 lõi (tên/topic) | Bản 1 đầy đủ | Bản 1 lõi |
+  |---|---|---|---|---|
+  | 2023-Q1 | 8,1% | 6,9% | 4,3% | 3,5% |
+  | 2023-Q2 | 14,8% | 12,8% | 7,1% | 6,1% |
+  | 2023-Q3 | 11,9% | 10,3% | 6,2% | 5,4% |
+  | 2023-Q4 | 12,5% | 10,6% | 7,3% | 6,2% |
+  | 2024-Q1 | 11,5% | 9,8% | 7,1% | 6,1% |
+  | 2024-Q2 | 12,3% | 10,5% | 8,4% | 7,3% |
+  | 2024-Q3 | 11,5% | 9,8% | 8,3% | 7,1% |
+  | 2024-Q4 | 11,7% | 9,8% | 9,2% | 7,7% |
+
+  - **Kết luận đổi:** bản 1 cho thấy xu hướng tăng đều, nhưng đó phần lớn là thiên lệch người sống sót (tập chỉ gồm repo còn ≥100 star năm 2025). Bản 2 cho thấy **một bước nhảy ở 2023-Q2 (làn sóng AutoGPT, đỉnh 14,8%) rồi đi ngang ở khoảng 11,5–12,5%**, không tăng đều. Mức tuyệt đối cũng gần gấp đôi bản 1 ở 2023 (8,1% so với 4,3% ở Q1).
+  - **Tổng star mọi repo** gần như phẳng (~190–240 nghìn/ngày mẫu), trừ 2023-03 (~405 nghìn, chưa xem nguyên nhân).
+  - **Làn sóng:** top 3 repo mỗi quý theo star/ngày mẫu (bản 2, tên hiện tại, bỏ chủ sở hữu cho gọn):
 
   | Quý | Hạng 1 | Hạng 2 | Hạng 3 |
   |---|---|---|---|
-  | 2023-Q1 | awesome-chatgpt-prompts (531) | awesome-chatgpt-prompts-zh (334) | stable-diffusion-webui (322) |
-  | 2023-Q2 | gpt-engineer (803) | gpt4free (478) | DragGAN (437) |
-  | 2023-Q3 | MetaGPT (308) | llama2.c (248) | stable-diffusion-webui (187) |
-  | 2023-Q4 | generative-ai-for-beginners (282) | lobe-chat (244) | gpt-crawler (232) |
-  | 2024-Q1 | ollama (225) | llm-course (202) | GPT-SoVITS (193) |
+  | 2023-Q1 | prompts.chat (531) | awesome-chatgpt-prompts-zh (334) | stable-diffusion-webui (322) |
+  | 2023-Q2 | AutoGPT (1.649) | gpt-engineer (803) | gpt4free (478) |
+  | 2023-Q3 | llama (408) | MetaGPT (308) | quivr (269) |
+  | 2023-Q4 | generative-ai-for-beginners (282) | ollama (281) | lobehub (244) |
+  | 2024-Q1 | OpenHands (270) | ollama (259) | copilot-gpt4-service (211) |
   | 2024-Q2 | llm.c (337) | ollama (305) | dify (239) |
-  | 2024-Q3 | Deep-Live-Cam (330) | claude-engineer (193) | ollama (179) |
+  | 2024-Q3 | Deep-Live-Cam (330) | invisible_dots (258) | claude-engineer (193) |
   | 2024-Q4 | markitdown (372) | swarm (182) | PDFMathTranslate (166) |
 
-  Chỉ là mô tả top 5, chưa có phép đo "làn sóng" nào chặt hơn. Chủ đề đổi theo đợt: prompt/ChatGPT (đầu 2023) → agent tự chạy (giữa 2023) → chạy cục bộ và RAG/công cụ (2024).
-  - **Dự án giảm dần:** 132 repo có đỉnh quý 2023 ≥50 star/ngày mẫu; 117 (89%) còn dưới 50% đỉnh ở 2024-Q3/Q4, 81 (61%) còn dưới 20%. Loại 1 repo nghi đổi tên: 116/131 và 81/131.
-  - **Độ nhạy khi bỏ nhóm chỉ khớp qua mô tả** (còn 3.357 repo khớp theo tên hoặc topic; cuối `sample_waves.py`): phần star thuộc repo AI trên tổng star mọi repo theo quý:
-
-  | Quý | Bộ đầy đủ (4.033) | Bộ lõi (3.357) |
-  |---|---|---|
-  | 2023-Q1 | 4,3% | 3,5% |
-  | 2023-Q2 | 7,1% | 6,1% |
-  | 2023-Q3 | 6,2% | 5,4% |
-  | 2023-Q4 | 7,3% | 6,2% |
-  | 2024-Q1 | 7,1% | 6,1% |
-  | 2024-Q2 | 8,4% | 7,3% |
-  | 2024-Q3 | 8,3% | 7,1% |
-  | 2024-Q4 | 9,2% | 7,7% |
-
-  Mức thấp hơn khoảng 0,8–1,5 điểm phần trăm nhưng xu hướng tăng giữ nguyên. Giảm dần: bộ lõi có 105 repo đỉnh ≥50 star/ngày mẫu, 90 (86%) còn dưới 50% đỉnh, 60 (57%) còn dưới 20% (bộ đầy đủ: 89% và 61%). Kết luận định tính không đổi; con số tuyệt đối phụ thuộc vào định nghĩa AI, nên đọc như khoảng (bộ lõi đến bộ đầy đủ). Danh sách top mỗi quý chưa tính lại cho bộ lõi.
-  - **Thiên lệch người sống sót:** tập repo xác định từ star 2025 và metadata 2026, nên repo đã chết trước 2025 không có mặt. Tỉ lệ giảm dần ở trên vì vậy là **giới hạn dưới** của số repo mất sức hút, nhưng cũng không thể dùng để nói "bao nhiêu % repo AI chết".
-  - **Đổi tên:** sự kiện mang tên repo lúc đó, tập repo dùng tên 2025. `gpt-engineer` chuyển sang tổ chức khác (~24 star/ngày mẫu ở 2024 dưới tên mới, 0 dưới tên cũ); bộ dò đổi tên thô (cùng tên repo, khác chủ, ≥20% đỉnh) chỉ bắt được 1/132, nên không loại trừ được các ca đổi tên khác.
+  Chỉ là mô tả top 5, chưa có phép đo "làn sóng" nào chặt hơn. Ở bản 1 hạng 1 của 2023-Q2 là `gpt-engineer`; `AutoGPT` đổi tên từ `Auto-GPT` nên có thể lịch sử bị tách (tôi chưa kiểm tra riêng ca này). Chủ đề đổi theo đợt: prompt/ChatGPT (đầu 2023) → agent tự chạy (giữa 2023) → chạy cục bộ và RAG/công cụ (2024).
+  - **Dự án giảm dần (bản 2):** 215 repo có đỉnh quý 2023 ≥50 star/ngày mẫu; 200 (93%) còn dưới 50% đỉnh ở 2024-Q3/Q4, 157 (73%) còn dưới 20%. Bộ lõi: 176 repo, 162 (92%) và 125 (71%). Bộ dò đổi tên thô còn nghi 3/215 ca; loại ra thì 198/212 và 157/212. Bản 1: 132 repo, 89% và 61%. Kết luận định tính (đa số mất sức hút) không đổi, nhưng đây vẫn **chỉ tính repo còn ≥30 star trong mẫu**, nên không đọc là "bao nhiêu % repo AI chết".
+  - **Thiên lệch còn lại:** bản 2 bỏ được thiên lệch người sống sót với nhóm ≥30 star ở 2023–2024, nhưng repo bị xóa (149 repo AI) chỉ phân loại theo tên, repo <30 star mẫu không có mặt, và độ phủ của luật là 84–88% (xem bên dưới) nên phần AI có thể bị đánh giá thấp hơn thực tế; mặt khác nhóm chỉ khớp qua mô tả sai khoảng 12–30%, nên bộ lõi và bộ đầy đủ là hai đầu của khoảng.
+  - **Đổi tên:** 4.130 repo trong tập 64.714 (6,4%) đổi tên hoặc chuyển chủ; bản 2 gộp bằng tên hiện tại mà GitHub trả về.
   - **Kiểm tay bộ phân loại trên 52 repo đứng top 8 mỗi quý (2023–2024):** 46 đúng, 4 ranh giới (`Follow` đọc RSS có AI, `markitdown` chuyển file cho LLM, `PDFMathTranslate`, `gpt-crawler`), 2 sai (`shadcn-ui/ui`, `drawdb`: thư viện giao diện và công cụ vẽ sơ đồ CSDL). Hai repo sai chiếm tối đa 0,5–1,5% star/ngày mẫu của tập AI mỗi quý nên không đổi kết luận. Mẫu chọn theo thứ hạng star (repo nổi tiếng, dễ phân loại đúng), nên không suy ra độ chính xác cho cả 4.033 repo; tôi là người xem và chấm.
   - **Kiểm tra tài khoản mỏng** (`scripts/sample_thin_stars.py`): tài khoản mỏng = ≤3 sự kiện trong cả mẫu 72 ngày. Cả tập AI: 15,3% người star là tài khoản mỏng. Trong 366 cặp repo-quý có ≥500 star, chỉ 1 cặp có ≥60% mỏng (`ruoyi-vue-pro`, 2023-Q2, 61,3%, 831 star; mẫu kiểm tay không thấy có AI, có thể là repo phân loại nhầm). 0/64 repo top 8 mỗi quý bị gắn cờ; 5 repo đầu mỗi quý có 9–25% mỏng. Kết luận: không thấy dấu hiệu kiểu Repo X trong top các quý. Điểm yếu: mẫu chỉ ~10% số ngày nên tài khoản "mỏng" ở đây là "ít hoạt động trong các ngày mẫu", yếu hơn phép đo 12 tuần liên tục của 2025; ngưỡng 60% và 500 star do tôi chọn, chưa thử độ nhạy; chưa kiểm tuổi tài khoản bằng API cho 2023–2024. "Không thấy" chưa phải "không có".
   - **Ca bị gắn cờ mỏng là phân loại nhầm:** `ruoyi-vue-pro` là bộ khung hệ thống quản trị Java (Spring Boot + Vue); mô tả chỉ liệt kê \"AI 大模型\" là một trong nhiều tính năng và kết thúc bằng lời xin star. Nó vào tập AI chỉ nhờ khớp từ khóa trong mô tả (`by_desc`), không có topic AI, và không thuộc top 8 của quý nào. Đây là ca sai thứ 3 tìm thấy (ngoài `shadcn-ui/ui`, `drawdb`), cùng kiểu lỗi: từ khóa AI nằm trong danh sách tính năng. Chưa đo có bao nhiêu repo khác trong 4.033 mắc lỗi này; con số 76–86% chính xác của phần topic/mô tả (mẫu 2025) vẫn là ước tính duy nhất.
@@ -114,7 +115,7 @@ Tài liệu này ghi từng giai đoạn của dự án: làm gì, đo được 
     - Dùng tập repo AI dựng từ star 2025 (tên cũ không khớp) thì danh sách 3 chỉ còn 72% (84/117): chênh 14 điểm là do đổi tên/chuyển chủ (4.130 repo, 6,4% của tập, đã gộp về tên hiện tại; 1.052 trong số đó là repo AI).
     - Bỏ sót điển hình: thư viện hạ tầng không có từ khóa AI trong tên/mô tả (`jax`, `mlx`, `accelerate`, `flash-attention`, `whisper`). Luật giữ nguyên, không chỉnh theo danh sách.
     - 149 repo AI bị xóa/không tra được vẫn chỉ phân loại theo tên.
-  - **Chưa kiểm tra:** chạy lại thống kê theo quý và độ suy giảm với tên đã gộp (hiện số liệu quý vẫn theo tên lúc xảy ra sự kiện); danh sách tham chiếu do một người viết, không phải mẫu ngẫu nhiên; mẫu 3 ngày/tháng nên một đợt lan truyền ngắn có thể rơi ngoài mẫu; star đột biến do tài khoản giả không được lọc (đã thấy ở 2025).
+  - **Chưa kiểm tra:** bộ lõi và bộ đầy đủ của bản 2 chưa được kiểm tay độ chính xác riêng (mẫu kiểm tay 50/52 repo ở trên là của bản 1); danh sách tham chiếu do một người viết, không phải mẫu ngẫu nhiên; mẫu 3 ngày/tháng nên một đợt lan truyền ngắn có thể rơi ngoài mẫu; star đột biến do tài khoản giả không được lọc (đã thấy ở 2025).
 - Ước tính (chưa đo): ~51 GB Parquet cho 29 tháng.
 
 ## 5. Xác định repo AI
@@ -289,6 +290,6 @@ Phạm vi: 01/03 → 22/05/2025, 4.033 repo AI có từ 100 star (giai đoạn 5
 ## 9. Hướng mở rộng
 Theo thứ tự nên làm:
 
-1. **Làm sâu phân tích mẫu 2023–2024** (đã có bản đầu, xem mục 4): kiểm tra bộ phân loại AI cho 2023–2024, thử độ nhạy ngưỡng tài khoản mỏng và kiểm tuổi tài khoản cho 2023–2024, thử gán lại tên repo bị đổi, đo "làn sóng" bằng cách chặt hơn danh sách top 5.
+1. **Làm sâu phân tích mẫu 2023–2024** (độ phủ, đổi tên, tuổi tài khoản đã làm, xem mục 4): còn thử độ nhạy ngưỡng tài khoản mỏng, đo "làn sóng" bằng cách chặt hơn danh sách top 5, kiểm tay độ chính xác của tập bản 2.
 2. **Kiểm tra thêm tập repo AI:** mẫu kiểm tay độ chính xác lớn hơn; tính lại các chỉ số chính (đột biến, giữ chân) với nhóm 30–99 star (đã có phân loại, xem vòng 3); đo độ phủ cho repo ít người biết.
 3. **Chạy định kỳ hằng ngày** và nguồn dữ liệu bổ sung (chưa thử).
