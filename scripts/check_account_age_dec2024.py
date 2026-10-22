@@ -8,16 +8,19 @@ import duckdb, json, os, re, subprocess, sys
 from datetime import datetime, timezone
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__))).replace("\\", "/")
-OUT = f"{ROOT}/data/derived/account_age_dec2024.jsonl"
 LOGIN = re.compile(r"[A-Za-z0-9](?:[A-Za-z0-9-]{0,38})")
+SRC = "parquet_window" if os.environ.get("RADAR_WINDOW") else "parquet_sample"   # window = continuous days, see ingest_window.py
+DAYS = os.environ.get("RADAR_DAYS", "2024-12-11,2024-12-25").split(",")
+assert all(re.fullmatch(r"\d{4}-\d{2}-\d{2}", d) for d in DAYS)
+OUT = f"{ROOT}/data/derived/account_age_dec2024" + ("_window" if os.environ.get("RADAR_WINDOW") else "") + ".jsonl"
 owner = os.environ["RADAR_FLAGGED_REPO"].split("/")[0]
 if not LOGIN.fullmatch(owner): sys.exit("bad owner")
 
 con = duckdb.connect()
 con.execute("set memory_limit='4GB'; set threads=4")
 con.execute(f"create view m as select repo, coalesce(canon, repo) canon, is_ai from read_parquet('{ROOT}/data/derived/ai_repo_universe_sample.parquet')")
-con.execute(f"""create table w as select repo, actor, ts from read_parquet('{ROOT}/data/parquet_sample/*.parquet')
-  where type = 'WatchEvent' and actor not like '%[bot]' and ts::date in (date '2024-12-11', date '2024-12-25')""")
+con.execute(f"""create table w as select repo, actor, ts from read_parquet('{ROOT}/data/{SRC}/*.parquet')
+  where type = 'WatchEvent' and actor not like '%[bot]' and ts::date in ({', '.join(f"date '{d}'" for d in DAYS)})""")
 con.execute(f"""create table pick as
   with x as (select w.*, case when split_part(w.repo, '/', 1) = '{owner}' or split_part(coalesce(m.canon, w.repo), '/', 1) = '{owner}' then 'F flagged owner'
                               when m.is_ai then 'C other AI repos' end grp
