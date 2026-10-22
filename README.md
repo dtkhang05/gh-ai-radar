@@ -188,7 +188,7 @@ Dữ liệu: 01/03 → 22/05/2025, 4.033 repo AI ≥100 star.
 
 ## Hướng phát triển
 
-- Làm sâu phân tích mẫu 2023–2024: kiểm tuổi tài khoản của hai ngày cuối 2024 mà Repo X và Repo X2 có dấu hiệu mỏng (độ phủ, đổi tên, tuổi tài khoản top các quý, độ nhạy ngưỡng, độ chính xác nhãn, ngày bất thường đã làm).
+- Làm sâu phân tích mẫu 2023–2024: xác định Repo X và Repo X2 bắt đầu có star bất thường từ ngày nào (hai ngày mẫu cuối 2024 đã có dấu hiệu: 14,1% tài khoản tạo đúng ngày; độ phủ, đổi tên, tuổi tài khoản top các quý, độ nhạy ngưỡng, độ chính xác nhãn, ngày bất thường đã làm).
 - Phân loại repo AI: nâng độ chính xác (76–86%; nhóm chỉ khớp qua mô tả ~70%) và độ phủ (82–89%): gán nhãn bằng mô hình ngôn ngữ, mẫu kiểm tay lớn hơn.
 - Câu hỏi trả lời trên mẫu 2023–2024 (3 ngày/tháng): dự án nào giảm dần, các làn sóng nối tiếp nhau thế nào (đã gộp đổi tên repo). Cần dữ liệu đầy đủ hơn (xem tải thêm 01–02/2025) để kết luận chắc.
 - Nguồn thay thế như OpenDigger (tương thích GH Archive, [gharchive #323](https://github.com/igrigorik/gharchive.org/issues/323)) chưa thử.
