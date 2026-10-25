@@ -2,7 +2,10 @@
 
 Pipeline dữ liệu trên [GH Archive](https://www.gharchive.org/) (mọi sự kiện công khai của GitHub, mỗi giờ một file): thu thập → kiểm tra chất lượng → dbt + DuckDB → phân tích hệ sinh thái AI mã nguồn mở.
 
+[![Video giới thiệu dự án (84 giây, không tiếng): bấm để xem bản MP4](docs/video/radar.gif)](https://dtkhang05.github.io/gh-ai-radar/video/radar.mp4)
+
 - Dự án học tập; kết quả mang tính khám phá, giới hạn nêu ở từng phần.
+- Video giới thiệu: 12 slide, không tiếng; [bản MP4](https://dtkhang05.github.io/gh-ai-radar/video/radar.mp4) (84 giây). Dựng lại: `scripts/build_video.py`.
 - Xem: [dashboard](https://dtkhang05.github.io/gh-ai-radar/) · [tài liệu dbt](https://dtkhang05.github.io/gh-ai-radar/dbt/) · [bài viết](docs/bai-viet.md) · [PLAN.md](PLAN.md) (nhật ký và số đo từng bước)
 
 ## Kết quả chính
@@ -182,7 +185,8 @@ Dữ liệu: 01/03 → 22/05/2025, 4.033 repo AI ≥100 star.
 | `scripts/build_dbt_docs.py` | Tạo `docs/dbt/index.html` (cần chạy `run_pipeline.py` trước) |
 | `scripts/ai_repos_probe.py`, `dq_hourly.py`, `build_db.py` | Bản đầu (lọc theo tên, kiểm tra chất lượng, view DuckDB); không còn dùng trong pipeline |
 | `scripts/compare_hours.py`, `probe_day.py`, `recompress.py` | Đo thử ban đầu; chuyển Parquet cũ sang định dạng gọn (dùng một lần) |
-| `docs/` | Dashboard, tài liệu dbt (GitHub Pages) và bài viết |
+| `scripts/build_video.py`, `video_slides.html` | Video giới thiệu: chụp từng slide bằng Edge headless, ghép bằng ffmpeg (cần thêm `pillow`, `imageio-ffmpeg`) |
+| `docs/` | Dashboard, tài liệu dbt (GitHub Pages) , bài viết và video |
 | `PLAN.md` | Nhật ký từng bước: kế hoạch, số đo, lỗi đã gặp |
 | `data/` | Dữ liệu (không đưa lên git) |
 

@@ -1,0 +1,203 @@
+<!doctype html>
+<!-- Slides for the explainer video. Open with ?s=N (1-based) to show one slide; scripts/build_video.py screenshots each at 1280x720. -->
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Radar AI video</title>
+<style>
+  :root { --bg: #0f1419; --panel: #182029; --ink: #e8edf2; --mute: #8a98a8; --acc: #4fb3ff; --warn: #ff8a5c; --ok: #6fd08c; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1280px; height: 720px; overflow: hidden; background: var(--bg); color: var(--ink);
+               font-family: "Segoe UI", system-ui, sans-serif; }
+  .slide { display: none; width: 1280px; height: 720px; padding: 64px 80px; position: relative; }
+  .slide.on { display: flex; flex-direction: column; justify-content: center; padding-bottom: 96px; }
+  .tag { color: var(--acc); font-size: 20px; letter-spacing: 2px; text-transform: uppercase; font-weight: 600; margin-bottom: 14px; }
+  h1 { font-size: 60px; line-height: 1.12; font-weight: 700; }
+  h2 { font-size: 42px; line-height: 1.2; font-weight: 700; margin-bottom: 28px; }
+  p, li { font-size: 26px; line-height: 1.5; color: var(--ink); }
+  .mute { color: var(--mute); }
+  ul { list-style: none; } li { margin: 8px 0; padding-left: 28px; position: relative; }
+  li::before { content: ""; position: absolute; left: 0; top: 16px; width: 10px; height: 10px; border-radius: 2px; background: var(--acc); }
+  .foot { position: absolute; left: 80px; right: 80px; bottom: 36px; display: flex; justify-content: space-between; color: var(--mute); font-size: 18px; }
+  .bar { height: 4px; background: #26313c; position: absolute; left: 0; right: 0; top: 0; }
+  .bar i { display: block; height: 100%; background: var(--acc); }
+  .flow { display: flex; align-items: stretch; gap: 14px; margin-top: 30px; }
+  .box { background: var(--panel); border: 1px solid #2a3642; border-radius: 10px; padding: 18px 16px; text-align: center; flex: 1; }
+  .box b { display: block; font-size: 24px; margin-bottom: 6px; } .box span { font-size: 17px; color: var(--mute); }
+  .arrow { color: var(--acc); font-size: 30px; align-self: center; }
+  .big { font-size: 96px; font-weight: 700; color: var(--acc); line-height: 1; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; margin-top: 10px; }
+  .card { background: var(--panel); border-radius: 12px; padding: 26px; }
+  .card .n { font-size: 52px; font-weight: 700; color: var(--acc); } .card p { font-size: 21px; color: var(--mute); }
+  .hb { display: grid; grid-template-columns: 300px 1fr 90px; align-items: center; gap: 16px; margin: 11px 0; font-size: 22px; }
+  .hb .t { height: 30px; background: #26313c; border-radius: 4px; overflow: hidden; } .hb .t i { display: block; height: 100%; background: var(--acc); }
+  .hb .t i.w { background: var(--warn); } .hb .t i.g { background: var(--ok); } .hb .v { text-align: right; font-weight: 600; }
+  .cols { display: flex; align-items: flex-end; gap: 18px; height: 300px; margin-top: 10px; border-bottom: 2px solid #2a3642; }
+  .col { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; }
+  .col i { display: block; width: 70%; background: var(--acc); border-radius: 4px 4px 0 0; } .col i.w { background: var(--warn); }
+  .col b { font-size: 20px; margin-bottom: 6px; }
+  .xl { display: flex; gap: 18px; } .xl span { flex: 1; text-align: center; font-size: 17px; color: var(--mute); padding-top: 8px; }
+  .note { margin-top: 22px; font-size: 21px; color: var(--mute); }
+</style>
+</head>
+<body>
+
+<section class="slide">
+  <div class="tag">Dự án dữ liệu · GH Archive · dbt · DuckDB</div>
+  <h1>Radar hệ sinh thái<br>AI mã nguồn mở</h1>
+  <p class="mute" style="margin-top:28px; font-size:30px">Đo sự chú ý của cộng đồng dành cho các repo AI trên GitHub,<br>từ hàng trăm triệu sự kiện công khai.</p>
+</section>
+
+<section class="slide">
+  <div class="tag">Câu hỏi</div>
+  <h2>Ba câu hỏi dự án muốn trả lời</h2>
+  <ul>
+    <li>Sự quan tâm tới AI mã nguồn mở thay đổi thế nào qua 2023–2025?</li>
+    <li>Những đợt star tăng vọt là người thật, hay star được "bơm"?</li>
+    <li>Người mới đóng góp cho repo AI có ở lại không?</li>
+  </ul>
+  <p class="note">Và một câu hỏi phụ quan trọng: dữ liệu nguồn có đáng tin không?</p>
+</section>
+
+<section class="slide">
+  <div class="tag">Dữ liệu</div>
+  <h2>GH Archive: mỗi giờ một file sự kiện của GitHub</h2>
+  <div class="grid">
+    <div class="card"><div class="n">2.208</div><p>giờ dữ liệu 2025 đã tải (~230 GB qua mạng)</p></div>
+    <div class="card"><div class="n">~6 GB</div><p>Parquet giữ lại: tải từng giờ, lọc 5 cột, xóa file thô ngay</p></div>
+    <div class="card"><div class="n">1.728</div><p>giờ mẫu 2023–2024 (72 ngày thứ Tư, 3 ngày mỗi tháng)</p></div>
+  </div>
+  <p class="note">Không bao giờ để file thô làm đầy ổ đĩa: mỗi giờ ~100 MB nén, chỉ giữ ~2,7 MB.</p>
+</section>
+
+<section class="slide">
+  <div class="tag">Cách hệ thống hoạt động</div>
+  <h2>Từ file giờ tới dashboard</h2>
+  <div class="flow">
+    <div class="box"><b>Thu thập</b><span>Tải song song,<br>chạy lại được</span></div><div class="arrow">→</div>
+    <div class="box"><b>Lưu trữ</b><span>Parquet zstd<br>+ DuckDB</span></div><div class="arrow">→</div>
+    <div class="box"><b>Mô hình</b><span>dbt: staging →<br>intermediate → marts</span></div><div class="arrow">→</div>
+    <div class="box"><b>Chất lượng</b><span>28 test dbt,<br>giờ bất thường</span></div><div class="arrow">→</div>
+    <div class="box"><b>Trình bày</b><span>Dashboard tĩnh,<br>bài viết</span></div>
+  </div>
+  <p class="note">CI trên GitHub Actions chạy dbt với dữ liệu tổng hợp có lỗi cài sẵn: đỏ nếu test không bắt được lỗi.</p>
+</section>
+
+<section class="slide">
+  <div class="tag">Phát hiện 1 · Chất lượng nguồn</div>
+  <h2>Nguồn dữ liệu đang mất sự kiện</h2>
+  <p class="mute" style="font-size:22px">Số star trong giờ 12:00 UTC của một ngày mẫu (mỗi cột chỉ là một giờ)</p>
+  <div class="cols">
+    <div class="col"><b>8.027</b><i style="height:250px"></i></div>
+    <div class="col"><b>5.075</b><i style="height:158px"></i></div>
+    <div class="col"><b>3.336</b><i style="height:104px"></i></div>
+    <div class="col"><b>3.148</b><i style="height:98px"></i></div>
+    <div class="col"><b>284</b><i class="w" style="height:9px"></i></div>
+    <div class="col"><b>59</b><i class="w" style="height:2px"></i></div>
+  </div>
+  <div class="xl"><span>10/2024</span><span>06/2025</span><span>10/2025</span><span>04/2026</span><span>05/2026</span><span>07/2026</span></div>
+  <p class="note">Lớp kiểm tra tự phát hiện điểm sụt ~35% từ 23/05/2025 → phân tích chỉ dùng dữ liệu tới 22/05/2025.</p>
+</section>
+
+<section class="slide">
+  <div class="tag">Xác định repo AI</div>
+  <h2>Repo nào là "AI"?</h2>
+  <ul>
+    <li>Khớp tên, topic GitHub (<span class="mute">llm, machine-learning, mcp…</span>) hoặc mô tả</li>
+    <li>Topic và mô tả lấy qua GitHub GraphQL, 100 repo mỗi lần gọi</li>
+    <li>2025: 4.033 repo AI · 2023–2024: 8.313 repo (đã gộp repo đổi tên)</li>
+    <li>Độ phủ 82–89% trên các danh sách chọn tay; kiểm tay 100 repo ngẫu nhiên: 8 sai</li>
+  </ul>
+  <p class="note">Chỉ khớp theo tên thì độ phủ chỉ 20–25%: topic và mô tả là cần thiết.</p>
+</section>
+
+<section class="slide">
+  <div class="tag">Phát hiện 2 · Star đột biến</div>
+  <h2>Phần lớn star tăng vọt đến từ người thật</h2>
+  <div class="grid" style="grid-template-columns:1fr 1fr">
+    <div class="card"><div class="n">1.513</div><p>ngày star đột biến ở 526 repo AI (01/03 → 22/05/2025)</p></div>
+    <div class="card"><div class="n">6–8%</div><p>tài khoản "mỏng" trong ngày đột biến, không cao hơn ngày thường (7–9%)</p></div>
+  </div>
+  <p class="note">Kiểm 9 bộ ngưỡng khác nhau. Đa số đột biến là ra mắt sản phẩm hoặc được chia sẻ rộng.</p>
+</section>
+
+<section class="slide">
+  <div class="tag">Phát hiện 3 · Ngoại lệ</div>
+  <h2>Hai repo cùng một tổ chức: star từ tài khoản mới tạo</h2>
+  <p class="mute" style="font-size:22px">Tỉ lệ tài khoản star được tạo dưới 30 ngày (GitHub API, mẫu 21–24 tài khoản/nhóm)</p>
+  <div style="margin-top:18px">
+    <div class="hb"><span>Repo X, 14–15/04/2025</span><div class="t"><i class="w" style="width:95%"></i></div><span class="v">20/21</span></div>
+    <div class="hb"><span>Repo X2, 14–15/04/2025</span><div class="t"><i class="w" style="width:92%"></i></div><span class="v">22/24</span></div>
+    <div class="hb"><span>Repo X, ngày thường</span><div class="t"><i style="width:0.5%"></i></div><span class="v">0/23</span></div>
+    <div class="hb"><span>Repo đối chứng (ra mắt thật)</span><div class="t"><i class="g" style="width:0.5%"></i></div><span class="v">0/22</span></div>
+  </div>
+  <p class="note">Tên repo được ẩn: bằng chứng là mẫu nhỏ, và không cho biết ai đứng sau.</p>
+</section>
+
+<section class="slide">
+  <div class="tag">Phát hiện 4 · Người đóng góp mới</div>
+  <h2>Người mới ít khi ở lại</h2>
+  <p class="mute" style="font-size:22px">Tỉ lệ người mới còn hoạt động (143.991 người, 2025)</p>
+  <div style="margin-top:18px">
+    <div class="hb"><span>Sau 1 tuần</span><div class="t"><i style="width:16.7%"></i></div><span class="v">16,7%</span></div>
+    <div class="hb"><span>Sau 8 tuần</span><div class="t"><i style="width:7.2%"></i></div><span class="v">7,2%</span></div>
+    <div class="hb"><span>8 tuần, bắt đầu bằng code</span><div class="t"><i class="g" style="width:14.9%"></i></div><span class="v">14,9%</span></div>
+    <div class="hb"><span>8 tuần, chỉ issue/bình luận</span><div class="t"><i class="w" style="width:5.6%"></i></div><span class="v">5,6%</span></div>
+  </div>
+  <p class="note">Người bắt đầu bằng push/PR ở lại nhiều gần gấp ba người chỉ bình luận.</p>
+</section>
+
+<section class="slide">
+  <div class="tag">Phát hiện 5 · Nhìn lại 2023–2024</div>
+  <h2>Phần star dành cho AI: vọt lên rồi đi ngang</h2>
+  <p class="mute" style="font-size:22px">% star thuộc repo AI theo quý (mẫu 3 ngày/tháng)</p>
+  <div class="cols" style="height:260px">
+    <div class="col"><b>8,1</b><i style="height:113px"></i></div>
+    <div class="col"><b>14,8</b><i class="w" style="height:207px"></i></div>
+    <div class="col"><b>11,9</b><i style="height:167px"></i></div>
+    <div class="col"><b>12,5</b><i style="height:175px"></i></div>
+    <div class="col"><b>11,5</b><i style="height:161px"></i></div>
+    <div class="col"><b>12,3</b><i style="height:172px"></i></div>
+    <div class="col"><b>11,5</b><i style="height:161px"></i></div>
+    <div class="col"><b>11,7</b><i style="height:164px"></i></div>
+  </div>
+  <div class="xl"><span>23-Q1</span><span>23-Q2</span><span>23-Q3</span><span>23-Q4</span><span>24-Q1</span><span>24-Q2</span><span>24-Q3</span><span>24-Q4</span></div>
+  <p class="note">Bản đầu (tập repo dựng từ 2025) cho đường tăng đều 4,3% → 9,2%: phần lớn là thiên lệch người sống sót.</p>
+</section>
+
+<section class="slide">
+  <div class="tag">Phát hiện 6 · Làn sóng</div>
+  <h2>Làn sóng AI qua nhanh</h2>
+  <p class="mute" style="font-size:22px">Star mỗi ngày mẫu: quý đỉnh 2023 → trung bình nửa cuối 2024</p>
+  <div style="margin-top:18px">
+    <div class="hb"><span>AutoGPT</span><div class="t"><i class="w" style="width:100%"></i></div><span class="v">1.649</span></div>
+    <div class="hb"><span class="mute">… nửa cuối 2024</span><div class="t"><i style="width:3%"></i></div><span class="v">49</span></div>
+    <div class="hb"><span>gpt-engineer</span><div class="t"><i class="w" style="width:48.7%"></i></div><span class="v">803</span></div>
+    <div class="hb"><span class="mute">… nửa cuối 2024</span><div class="t"><i style="width:0.7%"></i></div><span class="v">11</span></div>
+  </div>
+  <p class="note">200/215 repo có đỉnh ≥50 star/ngày ở 2023 còn dưới nửa đỉnh sau 1,5 năm (93%).</p>
+</section>
+
+<section class="slide">
+  <div class="tag">Giới hạn và xem thêm</div>
+  <h2>Kết quả mang tính khám phá</h2>
+  <ul>
+    <li>Mẫu 2023–2024 chỉ 3 ngày mỗi tháng; nguồn mất dữ liệu sau 05/2025</li>
+    <li>Cách xác định repo AI còn thô; ngưỡng do tác giả chọn</li>
+    <li>Star bất thường chỉ là tín hiệu nghi ngờ, không kết luận ai đứng sau</li>
+  </ul>
+  <p style="margin-top:34px; font-size:28px"><span class="mute">Dashboard, tài liệu dbt, bài viết:</span><br>
+    <b style="color:var(--acc)">github.com/dtkhang05/gh-ai-radar</b></p>
+</section>
+
+<div class="foot"><span>Radar hệ sinh thái AI mã nguồn mở</span><span id="num"></span></div>
+<div class="bar"><i id="prog"></i></div>
+<script>
+  const slides = document.querySelectorAll(".slide");
+  const s = Math.min(Math.max(parseInt(new URLSearchParams(location.search).get("s") || "1", 10), 1), slides.length);
+  slides[s - 1].classList.add("on");
+  document.getElementById("num").textContent = s + " / " + slides.length;
+  document.getElementById("prog").style.width = (100 * s / slides.length) + "%";
+</script>
+</body>
+</html>
